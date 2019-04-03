@@ -2,8 +2,12 @@
 //
 
 #include <iostream>
+#include <typeinfo>
+#include <vector>
+#include "lexer.h"
+#include "exceptions.h"
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+
 }
