@@ -95,7 +95,7 @@ namespace basic_interpret_tests
 			Assert::AreEqual(50.86, std::stod(t.GetContent()));
 		}
 
-		TEST_METHOD(RealToken_ComplexTest_CorrectInput)
+		TEST_METHOD(ComplexTest_CorrectInput)
 		{
 			std::string code = "PRINT X,Y,Z,A$\n100 PRINT\"THE VALUE OF X IS \";X";
 			std::vector<TType> types;
@@ -122,7 +122,7 @@ namespace basic_interpret_tests
 			Assert::IsTrue(types[12] == TType::Variable);
 		}
 
-		TEST_METHOD(RealToken_ComplexTest_UnknownCharacter)
+		TEST_METHOD(ComplexTest_UnknownCharacter)
 		{
 			std::string code = "PRINT X,Y,Z,A$\n100 PRINT\"THE VALUE OF X IS \";X????";
 			std::vector<TType> types;
@@ -144,7 +144,7 @@ namespace basic_interpret_tests
 			
 		}
 
-		TEST_METHOD(RealToken_ComplexTest_NewlineInString)
+		TEST_METHOD(ComplexTest_NewlineInString)
 		{
 			std::string code = "PRINT X,Y,Z,A$\n100 PRINT\"THE VALUE \nOF X IS \";X";
 			std::vector<TType> types;
@@ -166,7 +166,7 @@ namespace basic_interpret_tests
 
 		}
 
-		TEST_METHOD(RealToken_ComplexTest_StringNotTerminated)
+		TEST_METHOD(ComplexTest_StringNotTerminated)
 		{
 			std::string code = "PRINT X,Y,Z,A$\n100 PRINT\"THE VALUE OF X IS ;X";
 			std::vector<TType> types;
