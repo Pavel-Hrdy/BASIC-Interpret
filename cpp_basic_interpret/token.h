@@ -1,5 +1,5 @@
 /***************************
-Lexical tokens definitons
+Lexical tokens declarations
 Pavel Hrdý
 ****************************/
 

@@ -1,3 +1,9 @@
+/*******************************
+	Exceptions implementation
+	Pavel Hrdý
+*******************************/
+
+
 #include "exceptions.h"
 #include <string>
 
