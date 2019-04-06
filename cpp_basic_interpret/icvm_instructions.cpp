@@ -257,6 +257,7 @@ void MulReal::Execute(const std::string & arg)
 	icvm->AddStackItem(newItem);
 }
 
+//Relational operators for integers
 void LessInt::Execute(const std::string & arg)
 {
 	ICVM * icvm = ICVM::GetInstance();
@@ -329,6 +330,7 @@ void NotEqInt::Execute(const std::string & arg)
 	icvm->AddStackItem(newItem);
 }
 
+//Relational operators for real numbers
 void LessReal::Execute(const std::string & arg)
 {
 	ICVM * icvm = ICVM::GetInstance();
@@ -401,6 +403,7 @@ void NotEqReal::Execute(const std::string & arg)
 	icvm->AddStackItem(newItem);
 }
 
+//Relational operators for strings
 void LessString::Execute(const std::string & arg)
 {
 	ICVM * icvm = ICVM::GetInstance();

@@ -53,6 +53,7 @@ TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack()
 	return (TypeOfVariable)stack.top().GetType();
 }
 
+//Updates value of a variable in map
 void ICVM::UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType)
 {
 	auto it = variables.find(nameOfVar);
@@ -62,6 +63,7 @@ void ICVM::UpdateVariable(const std::string & nameOfVar, const std::string & new
 	}
 }
 
+//Adds new variable to map
 void ICVM::AddVariable(const std::string & nameOfVar, TypeOfVariable type)
 {
 	auto it = variables.find(nameOfVar);
