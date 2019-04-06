@@ -19,13 +19,43 @@ const char * UnknownCharacterException::what() const noexcept
 	return x.c_str();
 }
 
-const char * StringNotTerminated::what() const noexcept
+const char * StringNotTerminatedException::what() const noexcept
 {
 	std::string x = "[Lexer Error] Line " + std::to_string(lineNumber) + ": String is not terminated";
 	return x.c_str();
 }
 
-InterpreterException::InterpreterException(int line)
+LexerException::LexerException(int line)
 {
 	lineNumber = line;
+}
+
+const char * VariableNotFoundException::what() const noexcept
+{
+	return "[ICVM Error] Variable wasn't found in the map";
+}
+
+const char * UnknownTypeOfConstantException::what() const noexcept
+{
+	return "[ICVM Error] Unknown type of constant";
+}
+
+const char * TypeMismatchException::what() const noexcept
+{
+	return "[ICVM Error] Expected different type on top of the stack";
+}
+
+const char * EmptyStackException::what() const noexcept
+{
+	return "[ICVM Error] Stack is empty";
+}
+
+const char * DivideByZeroException::what() const noexcept
+{
+	return "[ICVM Error] Divide by zero";
+}
+
+const char * CodeToInstructionTranslationException::what() const noexcept
+{
+	return "[ICVM Error] Code line number wasn't found";
 }

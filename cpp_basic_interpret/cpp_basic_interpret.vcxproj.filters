@@ -30,6 +30,9 @@
     <ClCompile Include="icvm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="icvm_instructions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexer.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="icvm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="icvm_instructions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

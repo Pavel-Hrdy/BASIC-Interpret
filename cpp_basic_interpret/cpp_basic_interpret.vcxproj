@@ -154,12 +154,14 @@
     <ClCompile Include="cpp_basic_interpret.cpp" />
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="icvm.cpp" />
+    <ClCompile Include="icvm_instructions.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exceptions.h" />
     <ClInclude Include="icvm.h" />
+    <ClInclude Include="icvm_instructions.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="token.h" />
   </ItemGroup>

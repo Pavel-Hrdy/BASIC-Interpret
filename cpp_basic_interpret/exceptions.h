@@ -7,31 +7,65 @@
 #define EXCEPTIONS_H
 #include <exception>
 
-class InterpreterException : public std::exception
+class ICVMException : public std::exception {
+public:
+	virtual const char* what() const noexcept = 0;
+};
+
+class VariableNotFoundException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class UnknownTypeOfConstantException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class TypeMismatchException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class EmptyStackException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class DivideByZeroException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class CodeToInstructionTranslationException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class LexerException : public std::exception
 {
-	
 public:
 	int lineNumber;
 	virtual const char* what() const noexcept = 0;
-	InterpreterException(int line);
+	LexerException(int line);
 };
 
-class NewlineInStringException : public InterpreterException {
+class NewlineInStringException : public LexerException {
 public:
 	virtual const char* what() const noexcept;
-	NewlineInStringException(int line) :InterpreterException(line) {}
+	NewlineInStringException(int line) :LexerException(line) {}
 };
 
-class UnknownCharacterException : public InterpreterException {
+class UnknownCharacterException : public LexerException {
 public:
 	virtual const char* what() const noexcept;
-	UnknownCharacterException(int line) :InterpreterException(line) {}
+	UnknownCharacterException(int line) :LexerException(line) {}
 };
 
-class StringNotTerminated : public InterpreterException {
+class StringNotTerminatedException : public LexerException {
 public:
 	virtual const char* what() const noexcept;
-	StringNotTerminated(int line) :InterpreterException(line) {}
+	StringNotTerminatedException(int line) :LexerException(line) {}
 };
 #endif
 
