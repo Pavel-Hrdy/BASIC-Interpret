@@ -434,9 +434,10 @@ TType Semicolon_T::Type()
 	return TType::Semicolon;
 }
 
-Token::Token(std::unique_ptr<TokenType> _token, const std::string & _content) {
+Token::Token(std::unique_ptr<TokenType> _token, const std::string & _content, uint32_t _lineNumber) {
 	token = std::move(_token);
 	content = _content;
+	lineNumber = _lineNumber;
 }
 
 TokenType * Token::GetTokenType() {

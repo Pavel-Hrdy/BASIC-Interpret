@@ -71,7 +71,7 @@ std::string Lexer::ReadString() {
 			break;
 		}
 	}
-	if (!hasStringEnd) throw StringNotTerminated(lineNumber);
+	if (!hasStringEnd) throw StringNotTerminatedException(lineNumber);
 	return buffer;
 }
 
@@ -307,14 +307,14 @@ Token Lexer::GetNextToken() {
 		if (currentChar == 0) {
 			EndOfCode_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<EndOfCode_T>(x);
-			return Token(std::move(y), "");
+			return Token(std::move(y), "", lineNumber);
 		}
 
 		//Is alphanumeric -> token is identifier 
 		if (isalpha(currentChar)) {
 			content = ReadIdentifier();
 			std::unique_ptr<TokenType> y = DetermineTypeOfIdentifier(content);
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		//Is a digit -> token is a number
 		else if (isdigit(currentChar)) {
@@ -330,7 +330,7 @@ Token Lexer::GetNextToken() {
 				y = std::make_unique<Int_T>(x);
 			}
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		//Is a " -> token is a string
 		else if (currentChar == '"') {
@@ -338,77 +338,77 @@ Token Lexer::GetNextToken() {
 			String_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<String_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '(') {
 			Read();
 			LeftPar_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<LeftPar_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == ')') {
 			Read();
 			RightPar_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<RightPar_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == ':') {
 			Read();
 			Colon_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<Colon_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == ',') {
 			Read();
 			Comma_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<Comma_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == ';') {
 			Read();
 			Semicolon_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<Semicolon_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '+') {
 			Read();
 			PlusMinusOp_T x(SignAddType::Add);
 			std::unique_ptr<TokenType> y = std::make_unique<PlusMinusOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '-') {
 			Read();
 			PlusMinusOp_T x(SignAddType::Sub);
 			std::unique_ptr<TokenType> y = std::make_unique<PlusMinusOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '*') {
 			Read();
 			MulDivOp_T x(MulType::Mul);
 			std::unique_ptr<TokenType> y = std::make_unique<MulDivOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '/') {
 			Read();
 			MulDivOp_T x(MulType::Div);
 			std::unique_ptr<TokenType> y = std::make_unique<MulDivOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '^') {
 			Read();
 			ExpOp_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<ExpOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '<') {
 			Read();
@@ -428,7 +428,7 @@ Token Lexer::GetNextToken() {
 				y = std::make_unique<RelOp_T>(x);
 			}
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '>') {
 			Read();
@@ -443,14 +443,14 @@ Token Lexer::GetNextToken() {
 				y = std::make_unique<RelOp_T>(x);
 			}
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '=') {
 			Read();
 			RelOp_T x(RelType::Eq);
 			std::unique_ptr<TokenType> y = std::make_unique<RelOp_T>(x);
 
-			return Token(std::move(y), content);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '\n') {
 			lineNumber+=10;
@@ -465,5 +465,5 @@ Token Lexer::GetNextToken() {
 	}
 	//These lines are here to suppress warning
 	std::unique_ptr<TokenType> x;
-	return Token(std::move(x), "");
+	return Token(std::move(x), "", lineNumber);
 }

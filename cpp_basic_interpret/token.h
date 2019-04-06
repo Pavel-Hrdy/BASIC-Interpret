@@ -300,8 +300,9 @@ struct Token {
 private:
 	std::unique_ptr<TokenType> token;
 	std::string content;
+	uint32_t lineNumber;
 public:
-	Token(std::unique_ptr<TokenType> _token, const std::string & _content);
+	Token(std::unique_ptr<TokenType> _token, const std::string & _content, uint32_t _lineNumber);
 	TokenType * GetTokenType();
 	std::string GetContent();
 };
