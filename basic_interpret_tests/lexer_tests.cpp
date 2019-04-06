@@ -179,7 +179,7 @@ namespace basic_interpret_tests
 					types.push_back(t.GetTokenType()->Type());
 				}
 			}
-			catch (StringNotTerminated) {
+			catch (StringNotTerminatedException) {
 				Assert::IsTrue(true);
 			}
 			catch (std::exception) {
