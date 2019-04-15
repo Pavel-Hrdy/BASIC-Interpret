@@ -47,7 +47,7 @@ StackItem ICVM::PopItem()
 	return item;
 }
 
-TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack()
+TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack() const
 {
 	if (stack.size() == 0) throw EmptyStackException();
 	return (TypeOfVariable)stack.top().GetType();
@@ -68,7 +68,7 @@ void ICVM::AddVariable(const std::string & nameOfVar, TypeOfVariable type)
 {
 	auto it = variables.find(nameOfVar);
 	if (it == variables.end()) {
-		variables.emplace(nameOfVar,"");
+		variables.emplace(nameOfVar, "");
 		variablesTypes.emplace(nameOfVar, type);
 	}
 }
@@ -82,5 +82,20 @@ void ICVM::ChangeIP(uint32_t newIP)
 	}
 	else {
 		throw CodeToInstructionTranslationException();
+	}
+}
+
+//Adds new instruction to ICVM
+void ICVM::AddInstruction(std::unique_ptr<Instruction> instr)
+{
+	instructions.push_back(std::move(instr));
+}
+
+void ICVM::ExecuteInstruction()
+{
+	if (instructions.size() > 0) {
+		Instruction * instr = instructions[instructions.size() - 1].get();
+		instr->Execute();
+		instructions.pop_back();
 	}
 }

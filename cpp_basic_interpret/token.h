@@ -7,10 +7,13 @@ Pavel Hrdý
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <memory>
+#include <string>
+
 enum class RelType { Less, LessEq, Greater, GreaterEq, Eq, NotEq };
 enum class SignAddType { Add, Sub };
 enum class MulType { Mul, Div };
-enum class TType{Comma,Semicolon,On,For,Gosub,Goto,If,Next,Real,ExpOp,NotOp,AndOp,OrOp,Sin_F,Str_F,Trap_F,Val_F,Int,Return_F,Rnd_F,Sgn_F,Sqr_F,Pop_F,Print_F,Rad_F,Read_F,Restore_F,Len_F,Let_F,Log_F,Dim_F,End_F,Exp_F,Input_F,Int_F,Clr_F,Cos_F,Data_F,Deg_F,Asc_F,Atn_F,Chr_F,Clog_F,MulDivOp,PlusMinusOp,RelOp,Abs_F,To,Then,Step,Return,Rem,Variable,StringVariable,EndOfCode,LeftPar,RightPar,Colon,String,};
+enum class TType{Comma,Semicolon,On,For,Gosub,Goto,If,Next,Real,ExpOp,NotOp,AndOp,OrOp,Sin_F,Str_F,Trap_F,Val_F,Int,Return_F,Rnd_F,Sgn_F,Sqr_F,Pop_F,Print_F,Rad_F,Read_F,Restore_F,Len_F,Let_F,Log_F,Dim_F,End_F,Exp_F,Input_F,Int_F,Clr_F,Cos_F,Data_F,Deg_F,Asc_F,Atn_F,Chr_F,Clog_F,MulDivOp,PlusMinusOp,RelOp,Abs_F,To,Then,Step,Return,Rem,Variable,StringVariable,EndOfCode,LeftPar,RightPar,Colon,String,NewLine};
 
 class TokenType {
 public:
@@ -28,6 +31,11 @@ class StringVariable_T :public Variable_T {
 class EndOfCode_T : public TokenType {
 	virtual TType Type() override;
 };
+
+class NewLine_T : public TokenType {
+	virtual TType Type() override;
+};
+
 
 class Comma_T : public TokenType {
 	virtual TType Type() override;
@@ -302,9 +310,11 @@ private:
 	std::string content;
 	uint32_t lineNumber;
 public:
+	Token(){}
 	Token(std::unique_ptr<TokenType> _token, const std::string & _content, uint32_t _lineNumber);
 	TokenType * GetTokenType();
 	std::string GetContent();
+	uint32_t GetLineNumber();
 };
 
 

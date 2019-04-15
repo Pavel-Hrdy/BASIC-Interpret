@@ -296,6 +296,31 @@ Lexer::Lexer(const std::string & input) {
 	text = input;
 }
 
+Token Lexer::GetToken()
+{
+	Token t = GetNextToken();
+	if (newlineFlag) {
+		if ((t.GetTokenType()->Type() == TType::Int)) { //Next token has to be line number
+			newlineFlag = false;
+			if ((std::stoi(t.GetContent()) == lineNumber)) {
+				return t;
+			}
+			else {
+				throw WrongLineNumberException(t.GetLineNumber());
+			}
+		}
+		else if ((t.GetTokenType()->Type() == TType::NewLine)) {
+			return t;
+		}
+		else {
+			throw LineNumberNotFoundException(t.GetLineNumber());
+		}
+	}
+	else {
+		return t;
+	}
+}
+
 
 //Gets next token from code
 Token Lexer::GetNextToken() {
@@ -316,6 +341,7 @@ Token Lexer::GetNextToken() {
 			std::unique_ptr<TokenType> y = DetermineTypeOfIdentifier(content);
 			return Token(std::move(y), content, lineNumber);
 		}
+
 		//Is a digit -> token is a number
 		else if (isdigit(currentChar)) {
 			bool isReal;
@@ -454,7 +480,12 @@ Token Lexer::GetNextToken() {
 		}
 		else if (currentChar == '\n') {
 			lineNumber+=10;
+			newlineFlag = true;
 			Read();
+
+			NewLine_T x;
+			std::unique_ptr<TokenType> y = std::make_unique<NewLine_T>(x);
+			return Token(std::move(y), content, lineNumber);
 		}
 		else if (isspace(currentChar)) {
 			Read();
@@ -466,4 +497,5 @@ Token Lexer::GetNextToken() {
 	//These lines are here to suppress warning
 	std::unique_ptr<TokenType> x;
 	return Token(std::move(x), "", lineNumber);
+	//-----------------------------------------
 }

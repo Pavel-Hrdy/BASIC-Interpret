@@ -15,7 +15,7 @@ Instrukce stroje:
 8) or - DONE
 9) souèet, dìlení, souèin, rozdíl pro inty, realy - DONE
 10) porovnání ==, =>, =< apod. na int, realy, stringy - DONE
-11) slouèení øetìzcù - 
+11) slouèení øetìzcù -
 12) znièení záznamu na vrcholu - DONE
 13) save(jméno promìnné) - uloží vrchol zásobníku do promìnné - DONE
 14) jump, jumpif - DONE
@@ -24,7 +24,7 @@ Instrukce stroje:
 17) práce se stringem - splitting
 
 Princip fungování - ICVM bude obsahovat stack a pak seznam instrukcí, které bude sekvenènì vykonávat.
-Bude potøeba i mapování z èíslování øádkù v kódu do èislování intermediate kódu. 
+Bude potøeba i mapování z èíslování øádkù v kódu do èislování intermediate kódu.
 Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 */
 
@@ -37,8 +37,8 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 #include <memory>
 #include "icvm_instructions.h"
 
-enum class ItemType{Int,Real,String,Address};
-enum class TypeOfVariable{Int, Real, String,Address,Error};
+enum class ItemType { Int, Real, String, Address };
+enum class TypeOfVariable { Int, Real, String, Address, Error };
 
 class StackItem {
 private:
@@ -49,11 +49,11 @@ public:
 		type = _type;
 		content = _content;
 	}
-	StackItem(){}
-	ItemType GetType() {
+	StackItem() {}
+	ItemType GetType() const {
 		return type;
 	}
-	std::string GetContent() {
+	std::string GetContent() const {
 		return content;
 	}
 };
@@ -63,7 +63,7 @@ public:
 class ICVM {
 private:
 	static ICVM *instance;
-	ICVM(){}
+	ICVM() {}
 	std::stack<StackItem> stack;
 	std::map<std::string, std::string> variables;
 	std::map<std::string, TypeOfVariable> variablesTypes;
@@ -72,14 +72,18 @@ private:
 	uint32_t instructionPointer;
 public:
 	ICVM(ICVM const&) = delete;
-	void operator=(ICVM const&)=delete;
+	void operator=(ICVM const&) = delete;
 
 	static ICVM * GetInstance() {
 		if (!instance) {
 			instance = new ICVM;
-			return instance;
 		}
-		else return instance;
+		return instance;
+	}
+
+	void Reset() {
+		if (instance) delete instance;
+		instance = new ICVM;
 	}
 
 	std::string ReturnValueOfVariable(const std::string & nameOfVariable, bool & doesExist) const;
@@ -87,10 +91,12 @@ public:
 	void AddStackItem(const StackItem item);
 	StackItem PopItem(ItemType type);
 	StackItem PopItem();
-	TypeOfVariable ReturnTypeOfVarOnTopofStack();
+	TypeOfVariable ReturnTypeOfVarOnTopofStack() const;
 	void UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType);
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
 	void ChangeIP(uint32_t newIP);
+	void AddInstruction(std::unique_ptr<Instruction> instr);
+	void ExecuteInstruction();
 };
 
 

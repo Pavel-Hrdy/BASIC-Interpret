@@ -409,6 +409,11 @@ TType Return_T::Type()
 	return TType::Return;
 }
 
+TType NewLine_T::Type()
+{
+	return TType::NewLine;
+}
+
 TType Step_T::Type()
 {
 	return TType::Step;
@@ -449,4 +454,8 @@ std::string Token::GetContent()
 	return content;
 }
 
+uint32_t Token::GetLineNumber()
+{
+	return lineNumber;
+}
 

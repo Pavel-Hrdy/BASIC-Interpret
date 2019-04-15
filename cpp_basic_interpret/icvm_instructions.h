@@ -4,171 +4,217 @@
 #include <iostream>
 
 class Instruction {
-	virtual void Execute(const std::string & arg) = 0;
+public:
+	virtual void Execute() = 0;
+	std::string argument;
+
+	Instruction(){}
+	Instruction(const std::string & arg) { argument = arg; }
 };
 
 class LoadVariable :public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class LoadConstant : public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class SaveToVariable :public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class IntToReal : public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class RealToInt : public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class UnaryMinusReal : public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class UnaryMinusInt : public Instruction {
-	virtual void Execute(const std::string & arg) override;
+public:
+	virtual void Execute() override;
 };
 
 class Not : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class And : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Or : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class AddInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class SubInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class DivInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class MulInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class AddReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class SubReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class DivReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class MulReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessEqInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterEqInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class EqInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class NotEqInt : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessEqReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterEqReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class EqReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class NotEqReal : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class LessEqString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class GreaterEqString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class EqString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class NotEqString : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Jump : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Jumpif : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Pop : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Print : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 class Read : public Instruction {
-	virtual void Execute(const std::string & arg)override;
+public:
+	virtual void Execute()override;
 };
 
 #endif
