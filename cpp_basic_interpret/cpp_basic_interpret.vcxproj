@@ -156,6 +156,7 @@
     <ClCompile Include="icvm.cpp" />
     <ClCompile Include="icvm_instructions.cpp" />
     <ClCompile Include="lexer.cpp" />
+    <ClCompile Include="parser.cpp" />
     <ClCompile Include="token.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +164,7 @@
     <ClInclude Include="icvm.h" />
     <ClInclude Include="icvm_instructions.h" />
     <ClInclude Include="lexer.h" />
+    <ClInclude Include="parser.h" />
     <ClInclude Include="token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
