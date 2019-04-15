@@ -59,3 +59,21 @@ const char * CodeToInstructionTranslationException::what() const noexcept
 {
 	return "[ICVM Error] Code line number wasn't found";
 }
+
+const char * WrongLineNumberException::what() const noexcept
+{
+	std::string x = "[Lexer Error] Line " + std::to_string(lineNumber) + ": Wrong line number";
+	return x.c_str();
+}
+
+const char * LineNumberNotFoundException::what() const noexcept
+{
+	std::string x = "[Lexer Error] Line " + std::to_string(lineNumber) + ": Line number is missing";
+	return x.c_str();
+}
+
+const char * InvalidSyntaxException::what() const noexcept
+{
+	std::string x = "[Parser Error] Line " + std::to_string(lineNumber) + ": Invalid syntax";
+	return x.c_str();
+}
