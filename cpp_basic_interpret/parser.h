@@ -118,12 +118,17 @@ Whitespace     = {WS}+
 class Parser {
 private:
 	Lexer lexer;
-	void Eat(TType type);
 	Token CurrentToken;
+
+
+	void Eat(TType type);
+	bool Parse_Lines();
+	bool Parse_Statements();
+	TType CurrentTokenType();
 public:
 	Parser(Lexer & l) {
 		lexer = l;
-		CurrentToken = l.GetToken();
+		CurrentToken = lexer.GetToken();
 	}
 	void Parse();
 };
