@@ -1,8 +1,5 @@
 /*
-Tokens: Comma,Semicolon,On,For,Gosub,Goto,If,Next,Real,ExpOp,NotOp,AndOp,OrOp,Sin_F,Str_F,Trap_F,Val_F,Int,Return_F,
-Rnd_F,Sgn_F,Sqr_F,Pop_F,Print_F,Rad_F,Read_F,Restore_F,Len_F,Let_F,Log_F,Dim_F,End_F,Exp_F,Input_F,Int_F,Clr_F,Cos_F,
-Data_F,Deg_F,Asc_F,Atn_F,Chr_F,Clog_F,MulDivOp,PlusMinusOp,RelOp,Abs_F,To,Then,Step,Return,Rem,Variable,
-StringVariable,EndOfCode,LeftPar,RightPar,Colon,String, NewLine
+Tokens:
 GRAMMAR:
 "Case Sensitive" = False
 "Start Symbol"   = <Lines>
@@ -27,23 +24,26 @@ Whitespace     = {WS}+
 <Statement>   ::=
 				| DATA <Constant List>
 				| DIM ID '(' <Integer List> ')'
+				| <Function> '(' <Expression> ')'
 				| END
 				| FOR ID '=' <Expression> TO <Expression>
 				| FOR ID '=' <Expression> TO <Expression> STEP Integer
 				| GOTO <Expression>
 				| GOSUB <Expression>
-				| IF <Expression> THEN <Statement>
+				| ON <Expression> GOTO <Value List>
+				| ON <Expression> GOSUB <Value List>
+				| POP
+				| RESTORE <Expression>
+				| RESTORE
+				| IF <Expression> THEN <Statements>
 				| INPUT <ID List>
-				| INPUT '#' Integer ',' <ID List>
 				| LET ID '=' <Expression>
 				| ID '=' <Expression>
-				| NEXT <ID List>
+				| NEXT ID
 				| POKE <Value List>
 				| PRINT <Print list>
-				| PRINT '#' Integer ',' <Print List>
 				| READ <ID List>
 				| RETURN
-				| RESTORE
 				| RUN
 				| STOP
 				| Remark
@@ -99,6 +99,7 @@ Whitespace     = {WS}+
 				| <Value>
 
 <Value>       ::= '(' <Expression> ')'
+				| <Expression>
 				| ID
 				| ID '(' <Expression List> ')'
 				| <Constant>
@@ -114,16 +115,29 @@ Whitespace     = {WS}+
 #define PARSER_H
 
 #include "lexer.h"
+#include "icvm.h"
 
 class Parser {
 private:
 	Lexer lexer;
 	Token CurrentToken;
 
-
 	void Eat(TType type);
 	bool Parse_Lines();
 	bool Parse_Statements();
+	bool Parse_Statement();
+
+
+	bool Parse_ID();
+	bool Parse_IntegerList();
+	bool Parse_Expression();
+	bool Parse_Functions();
+	bool Parse_ConstantList();
+	bool Parse_ValueList();
+	bool Parse_IDList();
+	bool Parse_PrintList();
+	bool Parse_Remark();
+
 	TType CurrentTokenType();
 public:
 	Parser(Lexer & l) {

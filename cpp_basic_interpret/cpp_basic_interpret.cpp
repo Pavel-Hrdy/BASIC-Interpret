@@ -12,13 +12,9 @@
 int main()
 {
 	
-		std::string code = "10 PRINT X,Y,Z,A$\n20 100 PRINT\"THE VALUE OF X IS \";X";
+		std::string code = "10 PRINT X,Y,Z,A$\n20 100 PRINT\"THE VALUE OF X IS\"";
 		std::vector<TType> types;
 		Lexer l(code);
-
-		while (true) {
-			Token t = l.GetToken();
-			if (t.GetTokenType()->Type() == TType::EndOfCode) break;
-			types.push_back(t.GetTokenType()->Type());
-		}
+		Parser p(l);
+		p.Parse();
 }
