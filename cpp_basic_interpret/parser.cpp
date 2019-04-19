@@ -298,7 +298,7 @@ bool Parser::Parse_Statement()
 	}
 	//Remark
 	else if (Parse_Remark()) {
-		
+
 		/*Semantic actions*/
 
 		return true;
@@ -351,10 +351,27 @@ bool Parser::Parse_IntegerList()
 
 	return false;
 }
-
+/*
+<Expression>  ::= <And Exp> OR <Expression>
+				| <And Exp>
+*/
 bool Parser::Parse_Expression()
 {
-	return false;
+	if (!Parse_AndExp()) return false;
+
+	if (CurrentTokenType() == TType::OrOp) {
+		Eat(TType::OrOp);
+		if (!Parse_Expression()) return false;
+		/*Semantic actions*/
+
+
+		return true;
+	}
+	/*Semantic actions*/
+
+
+
+	return true;
 }
 
 bool Parser::Parse_Functions()
@@ -383,6 +400,11 @@ bool Parser::Parse_PrintList()
 }
 
 bool Parser::Parse_Remark()
+{
+	return false;
+}
+
+bool Parser::Parse_AndExp()
 {
 	return false;
 }

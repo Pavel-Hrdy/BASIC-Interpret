@@ -137,6 +137,7 @@ private:
 	bool Parse_IDList();
 	bool Parse_PrintList();
 	bool Parse_Remark();
+	bool Parse_AndExp();
 
 	TType CurrentTokenType();
 public:
