@@ -207,12 +207,12 @@ bool Parser::Parse_Statement()
 	//| IF <Expression> THEN <Statements>
 	else if (CurrentTokenType() == TType::If) {
 		Eat(TType::If);
-		if (!Parse_Expression) { return false; }
+		if (!Parse_Expression()) { return false; }
 
 		if (CurrentTokenType() != TType::Then) { return false; }
 		Eat(TType::Then);
 
-		if (!Parse_Statements) { return false; }
+		if (!Parse_Statements()) { return false; }
 		/*Semantic actions*/
 
 
