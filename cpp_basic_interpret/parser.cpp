@@ -80,48 +80,9 @@ bool Parser::Parse_Statements()
 | Remark*/
 bool Parser::Parse_Statement()
 {
-	//| DATA <Constant List>
-	if (CurrentTokenType() == TType::Data_F) {
-		Eat(TType::Data_F);
-		if (!Parse_ConstantList()) return false;
-		/*Semantic actions*/
-
-		return true;
-	}
-	//| DIM ID '(' <Integer List> ')'
-	else if (CurrentTokenType() == TType::Dim_F) {
-		Eat(TType::Dim_F);
-		if (!Parse_ID()) { return false; }
-		if (CurrentTokenType() != TType::LeftPar) { return false; }
-		Eat(TType::LeftPar);
-		if (!Parse_IntegerList()) { return false; }
-		if (CurrentTokenType() != TType::RightPar) { return false; }
-		Eat(TType::RightPar);
-		/*Semantic actions*/
-
-		return true;
-	}
-	//| <Function> '(' <Expression> ')'
-	else if (CurrentTokenType() == TType::Function) {
-		if (CurrentTokenType() != TType::LeftPar) { return false; }
-		Eat(TType::LeftPar);
-		if (!Parse_Expression()) { return false; }
-		if (CurrentTokenType() != TType::RightPar) { return false; }
-		Eat(TType::RightPar);
-		/*Semantic actions*/
-
-		return true;
-	}
-	//END 
-	else if (CurrentTokenType() == TType::End_F) {
-		Eat(TType::End_F);
-		/*Semantic actions*/
-
-		return true;
-	}
 	//| FOR ID '=' <Expression> TO <Expression>
 	//| FOR ID '=' <Expression> TO <Expression> STEP Integer
-	else if (CurrentTokenType() == TType::For) {
+	if (CurrentTokenType() == TType::For) {
 		if (!Parse_ID()) { return false; }
 		if (CurrentTokenType() != TType::RelOp) { return false; }
 		RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
@@ -183,27 +144,6 @@ bool Parser::Parse_Statement()
 
 		return true;
 	}
-	//| POP
-	else if (CurrentTokenType() == TType::Pop_F) {
-		Eat(TType::Pop_F);
-		/*Semantic actions*/
-
-		return true;
-	}
-	//| RESTORE <Expression>
-	//| RESTORE
-	else if (CurrentTokenType() == TType::Restore_F) {
-		Eat(TType::Restore_F);
-		if (Parse_Expression()) {
-			/*Semantic actions with expression*/
-		}
-		else {
-			/*Semantic actions without expression*/
-
-		}
-
-		return true;
-	}
 	//| IF <Expression> THEN <Statements>
 	else if (CurrentTokenType() == TType::If) {
 		Eat(TType::If);
@@ -213,33 +153,6 @@ bool Parser::Parse_Statement()
 		Eat(TType::Then);
 
 		if (!Parse_Statements()) { return false; }
-		/*Semantic actions*/
-
-
-		return true;
-	}
-	//| INPUT <ID List>
-	else if (CurrentTokenType() == TType::Input_F) {
-		Eat(TType::Input_F);
-
-		if (!Parse_IDList()) { return false; }
-
-		/*Semantic actions*/
-
-		return true;
-	}
-	//| LET ID '=' <Expression>
-	else if (CurrentTokenType() == TType::Let_F) {
-		Eat(TType::Let_F);
-		if (!Parse_ID()) { return false; }
-
-		if (CurrentTokenType() != TType::RelOp) { return false; }
-		RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
-		if (x->type != RelType::Eq) return false;
-		Eat(TType::RelOp);
-
-		if (!Parse_Expression()) { return false; }
-
 		/*Semantic actions*/
 
 
@@ -269,30 +182,119 @@ bool Parser::Parse_Statement()
 
 		return true;
 	}
-	//| PRINT <Print list>
-	else if (CurrentTokenType() == TType::Print_F) {
-		Eat(TType::Print_F);
-
-		if (!Parse_PrintList()) { return false; }
-
-		/*Semantic actions*/
-
-		return true;
-	}
-	//| READ <ID List>
-	else if (CurrentTokenType() == TType::Read_F) {
-		Eat(TType::Read_F);
-
-		if (!Parse_IDList()) { return false; }
-
-		return true;
-	}
 	//| RETURN
 	else if (CurrentTokenType() == TType::Return) {
 		Eat(TType::Return);
 
 		/*Semantic actions*/
 
+
+		return true;
+	}
+	//| <Function> '(' <Expression> ')'
+	else if (CurrentTokenType() == TType::Function) {
+		Function_T* x = dynamic_cast<Function_T*>(CurrentToken.GetTokenType());
+
+		//| DATA <Constant List>
+		if (x->FuncType() == FunctionType::Data) {
+			Eat(TType::Function);
+			if (!Parse_ConstantList()) return false;
+			/*Semantic actions*/
+
+			return true;
+		}	//| DIM ID '(' <Integer List> ')'
+		else if (x->FuncType() == FunctionType::Dim) {
+			Eat(TType::Function);
+			if (!Parse_ID()) { return false; }
+			if (CurrentTokenType() != TType::LeftPar) { return false; }
+			Eat(TType::LeftPar);
+			if (!Parse_IntegerList()) { return false; }
+			if (CurrentTokenType() != TType::RightPar) { return false; }
+			Eat(TType::RightPar);
+			/*Semantic actions*/
+
+			return true;
+		}
+		//| PRINT <Print list>
+		else if (x->FuncType() == FunctionType::Print) {
+			Eat(TType::Function);
+
+			if (!Parse_PrintList()) { return false; }
+
+			/*Semantic actions*/
+
+			return true;
+		}
+		//END 
+		else if (x->FuncType() == FunctionType::End) {
+			Eat(TType::Function);
+			/*Semantic actions*/
+
+			return true;
+		}	
+		//| READ <ID List>
+		else if (x->FuncType() == FunctionType::Read) {
+			Eat(TType::Function);
+
+			if (!Parse_IDList()) { return false; }
+
+			return true;
+		}
+		//| LET ID '=' <Expression>
+		else if (x->FuncType() == FunctionType::Let) {
+			Eat(TType::Function);
+			if (!Parse_ID()) { return false; }
+
+			if (CurrentTokenType() != TType::RelOp) { return false; }
+			RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
+			if (x->type != RelType::Eq) return false;
+			Eat(TType::RelOp);
+
+			if (!Parse_Expression()) { return false; }
+
+			/*Semantic actions*/
+
+
+			return true;
+		}	
+		//| INPUT <ID List>
+		else if (x->FuncType() == FunctionType::Input) {
+			Eat(TType::Function);
+
+			if (!Parse_IDList()) { return false; }
+
+			/*Semantic actions*/
+
+			return true;
+		}
+		//| POP
+		else if (x->FuncType() == FunctionType::Pop) {
+			Eat(TType::Function);
+			/*Semantic actions*/
+
+			return true;
+		}
+		//| RESTORE <Expression>
+		//| RESTORE
+		else if (x->FuncType() == FunctionType::Restore) {
+			Eat(TType::Function);
+			if (Parse_Expression()) {
+				/*Semantic actions with expression*/
+			}
+			else {
+				/*Semantic actions without expression*/
+
+			}
+
+			return true;
+		}
+
+		if (CurrentTokenType() != TType::LeftPar) { return false; }
+		Eat(TType::LeftPar);
+		if (!Parse_Expression()) { return false; }
+		if (CurrentTokenType() != TType::RightPar) { return false; }
+		Eat(TType::RightPar);
+		/*Semantic actions*/
 
 		return true;
 	}
@@ -630,9 +632,24 @@ bool Parser::Parse_PowerExp2() {
 
 	return true;
 }
+
+/*
+<Expression List> ::= <Expression> ',' <Expression List>
+					| <Expression>
+*/
 bool Parser::Parse_ExpressionList()
 {
-	return false;
+	if (!Parse_Expression()) return false;
+	if (CurrentTokenType() == TType::Comma) {
+		if (!Parse_ExpressionList()) return false;
+		/*Semantics actions*/
+
+		return true;
+	}
+	/*Semantics action*/
+
+
+	return true;
 }
 /*
 <Constant> ::= Int

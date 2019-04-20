@@ -11,13 +11,11 @@
 
 int main()
 {
-	/*
+	
 		std::string code = "10 PRINT X,Y,Z,A$\n20 100 PRINT\"THE VALUE OF X IS\"";
 		std::vector<TType> types;
 		Lexer l(code);
 		Parser p(l);
-		p.Parse();*/
-	Sqr_F_T t;
-	TType type = t.Type();
+		p.Parse();
 
 }
