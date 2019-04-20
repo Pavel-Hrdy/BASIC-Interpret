@@ -21,51 +21,63 @@ public:
 };
 
 class Variable_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class StringVariable_T :public Variable_T {
+public:
 	virtual TType Type() override;
 };
 
 class EndOfCode_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class NewLine_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 
 class Comma_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class LeftPar_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class RightPar_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Semicolon_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Colon_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class String_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Int_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Real_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
@@ -84,6 +96,7 @@ public:
 };
 
 class ExpOp_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
@@ -95,58 +108,72 @@ public:
 };
 
 class NotOp_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class AndOp_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class OrOp_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class For_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Gosub_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Goto_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class If_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Next_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class On_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Rem_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Return_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Step_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class Then_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
 class To_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
@@ -157,151 +184,175 @@ public:
 };
 
 class Abs_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Asc_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Atn_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Chr_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Clog_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Clr_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Cos_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Data_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Deg_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Dim_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class End_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Exp_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Input_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Int_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Len_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Let_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Log_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Pop_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Print_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Rad_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Read_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Restore_F_T : public Function_T {
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-};
-
-class Return_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Rnd_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Sgn_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Sin_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Sqr_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Str_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Trap_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };
 
 class Val_F_T : public Function_T {
+public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 };

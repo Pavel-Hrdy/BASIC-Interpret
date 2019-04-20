@@ -75,7 +75,7 @@ std::string Lexer::ReadString() {
 	return buffer;
 }
 
-std::string Lexer::ReadNumber(bool & isRealNumber) {
+std::string Lexer::ReadNumber(bool& isRealNumber) {
 	std::string buffer = "";
 	bool isReal = false;
 	buffer += Read(); //Char at current position is surely a digit.
@@ -96,7 +96,7 @@ std::string Lexer::ReadNumber(bool & isRealNumber) {
 	return buffer;
 }
 
-std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string & input) {
+std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& input) {
 	std::unique_ptr<TokenType> returnPointer;
 	std::string lowerString = input;
 	std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
@@ -247,8 +247,8 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string & 
 		returnPointer = std::make_unique<Restore_F_T>(x);
 	}
 	else if (lowerString == "return") {
-		Return_F_T x;
-		returnPointer = std::make_unique<Return_F_T>(x);
+		Return_T x;
+		returnPointer = std::make_unique<Return_T>(x);
 	}
 	else if (lowerString == "rnd") {
 		Rnd_F_T x;
@@ -292,7 +292,7 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string & 
 
 //Creates new lexer.
 //input - whole code
-Lexer::Lexer(const std::string & input) {
+Lexer::Lexer(const std::string& input) {
 	text = input;
 }
 
@@ -479,7 +479,7 @@ Token Lexer::GetNextToken() {
 			return Token(std::move(y), content, lineNumber);
 		}
 		else if (currentChar == '\n') {
-			lineNumber+=10;
+			lineNumber += 10;
 			newlineFlag = true;
 			Read();
 

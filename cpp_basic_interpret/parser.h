@@ -96,7 +96,12 @@ Whitespace     = {WS}+
 				| <Power Exp>
 
 <Power Exp>   ::= <Power Exp> '^' <Value>
-				| <Value>
+				| <Value> <Power Exp2>
+
+<Power Exp>	  ::= <Value> <Power Exp2>
+
+<Power Exp2>  ::= '^' <Value> <Power Exp2>
+				| 
 
 <Value>       ::= '(' <Expression> ')'
 				| <Expression>
@@ -131,13 +136,22 @@ private:
 	bool Parse_ID();
 	bool Parse_IntegerList();
 	bool Parse_Expression();
-	bool Parse_Functions();
 	bool Parse_ConstantList();
 	bool Parse_ValueList();
 	bool Parse_IDList();
 	bool Parse_PrintList();
 	bool Parse_Remark();
 	bool Parse_AndExp();
+	bool Parse_NotExp();
+	bool Parse_AddExp();
+	bool Parse_MultExp();
+	bool Parse_CompareExp();
+	bool Parse_NegateExp();
+	bool Parse_PowerExp();
+	bool Parse_PowerExp2();
+	bool Parse_ExpressionList();
+	bool Parse_Constant();
+	bool Parse_Value();
 
 	TType CurrentTokenType();
 public:
