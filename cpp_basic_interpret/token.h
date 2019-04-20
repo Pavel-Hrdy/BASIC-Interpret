@@ -13,7 +13,7 @@ Pavel Hrdý
 enum class RelType { Less, LessEq, Greater, GreaterEq, Eq, NotEq };
 enum class SignAddType { Add, Sub };
 enum class MulType { Mul, Div };
-enum class TType{Comma,Semicolon,On,For,Gosub,Goto,If,Next,Real,ExpOp,NotOp,AndOp,OrOp,Sin_F,Str_F,Trap_F,Val_F,Int,Return_F,Rnd_F,Sgn_F,Sqr_F,Pop_F,Print_F,Rad_F,Read_F,Restore_F,Len_F,Let_F,Log_F,Dim_F,End_F,Exp_F,Input_F,Int_F,Clr_F,Cos_F,Data_F,Deg_F,Asc_F,Atn_F,Chr_F,Clog_F,MulDivOp,PlusMinusOp,RelOp,Abs_F,To,Then,Step,Return,Rem,Variable,StringVariable,EndOfCode,LeftPar,RightPar,Colon,String,NewLine};
+enum class TType{Function,Comma,Semicolon,On,For,Gosub,Goto,If,Next,Real,ExpOp,NotOp,AndOp,OrOp,Sin_F,Str_F,Trap_F,Val_F,Int,Return_F,Rnd_F,Sgn_F,Sqr_F,Pop_F,Print_F,Rad_F,Read_F,Restore_F,Len_F,Let_F,Log_F,Dim_F,End_F,Exp_F,Input_F,Int_F,Clr_F,Cos_F,Data_F,Deg_F,Asc_F,Atn_F,Chr_F,Clog_F,MulDivOp,PlusMinusOp,RelOp,Abs_F,To,Then,Step,Return,Rem,Variable,StringVariable,EndOfCode,LeftPar,RightPar,Colon,String,NewLine};
 
 class TokenType {
 public:
@@ -151,7 +151,9 @@ class To_T : public TokenType {
 };
 
 class Function_T : public TokenType {
+public:
 	virtual void SemanticAction()=0;
+	virtual TType Type() { return TType::Function; }
 };
 
 class Abs_F_T : public Function_T {
