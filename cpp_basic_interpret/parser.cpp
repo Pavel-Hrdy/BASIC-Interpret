@@ -231,7 +231,7 @@ bool Parser::Parse_Statement()
 			/*Semantic actions*/
 
 			return true;
-		}	
+		}
 		//| READ <ID List>
 		else if (x->FuncType() == FunctionType::Read) {
 			Eat(TType::Function);
@@ -256,7 +256,7 @@ bool Parser::Parse_Statement()
 
 
 			return true;
-		}	
+		}
 		//| INPUT <ID List>
 		else if (x->FuncType() == FunctionType::Input) {
 			Eat(TType::Function);
@@ -435,6 +435,7 @@ bool Parser::Parse_IDList()
 }
 /*
 <Print List>      ::= <Expression> ';' <Print List>
+					| <Expression> ',' <Print List>
 					| <Expression>
 					|
 */
@@ -442,12 +443,20 @@ bool Parser::Parse_PrintList()
 {
 	if (Parse_Expression()) {
 		if (CurrentTokenType() == TType::Semicolon) {
-			if (Parse_PrintList()) return false;
+			Eat(TType::Semicolon);
+			if (!Parse_PrintList()) return false;
 
 			/*Semantic actions*/
 
 
 			return true;
+		}
+		else if (CurrentTokenType() == TType::Comma) {
+			Eat(TType::Comma);
+			if (!Parse_PrintList()) return false;
+
+			/*Semantic actions*/
+
 		}
 		/*Semantic actions*/
 
@@ -697,11 +706,6 @@ bool Parser::Parse_Value()
 
 		return true;
 	}
-	else if (Parse_Expression()) {
-		/*Semantic actions*/
-
-		return true;
-	}
 	else if (Parse_ID()) {
 		if (CurrentTokenType() == TType::LeftPar) {
 			Eat(TType::LeftPar);
@@ -722,7 +726,11 @@ bool Parser::Parse_Value()
 
 		return true;
 	}
+	else if (Parse_Expression()) {
+		/*Semantic actions*/
 
+		return true;
+	}
 	return true;
 }
 
