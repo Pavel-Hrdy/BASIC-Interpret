@@ -27,12 +27,12 @@ bool Parser::Parse_Lines()
 
 	if (CurrentTokenType() == TType::NewLine) {
 		Eat(TType::NewLine);
-		if (!Parse_Lines()) { return true; }
+		if (!Parse_Lines()) { return false; }
 	}
 	else if (CurrentTokenType() == TType::EndOfCode) return true;
 	else return false;
 
-	return true;
+	return false;
 }
 
 /*<Statements>  :: = <Statement> ':' <Statements>
