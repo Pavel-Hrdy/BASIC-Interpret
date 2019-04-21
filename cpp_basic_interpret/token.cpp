@@ -40,7 +40,7 @@ void Abs_F_T::SemanticAction() {
 
 TType Abs_F_T::Type()
 {
-	return TType::Abs_F;
+	return Function_T::Type();
 }
 
 void Asc_F_T::SemanticAction()
@@ -49,7 +49,7 @@ void Asc_F_T::SemanticAction()
 
 TType Asc_F_T::Type()
 {
-	return TType::Asc_F;
+	return Function_T::Type();
 }
 
 void Atn_F_T::SemanticAction()
@@ -58,7 +58,7 @@ void Atn_F_T::SemanticAction()
 
 TType Atn_F_T::Type()
 {
-	return TType::Atn_F;
+	return Function_T::Type();
 }
 
 void Chr_F_T::SemanticAction()
@@ -67,7 +67,7 @@ void Chr_F_T::SemanticAction()
 
 TType Chr_F_T::Type()
 {
-	return TType::Chr_F;
+	return Function_T::Type();
 }
 
 void Clog_F_T::SemanticAction()
@@ -76,7 +76,7 @@ void Clog_F_T::SemanticAction()
 
 TType Clog_F_T::Type()
 {
-	return TType::Clog_F;
+	return Function_T::Type();
 }
 
 void Clr_F_T::SemanticAction()
@@ -85,7 +85,7 @@ void Clr_F_T::SemanticAction()
 
 TType Clr_F_T::Type()
 {
-	return TType::Clr_F;
+	return Function_T::Type();
 }
 
 void Cos_F_T::SemanticAction()
@@ -94,7 +94,7 @@ void Cos_F_T::SemanticAction()
 
 TType Cos_F_T::Type()
 {
-	return TType::Cos_F;
+	return Function_T::Type();
 }
 
 void Data_F_T::SemanticAction()
@@ -103,7 +103,7 @@ void Data_F_T::SemanticAction()
 
 TType Data_F_T::Type()
 {
-	return TType::Data_F;
+	return Function_T::Type();
 }
 
 void Deg_F_T::SemanticAction()
@@ -112,7 +112,7 @@ void Deg_F_T::SemanticAction()
 
 TType Deg_F_T::Type()
 {
-	return TType::Deg_F;
+	return Function_T::Type();
 }
 
 void Dim_F_T::SemanticAction()
@@ -121,7 +121,7 @@ void Dim_F_T::SemanticAction()
 
 TType Dim_F_T::Type()
 {
-	return TType::Dim_F;
+	return Function_T::Type();
 }
 
 void End_F_T::SemanticAction()
@@ -130,7 +130,7 @@ void End_F_T::SemanticAction()
 
 TType End_F_T::Type()
 {
-	return TType::End_F;
+	return Function_T::Type();
 }
 
 void Exp_F_T::SemanticAction()
@@ -139,7 +139,7 @@ void Exp_F_T::SemanticAction()
 
 TType Exp_F_T::Type()
 {
-	return TType::Exp_F;
+	return Function_T::Type();
 }
 
 void Input_F_T::SemanticAction()
@@ -148,7 +148,7 @@ void Input_F_T::SemanticAction()
 
 TType Input_F_T::Type()
 {
-	return TType::Input_F;
+	return Function_T::Type();
 }
 
 void Int_F_T::SemanticAction()
@@ -157,7 +157,7 @@ void Int_F_T::SemanticAction()
 
 TType Int_F_T::Type()
 {
-	return TType::Int_F;
+	return Function_T::Type();
 }
 
 void Len_F_T::SemanticAction()
@@ -166,7 +166,7 @@ void Len_F_T::SemanticAction()
 
 TType Len_F_T::Type()
 {
-	return TType::Len_F;
+	return Function_T::Type();
 }
 
 void Let_F_T::SemanticAction()
@@ -175,7 +175,7 @@ void Let_F_T::SemanticAction()
 
 TType Let_F_T::Type()
 {
-	return TType::Let_F;
+	return Function_T::Type();
 }
 
 void Log_F_T::SemanticAction()
@@ -184,7 +184,7 @@ void Log_F_T::SemanticAction()
 
 TType Log_F_T::Type()
 {
-	return TType::Log_F;
+	return Function_T::Type();
 }
 
 void Pop_F_T::SemanticAction()
@@ -193,7 +193,7 @@ void Pop_F_T::SemanticAction()
 
 TType Pop_F_T::Type()
 {
-	return TType::Pop_F;
+	return Function_T::Type();
 }
 
 void Print_F_T::SemanticAction()
@@ -202,7 +202,7 @@ void Print_F_T::SemanticAction()
 
 TType Print_F_T::Type()
 {
-	return TType::Print_F;
+	return Function_T::Type();
 }
 
 void Rad_F_T::SemanticAction()
@@ -211,7 +211,7 @@ void Rad_F_T::SemanticAction()
 
 TType Rad_F_T::Type()
 {
-	return TType::Rad_F;
+	return Function_T::Type();
 }
 
 void Read_F_T::SemanticAction()
@@ -220,7 +220,7 @@ void Read_F_T::SemanticAction()
 
 TType Read_F_T::Type()
 {
-	return TType::Read_F;
+	return Function_T::Type();
 }
 
 void Restore_F_T::SemanticAction()
@@ -229,17 +229,9 @@ void Restore_F_T::SemanticAction()
 
 TType Restore_F_T::Type()
 {
-	return TType::Restore_F;
+	return Function_T::Type();
 }
 
-void Return_F_T::SemanticAction()
-{
-}
-
-TType Return_F_T::Type()
-{
-	return TType::Return_F;
-}
 
 void Rnd_F_T::SemanticAction()
 {
@@ -247,7 +239,7 @@ void Rnd_F_T::SemanticAction()
 
 TType Rnd_F_T::Type()
 {
-	return TType::Rnd_F;
+	return Function_T::Type();
 }
 
 void Sgn_F_T::SemanticAction()
@@ -256,7 +248,7 @@ void Sgn_F_T::SemanticAction()
 
 TType Sgn_F_T::Type()
 {
-	return TType::Sgn_F;
+	return Function_T::Type();
 }
 
 void Sin_F_T::SemanticAction()
@@ -265,7 +257,7 @@ void Sin_F_T::SemanticAction()
 
 TType Sin_F_T::Type()
 {
-	return TType::Sin_F;
+	return Function_T::Type();
 }
 
 void Sqr_F_T::SemanticAction()
@@ -274,7 +266,7 @@ void Sqr_F_T::SemanticAction()
 
 TType Sqr_F_T::Type()
 {
-	return TType::Sqr_F;
+	return Function_T::Type();
 }
 
 void Str_F_T::SemanticAction()
@@ -283,7 +275,7 @@ void Str_F_T::SemanticAction()
 
 TType Str_F_T::Type()
 {
-	return TType::Str_F;
+	return Function_T::Type();
 }
 
 void Trap_F_T::SemanticAction()
@@ -292,7 +284,7 @@ void Trap_F_T::SemanticAction()
 
 TType Trap_F_T::Type()
 {
-	return TType::Trap_F;
+	return Function_T::Type();
 }
 
 void Val_F_T::SemanticAction()
@@ -301,7 +293,7 @@ void Val_F_T::SemanticAction()
 
 TType Val_F_T::Type()
 {
-	return TType::Val_F;
+	return Function_T::Type();
 }
 
 TType Variable_T::Type()
