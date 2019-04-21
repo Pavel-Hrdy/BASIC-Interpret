@@ -136,7 +136,7 @@ private:
 	bool Parse_ID();
 	bool Parse_IntegerList();
 	bool Parse_Expression();
-	bool Parse_ConstantList(std::stack<StackItem> & returnStack);
+	bool Parse_ConstantList();
 	bool Parse_ValueList();
 	bool Parse_IDList();
 	bool Parse_PrintList();
@@ -150,7 +150,7 @@ private:
 	bool Parse_PowerExp();
 	bool Parse_PowerExp2();
 	bool Parse_ExpressionList();
-	bool Parse_Constant(std::stack<StackItem> & returnStack);
+	bool Parse_Constant();
 	bool Parse_Value();
 
 	TType CurrentTokenType();

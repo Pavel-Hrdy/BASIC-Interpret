@@ -91,18 +91,22 @@ void ICVM::AddInstruction(std::unique_ptr<Instruction> instr)
 	instructions.push_back(std::move(instr));
 }
 
-void ICVM::ExecuteInstruction()
+//Executes instruction at instruction pointer and increments it.
+//Returns false if there are not any other instructions to execute.
+bool ICVM::ExecuteInstruction()
 {
-	if (instructions.size() > 0) {
-		Instruction * instr = instructions[instructions.size() - 1].get();
+	if ((instructions.size() > 0) && (instructionPointer < instructions.size())) {
+		Instruction * instr = instructions[instructionPointer].get();
 		instr->Execute();
-		instructions.pop_back();
+		instructionPointer++;
+		return true;
 	}
+	return false;
 }
 
 void ICVM::CopyToStack(std::stack<StackItem> s)
 {
-	for (size_t i = 0; i < s.size(); i++) {
+	while (!s.empty()) {
 		stack.push(s.top());
 		s.pop();
 	}
@@ -111,4 +115,9 @@ void ICVM::CopyToStack(std::stack<StackItem> s)
 void ICVM::PushToDataStack(const StackItem item)
 {
 	dataStack.push(item);
+}
+
+uint32_t ICVM::ICVMLineToNormalLine()
+{
+	throw 1;
 }

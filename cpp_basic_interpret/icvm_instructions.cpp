@@ -558,11 +558,16 @@ void Data_Function::Execute()
 	ICVM * icvm = ICVM::GetInstance();
 	StackItem currentItem;
 	ItemType currType;
-
-	while (true) {
-		currentItem = icvm->PopItem();
-		currType = currentItem.GetType();
-		if (currType == ItemType::End) break;
-		else icvm->PushToDataStack(currentItem);
+	try {
+		while (true) {
+			currentItem = icvm->PopItem();
+			currType = currentItem.GetType();
+			if (currType == ItemType::End) break;
+			else icvm->PushToDataStack(currentItem);
+		}
+	}
+	catch (EmptyStackException){
+		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of DATA command.";
+		std::cout << x;
 	}
 }

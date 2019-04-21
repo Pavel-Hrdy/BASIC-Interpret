@@ -66,11 +66,12 @@ private:
 	ICVM() {}
 	std::stack<StackItem> stack;
 	std::map<std::string, std::string> variables;
+	std::map<std::string, std::vector<uint32_t>> arrayDimensions;
 	std::map<std::string, TypeOfVariable> variablesTypes;
 	std::map<uint32_t, uint32_t> codeToInstructionMapping;
 	std::vector<std::unique_ptr<Instruction>> instructions;
 	std::stack<StackItem> dataStack;
-	uint32_t instructionPointer;
+	uint32_t instructionPointer = 0;
 public:
 	ICVM(ICVM const&) = delete;
 	void operator=(ICVM const&) = delete;
@@ -97,9 +98,10 @@ public:
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
 	void ChangeIP(uint32_t newIP);
 	void AddInstruction(std::unique_ptr<Instruction> instr);
-	void ExecuteInstruction();
+	bool ExecuteInstruction();
 	void CopyToStack(const std::stack<StackItem> s);
 	void PushToDataStack(const StackItem item);
+	uint32_t ICVMLineToNormalLine();
 };
 
 

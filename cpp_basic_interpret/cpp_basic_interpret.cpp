@@ -12,10 +12,12 @@
 int main()
 {
 	
-		std::string code = "10 PRINT X,Y,Z,A$\n20 100 PRINT\"THE VALUE OF X IS\"";
+		std::string code = "10 DATA 20,30,40";
 		std::vector<TType> types;
 		Lexer l(code);
 		Parser p(l);
 		p.Parse();
+		ICVM * icvm = ICVM::GetInstance();
+		icvm->ExecuteInstruction();
 
 }

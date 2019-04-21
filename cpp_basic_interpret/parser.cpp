@@ -203,24 +203,24 @@ bool Parser::Parse_Statement()
 
 		//| DATA <Constant List>
 		if (x->FuncType() == FunctionType::Data) {
-			std::stack<StackItem> returnStack;
 			x->SemanticAction();
 			Eat(TType::Function);
-			if (!Parse_ConstantList(returnStack)) return false;
-			/*Semantic actions*/
-			StackItem endItem(ItemType::End, "");
-			icvm->AddStackItem(endItem);
-			icvm->CopyToStack(returnStack);
+
+			if (!Parse_ConstantList()) return false;
 
 			return true;
 		}	//| DIM ID '(' <Integer List> ')'
 		else if (x->FuncType() == FunctionType::Dim) {
 			Eat(TType::Function);
+
 			if (!Parse_ID()) { return false; }
+
 			if (CurrentTokenType() != TType::LeftPar) { return false; }
 			Eat(TType::LeftPar);
 			if (!Parse_IntegerList()) { return false; }
+
 			if (CurrentTokenType() != TType::RightPar) { return false; }
+
 			Eat(TType::RightPar);
 			/*Semantic actions*/
 
@@ -321,19 +321,45 @@ bool Parser::Parse_Statement()
 
 /*<ID>:: = StringVariable
 		  | Variable
+		  | StringVariable '(' <Expression> ')'
+		  | Variable '(' <Expression List> ')'
 */
 bool Parser::Parse_ID()
 {
+	ICVM * icvm = ICVM::GetInstance();
+
 	if (CurrentTokenType() == TType::StringVariable) {
+		StackItem name(ItemType::String, CurrentToken.GetContent());
+		icvm->AddStackItem(name);
 		Eat(TType::StringVariable);
 
+
+		if (CurrentTokenType() == TType::LeftPar) {
+			Eat(TType::LeftPar);
+			if (!Parse_Expression()) return false;
+			if (CurrentTokenType() != TType::RightPar) return false;
+			Eat(TType::RightPar);
+
+			return true;
+		}
 		/*Semantic action*/
 
 
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Variable) {
+		StackItem name(ItemType::String, CurrentToken.GetContent());
+		icvm->AddStackItem(name);
 		Eat(TType::Variable);
+
+		if (CurrentTokenType() == TType::LeftPar) {
+			Eat(TType::LeftPar);
+			if (!Parse_ExpressionList()) return false;
+			if (CurrentTokenType() != TType::RightPar) return false;
+			Eat(TType::RightPar);
+
+			return true;
+		}
 
 		/*Semantic action*/
 
@@ -390,12 +416,16 @@ bool Parser::Parse_Expression()
 <Constant List>   ::= <Constant> ',' <Constant List>
 					| <Constant>
 */
-bool Parser::Parse_ConstantList(std::stack<StackItem> & returnStack)
+bool Parser::Parse_ConstantList()
 {
-	if (!Parse_Constant(returnStack)) return false;
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem endItem(ItemType::End, "");
+	icvm->AddStackItem(endItem);
+
+	if (!Parse_Constant()) return false;
 	if (CurrentTokenType() == TType::Comma) {
 		Eat(TType::Comma);
-		if (!Parse_ConstantList(returnStack)) return false;
+		if (!Parse_ConstantList()) return false;
 
 		return true;
 	}
@@ -673,29 +703,29 @@ bool Parser::Parse_ExpressionList()
 			 | String
 			 | Real
 DONE*/
-bool Parser::Parse_Constant(std::stack<StackItem> & returnStack)
+bool Parser::Parse_Constant()
 {
+	ICVM * icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
 
 		/*Semantic actions*/
 		StackItem x(ItemType::Int, CurrentToken.GetContent());
-		returnStack.push(x);
+		icvm->AddStackItem(x);
 		Eat(TType::Int);
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Real) {
 		/*Semantic actions*/
 		StackItem x(ItemType::Real, CurrentToken.GetContent());
-		returnStack.push(x);
+		icvm->AddStackItem(x);
 		Eat(TType::Real);
-
 
 		return true;
 	}
 	else if (CurrentTokenType() == TType::String) {
 		/*Semantic actions*/
 		StackItem x(ItemType::String, CurrentToken.GetContent());
-		returnStack.push(x);
+		icvm->AddStackItem(x);
 		Eat(TType::String);
 
 		return true;
@@ -711,8 +741,6 @@ bool Parser::Parse_Constant(std::stack<StackItem> & returnStack)
 */
 bool Parser::Parse_Value()
 {
-	std::stack<StackItem> returnStack;
-
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
 		if (!Parse_Expression()) return false;
@@ -737,7 +765,7 @@ bool Parser::Parse_Value()
 
 		return true;
 	}
-	else if (Parse_Constant(returnStack)) {
+	else if (Parse_Constant()) {
 		/*Semantic actions*/
 
 		return true;
