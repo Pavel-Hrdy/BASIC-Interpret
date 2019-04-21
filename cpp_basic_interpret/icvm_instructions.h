@@ -217,4 +217,9 @@ public:
 	virtual void Execute()override;
 };
 
+class Data_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
 #endif

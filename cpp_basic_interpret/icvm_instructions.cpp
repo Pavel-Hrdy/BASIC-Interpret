@@ -552,3 +552,17 @@ void Read::Execute()
 	StackItem newItem(ItemType::String, input);
 	ICVM::GetInstance()->AddStackItem(newItem);
 }
+
+void Data_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem currentItem;
+	ItemType currType;
+
+	while (true) {
+		currentItem = icvm->PopItem();
+		currType = currentItem.GetType();
+		if (currType == ItemType::End) break;
+		else icvm->PushToDataStack(currentItem);
+	}
+}

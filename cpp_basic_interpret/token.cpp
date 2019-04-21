@@ -6,6 +6,7 @@ Pavel Hrdý
 
 #include <iostream>
 #include "token.h"
+#include "icvm.h"
 
 MulDivOp_T::MulDivOp_T(const MulType _type) {
 	type = _type;
@@ -99,6 +100,9 @@ TType Cos_F_T::Type()
 
 void Data_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	std::unique_ptr<Instruction> instr = std::make_unique<Data_Function>();
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Data_F_T::Type()

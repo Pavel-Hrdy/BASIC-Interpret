@@ -99,3 +99,16 @@ void ICVM::ExecuteInstruction()
 		instructions.pop_back();
 	}
 }
+
+void ICVM::CopyToStack(std::stack<StackItem> s)
+{
+	for (size_t i = 0; i < s.size(); i++) {
+		stack.push(s.top());
+		s.pop();
+	}
+}
+
+void ICVM::PushToDataStack(const StackItem item)
+{
+	dataStack.push(item);
+}

@@ -69,6 +69,7 @@ private:
 	std::map<std::string, TypeOfVariable> variablesTypes;
 	std::map<uint32_t, uint32_t> codeToInstructionMapping;
 	std::vector<std::unique_ptr<Instruction>> instructions;
+	std::stack<StackItem> dataStack;
 	uint32_t instructionPointer;
 public:
 	ICVM(ICVM const&) = delete;
@@ -97,6 +98,8 @@ public:
 	void ChangeIP(uint32_t newIP);
 	void AddInstruction(std::unique_ptr<Instruction> instr);
 	void ExecuteInstruction();
+	void CopyToStack(const std::stack<StackItem> s);
+	void PushToDataStack(const StackItem item);
 };
 
 
