@@ -774,12 +774,55 @@ void Add::Execute()
 
 void Sub::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { //Add ints
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) - std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { //Add reals
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { //Add int and real
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Div::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
 
+	if ((firstOp.GetType() != ItemType::String) && (std::stod(firstOp.GetContent()) == 0))throw DivideByZeroException();
+
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { //Add ints
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) / std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { //Add reals
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) / std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { //Add int and real
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) / std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
+
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Mul::Execute()
