@@ -38,7 +38,7 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 #include "icvm_instructions.h"
 
 enum class ItemType { Int, Real, String, Address, End };
-enum class TypeOfVariable { Int, Real, String, Address, Error };
+enum class TypeOfVariable { Int, Real, String, Address,Error };
 
 class StackItem {
 private:
@@ -91,6 +91,7 @@ public:
 
 	std::string ReturnValueOfVariable(const std::string & nameOfVariable, bool & doesExist) const;
 	TypeOfVariable ReturnTypeOfVariable(const std::string & nameOfVariable, bool & doesExist) const;
+	TypeOfVariable ReturnTypeOfArrayVariable(const std::string & nameOfVariable, bool & doesExist) const;
 	void AddStackItem(const StackItem item);
 	StackItem PopItem(ItemType type);
 	StackItem PopItem();

@@ -25,6 +25,17 @@ TypeOfVariable ICVM::ReturnTypeOfVariable(const std::string & nameOfVariable, bo
 	else return TypeOfVariable::Error;
 }
 
+TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string & nameOfVariable, bool & doesExist) const
+{
+	auto it = arrayTypes.find(nameOfVariable);
+	doesExist = false;
+	if (it != arrayTypes.end()) {
+		doesExist = true;
+		return it->second;
+	}
+	else return TypeOfVariable::Error;
+}
+
 void ICVM::AddStackItem(const StackItem item)
 {
 	stack.push(item);

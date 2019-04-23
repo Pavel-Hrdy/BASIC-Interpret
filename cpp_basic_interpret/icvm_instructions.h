@@ -12,6 +12,17 @@ public:
 	Instruction(const std::string & arg) { argument = arg; }
 };
 
+class LoadArrayVariable :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+class SaveToArrayVariable :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+
 class LoadVariable :public Instruction {
 public:
 	virtual void Execute() override;

@@ -99,7 +99,6 @@ Whitespace     = {WS}+
 
 <Value>       ::= '(' <Expression> ')'
 				| ID
-				| ID '(' <Expression List> ')'
 				| <Constant>
 
 <Constant> ::= Int
@@ -126,7 +125,7 @@ private:
 	bool Parse_Statement();
 
 
-	bool Parse_ID();
+	bool Parse_ID(std::string & varName);
 	bool Parse_IntegerList();
 	bool Parse_Expression();
 	bool Parse_ConstantList();
@@ -139,11 +138,13 @@ private:
 	bool Parse_MultExp();
 	bool Parse_CompareExp();
 	bool Parse_NegateExp();
-	bool Parse_PowerExp();
-	bool Parse_PowerExp2();
+	bool Parse_PowerExp(ItemType & type);
+	bool Parse_PowerExp2(ItemType & type);
 	bool Parse_ExpressionList();
 	bool Parse_Constant(ItemType & type);
-	bool Parse_Value();
+	bool Parse_Value(ItemType & type);
+
+	ItemType DecideType(const ItemType first, const ItemType second);
 
 	TType CurrentTokenType();
 public:

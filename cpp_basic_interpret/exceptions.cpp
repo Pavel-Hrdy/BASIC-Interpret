@@ -32,7 +32,8 @@ LexerException::LexerException(int line)
 
 const char * VariableNotFoundException::what() const noexcept
 {
-	return "[ICVM Error] Variable wasn't found in the map";
+	std::string x = "[Error] Variable  " + name + "wasn't found";
+	return x.c_str();
 }
 
 const char * UnknownTypeOfConstantException::what() const noexcept

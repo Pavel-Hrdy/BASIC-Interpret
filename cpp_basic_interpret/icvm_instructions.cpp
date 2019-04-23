@@ -4,12 +4,15 @@
 #include "exceptions.h"
 
 
-//Loads value of variable named 'optionalArg' to the top of stack.
+//Loads value of variable which name is on the top of the stack to the top of stack.
 void LoadVariable::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();
 	bool doesExist;
-	std::string value = icvm->ReturnValueOfVariable(argument, doesExist);
+
+	StackItem name = icvm->PopItem();
+
+	std::string value = icvm->ReturnValueOfVariable(name.GetContent(), doesExist);
 
 	if (doesExist) {
 		TypeOfVariable variableType = icvm->ReturnTypeOfVariable(argument, doesExist);
@@ -30,11 +33,11 @@ void LoadVariable::Execute()
 			icvm->AddStackItem(stackItem);
 		}
 		else {
-			throw new VariableNotFoundException;
+			throw VariableNotFoundException(argument);
 		}
 	}
 	else {
-		throw new VariableNotFoundException;
+		throw VariableNotFoundException(argument);
 	}
 }
 
@@ -489,12 +492,15 @@ void ConcatString::Execute()
 	icvm->AddStackItem(newItem);
 }*/
 
-//Takes value from the top of the stack and saves it to variable named "arg"
+//Takes name of variable and value from stack (in that order) and then saves value to the variable.
 void SaveToVariable::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();
 	bool doesExist;
-	TypeOfVariable type = icvm->ReturnTypeOfVariable(argument, doesExist);
+
+	StackItem name = icvm->PopItem();
+
+	TypeOfVariable type = icvm->ReturnTypeOfVariable(name.GetContent(), doesExist);
 	StackItem item;
 	if (doesExist) {
 		if (type == TypeOfVariable::String) { //We want to save to string variable - top of the stack has to be string
@@ -508,7 +514,7 @@ void SaveToVariable::Execute()
 		icvm->UpdateVariable(argument, item.GetContent(), (TypeOfVariable)item.GetType());
 	}
 	else {
-		throw VariableNotFoundException();
+		throw VariableNotFoundException(argument);
 	}
 }
 
@@ -540,8 +546,19 @@ void Pop::Execute()
 //Prints all items until it reaches the END StackItem
 void Print::Execute()
 {
-	StackItem item = ICVM::GetInstance()->PopItem();
-	std::cout << item.GetContent();
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem current;
+	try {
+		while (true) {
+			current = icvm->PopItem();
+			if (current.GetType() != ItemType::End)
+				std::cout << current.GetContent() << ' ';
+			else break;
+		}
+	}
+	catch (EmptyStackException) {
+		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of PRINT command.";
+	}
 }
 
 //Reads line from standard input and is pushed on stack as a string 
@@ -593,7 +610,7 @@ void Dim_Function::Execute() {
 
 			if (current.GetType() == ItemType::End) break;
 			else if (current.GetType() == ItemType::Int) {
-				dimensions.insert(dimensions.begin(),std::stoi(current.GetContent()));
+				dimensions.insert(dimensions.begin(), std::stoi(current.GetContent()));
 			}
 			else goto error;
 		}
@@ -612,4 +629,71 @@ void Dim_Function::Execute() {
 error:
 	std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of DIM command.";
 	std::cout << x;
+}
+
+//Takes indices from stack and returns value of array variable indexed by those indices
+void LoadArrayVariable::Execute()
+{
+	std::vector<uint32_t> indices;
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem current;
+
+	while (true) {
+		current = icvm->PopItem();
+		if (current.GetType() == ItemType::End) break;
+
+		if (current.GetType() == ItemType::Int) {
+			indices.insert(indices.begin(), std::stoi(current.GetContent()));
+		}
+		else throw TypeMismatchException();
+	}
+
+	StackItem name = icvm->PopItem();
+
+	if (current.GetType() != ItemType::String) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+
+	std::string varName = name.GetContent();
+	varName += '(';
+	for (size_t i = 0; i < indices.size(); i++) {
+		varName += indices[i];
+		if (i != indices.size() - 1)varName += ',';
+	}
+	varName += ')';
+	StackItem x (ItemType::String, varName);
+	icvm->AddStackItem(x);
+	LoadVariable ld;
+	ld.Execute();
+}
+
+void SaveToArrayVariable::Execute()
+{
+	std::vector<uint32_t> indices;
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem current;
+
+	while (true) {
+		current = icvm->PopItem();
+		if (current.GetType() == ItemType::End) break;
+
+		if (current.GetType() == ItemType::Int) {
+			indices.insert(indices.begin(), std::stoi(current.GetContent()));
+		}
+		else throw TypeMismatchException();
+	}
+
+	StackItem name = icvm->PopItem();
+
+	if (current.GetType() != ItemType::String) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+
+	std::string varName = name.GetContent();
+	varName += '(';
+	for (size_t i = 0; i < indices.size(); i++) {
+		varName += indices[i];
+		if (i != indices.size() - 1)varName += ',';
+	}
+	varName += ')';
+	StackItem x(ItemType::String, varName);
+	icvm->AddStackItem(x);
+	SaveToVariable ld;
+	ld.Execute();
 }
