@@ -11,13 +11,16 @@
 
 int main()
 {
-	
-		std::string code = "10 DIM X(2,3,4) real";
-		std::vector<TType> types;
-		Lexer l(code);
-		Parser p(l);
-		p.Parse();
-		ICVM * icvm = ICVM::GetInstance();
-		icvm->ExecuteInstruction();
+	std::string x = "1.5";
+	int y = std::stoi(x);
+
+
+	std::string code = "10 DIM X(2,3,4) real";
+	std::vector<TType> types;
+	Lexer l(code);
+	Parser p(l);
+	p.Parse();
+	ICVM* icvm = ICVM::GetInstance();
+	icvm->ExecuteInstruction();
 
 }

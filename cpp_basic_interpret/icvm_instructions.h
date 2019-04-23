@@ -37,7 +37,7 @@ class SaveToVariable :public Instruction {
 public:
 	virtual void Execute() override;
 };
-
+/*
 class IntToReal : public Instruction {
 public:
 	virtual void Execute() override;
@@ -57,6 +57,12 @@ class UnaryMinusInt : public Instruction {
 public:
 	virtual void Execute() override;
 };
+*/
+
+class UnaryMinus : public Instruction {
+public:
+	virtual void Execute() override;
+};
 
 class Not : public Instruction {
 public:
@@ -72,7 +78,7 @@ class Or : public Instruction {
 public:
 	virtual void Execute()override;
 };
-
+/*
 class AddInt : public Instruction {
 public:
 	virtual void Execute()override;
@@ -112,7 +118,29 @@ class MulReal : public Instruction {
 public:
 	virtual void Execute()override;
 };
+*/
 
+class Add : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Sub : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Div : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Mul : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+/*
 class LessInt : public Instruction {
 public:
 	virtual void Execute()override;
@@ -172,7 +200,38 @@ class NotEqReal : public Instruction {
 public:
 	virtual void Execute()override;
 };
+*/
 
+class Less : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Greater : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class LessEq : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class GreaterEq : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Eq : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class NotEq : public Instruction {
+public:
+	virtual void Execute()override;
+};
+/*
 class LessString : public Instruction {
 public:
 	virtual void Execute()override;
@@ -202,7 +261,7 @@ class NotEqString : public Instruction {
 public:
 	virtual void Execute()override;
 };
-
+*/
 class Jump : public Instruction {
 public:
 	virtual void Execute()override;

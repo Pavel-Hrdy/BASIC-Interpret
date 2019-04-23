@@ -74,7 +74,7 @@ void LoadConstant::Execute()
 	StackItem item(itemType, content);
 	ICVM::GetInstance()->AddStackItem(item);
 }
-
+/*
 //Takes int which is on the top of the stack and converts it to real.
 void IntToReal::Execute()
 {
@@ -118,12 +118,17 @@ void UnaryMinusInt::Execute()
 
 	icvm->AddStackItem(newItem);
 }
-
+*/
 //Takes boolean int number from the top of the stack, negates it and puts it back to the stack.
 void Not::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();
-	StackItem intItem = icvm->PopItem(ItemType::Int);
+	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
+	StackItem intItem;
+
+	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) intItem = icvm->PopItem();
+	else throw TypeMismatchException();
+
 	int outputContent = !(std::stoi(intItem.GetContent()));
 	StackItem newItem(ItemType::Int, std::to_string(outputContent));
 
@@ -134,8 +139,14 @@ void Not::Execute()
 void And::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
+	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
+	StackItem firstOperand, secondOperand;
+	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) firstOperand = icvm->PopItem();
+	else throw TypeMismatchException();
+
+	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) secondOperand = icvm->PopItem();
+	else throw TypeMismatchException();
+
 	int firstOpValue = std::stoi(firstOperand.GetContent());
 	int secondOpValue = std::stoi(secondOperand.GetContent());
 
@@ -146,16 +157,22 @@ void And::Execute()
 //Logical or
 void Or::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
+	ICVM* icvm = ICVM::GetInstance();
+	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
+	StackItem firstOperand, secondOperand;
+	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) firstOperand = icvm->PopItem();
+	else throw TypeMismatchException();
+
+	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) secondOperand = icvm->PopItem();
+	else throw TypeMismatchException();
+
 	int firstOpValue = std::stoi(firstOperand.GetContent());
 	int secondOpValue = std::stoi(secondOperand.GetContent());
 
 	StackItem newItem(ItemType::Int, std::to_string(firstOpValue || secondOpValue));
 	icvm->AddStackItem(newItem);
 }
-
+/*
 //Adds two integers and returns the result to the stack
 void AddInt::Execute()
 {
@@ -479,7 +496,7 @@ void NotEqString::Execute()
 	StackItem newItem(ItemType::String, std::to_string(secondOpValue != firstOpValue));
 	icvm->AddStackItem(newItem);
 }
-/*
+
 void ConcatString::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();
@@ -696,4 +713,60 @@ void SaveToArrayVariable::Execute()
 	icvm->AddStackItem(x);
 	SaveToVariable ld;
 	ld.Execute();
+}
+
+void UnaryMinus::Execute()
+{
+	ICVM* icvm = ICVM::GetInstance();
+
+}
+
+void Add::Execute()
+{
+
+}
+
+void Sub::Execute()
+{
+
+}
+
+void Div::Execute()
+{
+
+}
+
+void Mul::Execute()
+{
+
+}
+
+void Less::Execute()
+{
+
+}
+
+void Greater::Execute()
+{
+
+}
+
+void LessEq::Execute()
+{
+
+}
+
+void GreaterEq::Execute()
+{
+
+}
+
+void Eq::Execute()
+{
+
+}
+
+void NotEq::Execute()
+{
+
 }

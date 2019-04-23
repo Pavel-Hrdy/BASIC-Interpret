@@ -328,11 +328,11 @@ bool Parser::Parse_ID(std::string & varName)
 		StackItem name(ItemType::String, CurrentToken.GetContent());
 		varName = CurrentToken.GetContent();
 		icvm->AddStackItem(name);
-
-		LoadVariable instr();
+		
+		LoadVariable instr;
 		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
 		icvm->AddInstruction(std::move(instrPtr));
-
+		
 		Eat(TType::StringVariable);
 
 		/*Semantic action*/
@@ -357,17 +357,17 @@ bool Parser::Parse_ID(std::string & varName)
 			if (CurrentTokenType() != TType::RightPar) return false;
 			Eat(TType::RightPar);
 
-			LoadArrayVariable instr();
+			LoadArrayVariable instr;
 			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadArrayVariable>(instr);
 			icvm->AddInstruction(std::move(instrPtr));
 
 			return true;
 		}
-
-		LoadVariable instr();
+		
+		LoadVariable instr;
 		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
 		icvm->AddInstruction(std::move(instrPtr));
-
+		
 
 		return true;
 	}
@@ -616,6 +616,7 @@ bool Parser::Parse_CompareExp()
 */
 bool Parser::Parse_NegateExp()
 {
+	ItemType x;
 	if (CurrentTokenType() == TType::PlusMinusOp) {
 		PlusMinusOp_T* x = dynamic_cast<PlusMinusOp_T*>(CurrentToken.GetTokenType());
 		if (x->type != SignAddType::Sub) return false;
@@ -623,7 +624,7 @@ bool Parser::Parse_NegateExp()
 		Eat(TType::PlusMinusOp);
 
 	}
-	if (!Parse_PowerExp())return false;
+	if (!Parse_PowerExp(x))return false;
 	/*Semantic actions*/
 
 	return true;
@@ -729,7 +730,7 @@ bool Parser::Parse_Value(ItemType & type)
 	bool doesExist = true;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
-		if (!Parse_Expression(type)) return false;
+		if (!Parse_Expression()) return false;
 		if (CurrentTokenType() != TType::RightPar) return false;
 		Eat(TType::RightPar);
 		/*Semantic actions*/
