@@ -779,15 +779,15 @@ void Sub::Execute()
 	StackItem secondOp = icvm->PopItem();
 	ItemType returnType;
 	std::string returnContent;
-	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { //Add ints
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) - std::stoi(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { //Add reals
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { //Add int and real
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
 	}
@@ -807,15 +807,15 @@ void Div::Execute()
 
 	if ((firstOp.GetType() != ItemType::String) && (std::stod(firstOp.GetContent()) == 0))throw DivideByZeroException();
 
-	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { //Add ints
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) / std::stoi(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { //Add reals
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) / std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { //Add int and real
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) / std::stod(firstOp.GetContent()));
 	}
@@ -827,35 +827,199 @@ void Div::Execute()
 
 void Mul::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) * std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) * std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) * std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Less::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() < firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) < std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) < std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) < std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Greater::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() > firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) > std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) > std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) > std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void LessEq::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() <= firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) <= std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) <= std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) <= std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void GreaterEq::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() >= firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) >= std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) >= std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) >= std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Eq::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() == firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) == std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) == std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) == std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void NotEq::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(secondOp.GetContent() != firstOp.GetContent());
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(secondOp.GetContent()) != std::stoi(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) != std::stod(firstOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(secondOp.GetContent()) != std::stod(firstOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
