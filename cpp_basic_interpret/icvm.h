@@ -37,7 +37,7 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 #include <memory>
 #include "icvm_instructions.h"
 
-enum class ItemType { Int, Real, String, Address };
+enum class ItemType { Int, Real, String, Address, End };
 enum class TypeOfVariable { Int, Real, String, Address, Error };
 
 class StackItem {

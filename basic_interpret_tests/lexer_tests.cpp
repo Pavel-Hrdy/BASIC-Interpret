@@ -121,7 +121,7 @@ namespace basic_interpret_tests
 			}
 			Assert::IsTrue(types.size() == 16);
 			Assert::IsTrue(types[0] == TType::Int);
-			Assert::IsTrue(types[1] == TType::Print_F);
+			Assert::IsTrue(types[1] == TType::Function);
 			Assert::IsTrue(types[2] == TType::Variable);
 			Assert::IsTrue(types[3] == TType::Comma);
 			Assert::IsTrue(types[4] == TType::Variable);
@@ -132,7 +132,7 @@ namespace basic_interpret_tests
 			Assert::IsTrue(types[9] == TType::NewLine);
 			Assert::IsTrue(types[10] == TType::Int);
 			Assert::IsTrue(types[11] == TType::Int);
-			Assert::IsTrue(types[12] == TType::Print_F);
+			Assert::IsTrue(types[12] == TType::Function);
 			Assert::IsTrue(types[13] == TType::String);
 			Assert::IsTrue(types[14] == TType::Semicolon);
 			Assert::IsTrue(types[15] == TType::Variable);
