@@ -11,11 +11,7 @@
 
 int main()
 {
-	std::string x = "";
-	int y = std::stoi(x);
-
-
-	std::string code = "10 DIM X(2,3,4) real";
+	std::string code = "10 PRINT 5+3";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);

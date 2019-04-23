@@ -205,6 +205,10 @@ TType Pop_F_T::Type()
 
 void Print_F_T::SemanticAction()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	Print instr;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<Print>(instr);
+	icvm->AddInstruction(std::move(instrPtr));
 }
 
 TType Print_F_T::Type()
