@@ -7,7 +7,7 @@
 //Loads value of variable which name is on the top of the stack to the top of stack.
 void LoadVariable::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	bool doesExist;
 
 	StackItem name = icvm->PopItem();
@@ -122,7 +122,7 @@ void UnaryMinusInt::Execute()
 //Takes boolean int number from the top of the stack, negates it and puts it back to the stack.
 void Not::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
 	StackItem intItem;
 
@@ -138,7 +138,7 @@ void Not::Execute()
 //Logical and
 void And::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
 	StackItem firstOperand, secondOperand;
 	if ((type == TypeOfVariable::Int) || (type == TypeOfVariable::Real)) firstOperand = icvm->PopItem();
@@ -512,7 +512,7 @@ void ConcatString::Execute()
 //Takes name of variable and value from stack (in that order) and then saves value to the variable.
 void SaveToVariable::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	bool doesExist;
 
 	StackItem name = icvm->PopItem();
@@ -538,7 +538,7 @@ void SaveToVariable::Execute()
 //Pops int from stack, takes it as a line number in code and jumps to it
 void Jump::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem item = icvm->PopItem(ItemType::Int);
 	icvm->ChangeIP(std::stoi(item.GetContent()));
 }
@@ -546,7 +546,7 @@ void Jump::Execute()
 //Pops int from stack, takes it as a line number in code. Then takes another int from stack, if it's 1, then jumps to line number.
 void Jumpif::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem address = icvm->PopItem(ItemType::Int);
 	StackItem cond = icvm->PopItem(ItemType::Int);
 	if (std::stoi(cond.GetContent())) {
@@ -563,7 +563,7 @@ void Pop::Execute()
 //Prints all items until it reaches the END StackItem
 void Print::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem current;
 	try {
 		while (true) {
@@ -589,7 +589,7 @@ void Read::Execute()
 
 void Data_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem currentItem;
 	ItemType currType;
 	try {
@@ -607,7 +607,7 @@ void Data_Function::Execute()
 }
 
 void Dim_Function::Execute() {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	try {
 		StackItem type = icvm->PopItem();
 
@@ -652,7 +652,7 @@ error:
 void LoadArrayVariable::Execute()
 {
 	std::vector<uint32_t> indices;
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem current;
 
 	while (true) {
@@ -676,7 +676,7 @@ void LoadArrayVariable::Execute()
 		if (i != indices.size() - 1)varName += ',';
 	}
 	varName += ')';
-	StackItem x (ItemType::String, varName);
+	StackItem x(ItemType::String, varName);
 	icvm->AddStackItem(x);
 	LoadVariable ld;
 	ld.Execute();
@@ -685,7 +685,7 @@ void LoadArrayVariable::Execute()
 void SaveToArrayVariable::Execute()
 {
 	std::vector<uint32_t> indices;
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem current;
 
 	while (true) {
@@ -719,11 +719,57 @@ void UnaryMinus::Execute()
 {
 	ICVM* icvm = ICVM::GetInstance();
 
+	TypeOfVariable type = icvm->ReturnTypeOfVarOnTopofStack();
+	StackItem item = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	switch (type) {
+	case TypeOfVariable::Int: {
+		returnType = ItemType::Int;
+		returnContent = std::to_string(-1 * std::stoi(item.GetContent()));
+		break;
+	}
+	case TypeOfVariable::Real: {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(-1 * std::stod(item.GetContent()));
+		break;
+	}
+	default: {
+		throw TypeMismatchException();
+		break;
+	}
+	}
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Add::Execute()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { //Add strings
+		returnType = firstOp.GetType();
+		returnContent = firstOp.GetContent() + secondOp.GetContent();
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { //Add ints
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stoi(firstOp.GetContent()) + std::stoi(secondOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { //Add reals
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(std::stod(firstOp.GetContent()) + std::stod(secondOp.GetContent()));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { //Add int and real
+		returnType = ItemType::Real;
+		returnContent = std::to_string(std::stod(firstOp.GetContent()) + std::stod(secondOp.GetContent()));
+	}
+	else { throw TypeMismatchException(); }
 
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
 }
 
 void Sub::Execute()

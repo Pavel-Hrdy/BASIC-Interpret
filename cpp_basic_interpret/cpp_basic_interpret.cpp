@@ -11,7 +11,7 @@
 
 int main()
 {
-	std::string x = "1.5";
+	std::string x = "";
 	int y = std::stoi(x);
 
 
