@@ -1023,3 +1023,28 @@ void NotEq::Execute()
 	StackItem returnItem(returnType, returnContent);
 	icvm->AddStackItem(returnItem);
 }
+
+void Exp::Execute()
+{
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem firstOp = icvm->PopItem();
+	StackItem secondOp = icvm->PopItem();
+	ItemType returnType;
+	std::string returnContent;
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(pow(std::stoi(secondOp.GetContent()),std::stoi(firstOp.GetContent())));
+	}
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
+		returnType = firstOp.GetType();
+		returnContent = std::to_string(pow(std::stod(secondOp.GetContent()), std::stod(firstOp.GetContent())));
+	}
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
+		returnType = ItemType::Real;
+		returnContent = std::to_string(pow(std::stod(secondOp.GetContent()), std::stod(firstOp.GetContent())));
+	}
+	else { throw TypeMismatchException(); }
+
+	StackItem returnItem(returnType, returnContent);
+	icvm->AddStackItem(returnItem);
+}

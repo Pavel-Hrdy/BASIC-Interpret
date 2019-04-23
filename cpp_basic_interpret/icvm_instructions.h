@@ -231,6 +231,11 @@ class NotEq : public Instruction {
 public:
 	virtual void Execute()override;
 };
+
+class Exp : public Instruction {
+public:
+	virtual void Execute()override;
+};
 /*
 class LessString : public Instruction {
 public:
