@@ -2,7 +2,6 @@
 #include "parser.h"
 #include "exceptions.h"
 
-
 //Checks if type of current's token is equal to parameter 'type'. 
 //If yes, then get new token.
 //Otherwise throws exception.
@@ -57,15 +56,13 @@ bool Parser::Parse_Statements()
 /*
 <Statement>   :: =
 | DATA <Constant List>
-| DIM ID '(' <Integer List> ')'
+| DIM ID '(' <Integer List> ')' Variable
 | <Function> '(' <Expression> ')'
 | END
 | FOR ID '=' <Expression> TO <Expression>
 | FOR ID '=' <Expression> TO <Expression> STEP Integer
 | GOTO <Expression>
 | GOSUB <Expression>
-| ON <Expression> GOTO <Value List>
-| ON <Expression> GOSUB <Value List>
 | POP
 | RESTORE <Expression>
 | RESTORE
@@ -74,7 +71,6 @@ bool Parser::Parse_Statements()
 | LET ID '=' <Expression>
 | ID '=' <Expression>
 | NEXT ID
-| POKE <Value List>
 | PRINT <Print list>
 | READ <ID List>
 | RETURN
@@ -131,25 +127,6 @@ bool Parser::Parse_Statement()
 
 		return true;
 	}
-	//| ON <Expression> GOTO <Value List>
-	//| ON <Expression> GOSUB <Value List>
-	else if (CurrentTokenType() == TType::On) {
-		Eat(TType::On);
-
-		if (!Parse_Expression()) return false;
-		if (CurrentTokenType() == TType::Goto) {
-			Eat(TType::Goto);
-		}
-		else if (CurrentTokenType() == TType::Gosub) {
-			Eat(TType::Gosub);
-		}
-		else return false;
-
-		if (!Parse_ValueList()) return false;
-		/*Semantic actions*/
-
-		return true;
-	}
 	//| IF <Expression> THEN <Statements>
 	else if (CurrentTokenType() == TType::If) {
 		Eat(TType::If);
@@ -199,37 +176,57 @@ bool Parser::Parse_Statement()
 	}
 	//| <Function> '(' <Expression> ')'
 	else if (CurrentTokenType() == TType::Function) {
-		Function_T* x = dynamic_cast<Function_T*>(CurrentToken.GetTokenType());
+		Token y = CurrentToken;
+		Function_T * x = dynamic_cast<Function_T*>(y.GetTokenType());
 
 		//| DATA <Constant List>
 		if (x->FuncType() == FunctionType::Data) {
 			x->SemanticAction();
 			Eat(TType::Function);
-
+			StackItem end(ItemType::End, "");
+			icvm->AddStackItem(end);
 			if (!Parse_ConstantList()) return false;
 
 			return true;
-		}	//| DIM ID '(' <Integer List> ')'
+		}	//| DIM Variable '(' <Integer List> ')' Variable 
 		else if (x->FuncType() == FunctionType::Dim) {
 			Eat(TType::Function);
 
-			if (!Parse_ID()) { return false; }
+			if (CurrentTokenType() != TType::Variable) { return false; }
+			StackItem name(ItemType::String, CurrentToken.GetContent());
+			Eat(TType::Variable);
+			icvm->AddStackItem(name);
 
 			if (CurrentTokenType() != TType::LeftPar) { return false; }
 			Eat(TType::LeftPar);
+			StackItem end(ItemType::End, "");
+			icvm->AddStackItem(end);
+
 			if (!Parse_IntegerList()) { return false; }
 
 			if (CurrentTokenType() != TType::RightPar) { return false; }
 
 			Eat(TType::RightPar);
-			/*Semantic actions*/
+
+			if (CurrentTokenType() == TType::Variable) {
+				if ((CurrentToken.GetContent() == "integer") || (CurrentToken.GetContent() == "real")) {
+					StackItem type(ItemType::String, CurrentToken.GetContent());
+					Eat(TType::Variable);
+					icvm->AddStackItem(type);
+				}
+				else return false;
+			}
+			else return false;
+			x->SemanticAction();
 
 			return true;
 		}
 		//| PRINT <Print list>
 		else if (x->FuncType() == FunctionType::Print) {
+			x->SemanticAction();
 			Eat(TType::Function);
-
+			StackItem end(ItemType::End, "");
+			icvm->AddStackItem(end);
 			if (!Parse_PrintList()) { return false; }
 
 			/*Semantic actions*/
@@ -323,6 +320,7 @@ bool Parser::Parse_Statement()
 		  | Variable
 		  | StringVariable '(' <Expression> ')'
 		  | Variable '(' <Expression List> ')'
+DONE
 */
 bool Parser::Parse_ID()
 {
@@ -372,10 +370,14 @@ bool Parser::Parse_ID()
 /*
 <Integer List>    ::= Integer ',' <Integer List>
 					| Integer
+DONE
 */
 bool Parser::Parse_IntegerList()
 {
+	ICVM * icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
+		StackItem x(ItemType::Int, CurrentToken.GetContent());
+		icvm->AddStackItem(x);
 		Eat(TType::Int);
 		if (CurrentTokenType() == TType::Comma) {
 			Eat(TType::Comma);
@@ -419,36 +421,15 @@ bool Parser::Parse_Expression()
 bool Parser::Parse_ConstantList()
 {
 	ICVM * icvm = ICVM::GetInstance();
-	StackItem endItem(ItemType::End, "");
-	icvm->AddStackItem(endItem);
+	ItemType temp;
 
-	if (!Parse_Constant()) return false;
+	if (!Parse_Constant(temp)) return false;
 	if (CurrentTokenType() == TType::Comma) {
 		Eat(TType::Comma);
 		if (!Parse_ConstantList()) return false;
 
 		return true;
 	}
-
-	return true;
-}
-
-/*
-<Value List>      ::= <Value> ',' <Value List>
-					| <Value>
-*/
-bool Parser::Parse_ValueList()
-{
-	if (!Parse_Value()) return false;
-	if (CurrentTokenType() == TType::Comma) {
-		Eat(TType::Comma);
-		if (!Parse_ValueList()) return false;
-		/*Semantic actions*/
-
-		return true;
-	}
-
-	/*Semantic actions*/
 
 	return true;
 }
@@ -472,24 +453,15 @@ bool Parser::Parse_IDList()
 	return true;
 }
 /*
-<Print List>      ::= <Expression> ';' <Print List>
-					| <Expression> ',' <Print List>
+<Print List>      ::= <Expression> ',' <Print List>
 					| <Expression>
 					|
 */
 bool Parser::Parse_PrintList()
 {
 	if (Parse_Expression()) {
-		if (CurrentTokenType() == TType::Semicolon) {
-			Eat(TType::Semicolon);
-			if (!Parse_PrintList()) return false;
 
-			/*Semantic actions*/
-
-
-			return true;
-		}
-		else if (CurrentTokenType() == TType::Comma) {
+		if (CurrentTokenType() == TType::Comma) {
 			Eat(TType::Comma);
 			if (!Parse_PrintList()) return false;
 
@@ -703,7 +675,7 @@ bool Parser::Parse_ExpressionList()
 			 | String
 			 | Real
 DONE*/
-bool Parser::Parse_Constant()
+bool Parser::Parse_Constant(ItemType & type)
 {
 	ICVM * icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
@@ -712,6 +684,7 @@ bool Parser::Parse_Constant()
 		StackItem x(ItemType::Int, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::Int);
+		type = ItemType::Int;
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Real) {
@@ -719,7 +692,7 @@ bool Parser::Parse_Constant()
 		StackItem x(ItemType::Real, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::Real);
-
+		type = ItemType::Real;
 		return true;
 	}
 	else if (CurrentTokenType() == TType::String) {
@@ -727,20 +700,20 @@ bool Parser::Parse_Constant()
 		StackItem x(ItemType::String, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::String);
-
+		type = ItemType::String;
 		return true;
 	}
 	return false;
 }
 /*
 <Value>       ::= '(' <Expression> ')'
-				| <Expression>
 				| ID
 				| ID '(' <Expression List> ')'
 				| <Constant>
 */
 bool Parser::Parse_Value()
 {
+	ItemType type;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
 		if (!Parse_Expression()) return false;
@@ -765,12 +738,7 @@ bool Parser::Parse_Value()
 
 		return true;
 	}
-	else if (Parse_Constant()) {
-		/*Semantic actions*/
-
-		return true;
-	}
-	else if (Parse_Expression()) {
+	else if (Parse_Constant(type)) {
 		/*Semantic actions*/
 
 		return true;

@@ -222,4 +222,9 @@ public:
 	virtual void Execute()override;
 };
 
+class Dim_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
 #endif

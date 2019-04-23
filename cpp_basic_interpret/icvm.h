@@ -66,8 +66,9 @@ private:
 	ICVM() {}
 	std::stack<StackItem> stack;
 	std::map<std::string, std::string> variables;
-	std::map<std::string, std::vector<uint32_t>> arrayDimensions;
 	std::map<std::string, TypeOfVariable> variablesTypes;
+	std::map<std::string, TypeOfVariable> arrayTypes;
+	std::map<std::string, std::vector<uint32_t>> arrayDimensions;
 	std::map<uint32_t, uint32_t> codeToInstructionMapping;
 	std::vector<std::unique_ptr<Instruction>> instructions;
 	std::stack<StackItem> dataStack;
@@ -96,6 +97,7 @@ public:
 	TypeOfVariable ReturnTypeOfVarOnTopofStack() const;
 	void UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType);
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
+	void AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions);
 	void ChangeIP(uint32_t newIP);
 	void AddInstruction(std::unique_ptr<Instruction> instr);
 	bool ExecuteInstruction();

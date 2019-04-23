@@ -12,7 +12,7 @@
 int main()
 {
 	
-		std::string code = "10 DATA 20,30,40";
+		std::string code = "10 DIM X(2,3,4) real";
 		std::vector<TType> types;
 		Lexer l(code);
 		Parser p(l);

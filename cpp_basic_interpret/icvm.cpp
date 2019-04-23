@@ -73,6 +73,19 @@ void ICVM::AddVariable(const std::string & nameOfVar, TypeOfVariable type)
 	}
 }
 
+void ICVM::AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions)
+{
+	auto it = arrayTypes.find(nameOfArray);
+	if (it == arrayTypes.end()) {
+		arrayTypes.emplace(nameOfArray,type);
+		arrayDimensions.emplace(nameOfArray, dimensions);
+	}
+	else {
+		arrayTypes[nameOfArray] = type;
+		arrayDimensions[nameOfArray] = dimensions;
+	}
+}
+
 //Changes instruction pointer - newIP is line number from original code, so it has to be translated to instruction's line number
 void ICVM::ChangeIP(uint32_t newIP)
 {

@@ -16,7 +16,7 @@ void LoadVariable::Execute()
 
 		if (variableType != TypeOfVariable::Error) {
 			ItemType itemType;
-			
+
 			if (variableType == TypeOfVariable::Int) { // If it is a number 
 				itemType = ItemType::Int;
 			}
@@ -505,7 +505,7 @@ void SaveToVariable::Execute()
 			if (item.GetType() == ItemType::String) throw TypeMismatchException();
 		}
 
-		icvm->UpdateVariable(argument, item.GetContent(),(TypeOfVariable)item.GetType());
+		icvm->UpdateVariable(argument, item.GetContent(), (TypeOfVariable)item.GetType());
 	}
 	else {
 		throw VariableNotFoundException();
@@ -537,7 +537,7 @@ void Pop::Execute()
 	ICVM::GetInstance()->PopItem();
 }
 
-//Prints item which is on top of stack to the standard output
+//Prints all items until it reaches the END StackItem
 void Print::Execute()
 {
 	StackItem item = ICVM::GetInstance()->PopItem();
@@ -566,8 +566,50 @@ void Data_Function::Execute()
 			else icvm->PushToDataStack(currentItem);
 		}
 	}
-	catch (EmptyStackException){
+	catch (EmptyStackException) {
 		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of DATA command.";
 		std::cout << x;
 	}
+}
+
+void Dim_Function::Execute() {
+	ICVM * icvm = ICVM::GetInstance();
+	try {
+		StackItem type = icvm->PopItem();
+
+		if (type.GetType() != ItemType::String) goto error;
+
+		std::string typeS = type.GetContent();
+		std::vector<uint32_t> dimensions;
+		TypeOfVariable typeOfArray;
+
+		if (typeS == "integer") typeOfArray = TypeOfVariable::Int;
+		else if (typeS == "real") typeOfArray = TypeOfVariable::Real;
+		else goto error;
+
+		StackItem current;
+		while (true) {
+			current = icvm->PopItem();
+
+			if (current.GetType() == ItemType::End) break;
+			else if (current.GetType() == ItemType::Int) {
+				dimensions.insert(dimensions.begin(),std::stoi(current.GetContent()));
+			}
+			else goto error;
+		}
+
+		StackItem id = icvm->PopItem();
+
+		if (id.GetType() != ItemType::String) goto error;
+
+		icvm->AddArray(id.GetContent(), typeOfArray, dimensions);
+	}
+	catch (EmptyStackException) {
+		goto error;
+	}
+	return;
+
+error:
+	std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of DIM command.";
+	std::cout << x;
 }

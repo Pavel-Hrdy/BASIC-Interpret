@@ -30,8 +30,6 @@ Whitespace     = {WS}+
 				| FOR ID '=' <Expression> TO <Expression> STEP Integer
 				| GOTO <Expression>
 				| GOSUB <Expression>
-				| ON <Expression> GOTO <Value List>
-				| ON <Expression> GOSUB <Value List>
 				| POP
 				| RESTORE <Expression>
 				| RESTORE
@@ -40,7 +38,6 @@ Whitespace     = {WS}+
 				| LET ID '=' <Expression>
 				| ID '=' <Expression>
 				| NEXT ID
-				| POKE <Value List>
 				| PRINT <Print list>
 				| READ <ID List>
 				| RETURN
@@ -51,9 +48,6 @@ Whitespace     = {WS}+
 <ID List>  ::= ID ',' <ID List>
 			 | ID
 
-<Value List>      ::= <Value> ',' <Value List>
-					| <Value>
-
 <Constant List>   ::= <Constant> ',' <Constant List>
 					| <Constant>
 
@@ -63,7 +57,7 @@ Whitespace     = {WS}+
 <Expression List> ::= <Expression> ',' <Expression List>
 					| <Expression>
 
-<Print List>      ::= <Expression> ';' <Print List>
+<Print List>      ::= <Expression> ',' <Print List>
 					| <Expression>
 					|
 
@@ -104,7 +98,6 @@ Whitespace     = {WS}+
 				| 
 
 <Value>       ::= '(' <Expression> ')'
-				| <Expression>
 				| ID
 				| ID '(' <Expression List> ')'
 				| <Constant>
@@ -137,7 +130,6 @@ private:
 	bool Parse_IntegerList();
 	bool Parse_Expression();
 	bool Parse_ConstantList();
-	bool Parse_ValueList();
 	bool Parse_IDList();
 	bool Parse_PrintList();
 	bool Parse_Remark();
@@ -150,7 +142,7 @@ private:
 	bool Parse_PowerExp();
 	bool Parse_PowerExp2();
 	bool Parse_ExpressionList();
-	bool Parse_Constant();
+	bool Parse_Constant(ItemType & type);
 	bool Parse_Value();
 
 	TType CurrentTokenType();

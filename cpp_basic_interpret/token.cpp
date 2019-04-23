@@ -121,6 +121,9 @@ TType Deg_F_T::Type()
 
 void Dim_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	std::unique_ptr<Instruction> instr = std::make_unique<Dim_Function>();
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Dim_F_T::Type()
@@ -440,7 +443,11 @@ Token::Token(std::unique_ptr<TokenType> _token, const std::string & _content, ui
 	content = _content;
 	lineNumber = _lineNumber;
 }
-
+/*
+Token::Token(const Token& t) {
+	
+}
+*/
 TokenType * Token::GetTokenType() {
 	return token.get();
 }
