@@ -80,7 +80,7 @@ bool Parser::Parse_Statements()
 | Remark*/
 bool Parser::Parse_Statement()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	std::string varName;
 	//| FOR ID '=' <Expression> TO <Expression>
 	//| FOR ID '=' <Expression> TO <Expression> STEP Integer
@@ -177,7 +177,7 @@ bool Parser::Parse_Statement()
 	//| <Function> '(' <Expression> ')'
 	else if (CurrentTokenType() == TType::Function) {
 		Token y = CurrentToken;
-		Function_T * x = dynamic_cast<Function_T*>(y.GetTokenType());
+		Function_T* x = dynamic_cast<Function_T*>(y.GetTokenType());
 
 		//| DATA <Constant List>
 		if (x->FuncType() == FunctionType::Data) {
@@ -322,17 +322,17 @@ Puts value of that variable on top of the stack.
 */
 bool Parser::Parse_ID(std::string & varName)
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	if (CurrentTokenType() == TType::StringVariable) {
 		StackItem name(ItemType::String, CurrentToken.GetContent());
 		varName = CurrentToken.GetContent();
 		icvm->AddStackItem(name);
-		
+
 		LoadVariable instr;
 		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
 		icvm->AddInstruction(std::move(instrPtr));
-		
+
 		Eat(TType::StringVariable);
 
 		/*Semantic action*/
@@ -363,11 +363,11 @@ bool Parser::Parse_ID(std::string & varName)
 
 			return true;
 		}
-		
+
 		LoadVariable instr;
 		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
 		icvm->AddInstruction(std::move(instrPtr));
-		
+
 
 		return true;
 	}
@@ -381,7 +381,7 @@ DONE
 */
 bool Parser::Parse_IntegerList()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
 		StackItem x(ItemType::Int, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
@@ -427,10 +427,9 @@ bool Parser::Parse_Expression()
 */
 bool Parser::Parse_ConstantList()
 {
-	ICVM * icvm = ICVM::GetInstance();
-	ItemType temp;
+	ICVM* icvm = ICVM::GetInstance();
 
-	if (!Parse_Constant(temp)) return false;
+	if (!Parse_Constant()) return false;
 	if (CurrentTokenType() == TType::Comma) {
 		Eat(TType::Comma);
 		if (!Parse_ConstantList()) return false;
@@ -616,7 +615,6 @@ bool Parser::Parse_CompareExp()
 */
 bool Parser::Parse_NegateExp()
 {
-	ItemType x;
 	if (CurrentTokenType() == TType::PlusMinusOp) {
 		PlusMinusOp_T* x = dynamic_cast<PlusMinusOp_T*>(CurrentToken.GetTokenType());
 		if (x->type != SignAddType::Sub) return false;
@@ -624,7 +622,7 @@ bool Parser::Parse_NegateExp()
 		Eat(TType::PlusMinusOp);
 
 	}
-	if (!Parse_PowerExp(x))return false;
+	if (!Parse_PowerExp())return false;
 	/*Semantic actions*/
 
 	return true;
@@ -633,10 +631,10 @@ bool Parser::Parse_NegateExp()
 <Power Exp>	  ::= <Value> <Power Exp2>
 
 */
-bool Parser::Parse_PowerExp(ItemType & type)
+bool Parser::Parse_PowerExp()
 {
-	if (!Parse_Value(type)) return false;
-	if (!Parse_PowerExp2(type)) return false;
+	if (!Parse_Value()) return false;
+	if (!Parse_PowerExp2()) return false;
 
 	/*Semantic Actions*/
 
@@ -647,19 +645,15 @@ bool Parser::Parse_PowerExp(ItemType & type)
 <Power Exp2>  ::= '^' <Value> <Power Exp2>
 				|
 */
-bool Parser::Parse_PowerExp2(ItemType & type) {
-	ItemType valueType;
-	ItemType powerExp2Type;
+bool Parser::Parse_PowerExp2() {
 	if (CurrentTokenType() == TType::ExpOp) {
-		if (!Parse_Value(valueType)) return false;
-		if (!Parse_PowerExp2(powerExp2Type)) return false;
+		if (!Parse_Value()) return false;
+		if (!Parse_PowerExp2()) return false;
 
 		/*Semantic actions*/
-		type = DecideType(valueType, powerExp2Type);
 		return true;
 	}
 
-	type = ItemType::Int;
 	/*Semantic actions*/
 
 	return true;
@@ -688,16 +682,15 @@ bool Parser::Parse_ExpressionList()
 			 | String
 			 | Real
 DONE*/
-bool Parser::Parse_Constant(ItemType & type)
+bool Parser::Parse_Constant()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
 
 		/*Semantic actions*/
 		StackItem x(ItemType::Int, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::Int);
-		type = ItemType::Int;
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Real) {
@@ -705,7 +698,6 @@ bool Parser::Parse_Constant(ItemType & type)
 		StackItem x(ItemType::Real, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::Real);
-		type = ItemType::Real;
 		return true;
 	}
 	else if (CurrentTokenType() == TType::String) {
@@ -713,7 +705,6 @@ bool Parser::Parse_Constant(ItemType & type)
 		StackItem x(ItemType::String, CurrentToken.GetContent());
 		icvm->AddStackItem(x);
 		Eat(TType::String);
-		type = ItemType::String;
 		return true;
 	}
 	return false;
@@ -723,10 +714,10 @@ bool Parser::Parse_Constant(ItemType & type)
 				| ID
 				| <Constant>
 */
-bool Parser::Parse_Value(ItemType & type)
+bool Parser::Parse_Value()
 {
 	std::string varName;
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	bool doesExist = true;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
@@ -740,12 +731,11 @@ bool Parser::Parse_Value(ItemType & type)
 	else if (Parse_ID(varName)) {
 		TypeOfVariable typeVar = icvm->ReturnTypeOfVariable(varName, doesExist);
 		if (!doesExist) throw VariableNotFoundException(varName);
-		type = (ItemType)typeVar;
 		/*Semantic actions*/
 
 		return true;
 	}
-	else if (Parse_Constant(type)) {
+	else if (Parse_Constant()) {
 		/*Semantic actions*/
 
 		return true;

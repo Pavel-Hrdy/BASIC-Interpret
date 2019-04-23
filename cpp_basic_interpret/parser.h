@@ -138,11 +138,11 @@ private:
 	bool Parse_MultExp();
 	bool Parse_CompareExp();
 	bool Parse_NegateExp();
-	bool Parse_PowerExp(ItemType & type);
-	bool Parse_PowerExp2(ItemType & type);
+	bool Parse_PowerExp();
+	bool Parse_PowerExp2();
 	bool Parse_ExpressionList();
-	bool Parse_Constant(ItemType & type);
-	bool Parse_Value(ItemType & type);
+	bool Parse_Constant();
+	bool Parse_Value();
 
 	ItemType DecideType(const ItemType first, const ItemType second);
 
