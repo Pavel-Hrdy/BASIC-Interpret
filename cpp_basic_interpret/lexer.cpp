@@ -387,6 +387,13 @@ Token Lexer::GetNextToken() {
 
 			return Token(std::move(y), content, lineNumber);
 		}
+		else if (currentChar == '~') {
+			Read();
+			UnaryMinusOp_T x;
+			std::unique_ptr<TokenType> y = std::make_unique<UnaryMinusOp_T>(x);
+
+			return Token(std::move(y), content, lineNumber);
+		}
 		else if (currentChar == ',') {
 			Read();
 			Comma_T x;
