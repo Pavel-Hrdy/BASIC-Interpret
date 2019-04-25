@@ -11,7 +11,7 @@
 
 int main()
 {
-	std::string code = "10 PRINT 5+9+3*8";
+	std::string code = "10 PRINT (5*3+2)/2";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);

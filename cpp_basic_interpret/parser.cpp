@@ -825,7 +825,9 @@ bool Parser::Parse_Value()
 	bool doesExist = true;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
+		icvm->RaisePrecedence();
 		if (!Parse_Expression()) return false;
+		icvm->LowerPrecedence();
 		if (CurrentTokenType() != TType::RightPar) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
 		Eat(TType::RightPar);
 		/*Semantic actions*/

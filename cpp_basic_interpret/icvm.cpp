@@ -3,7 +3,7 @@
 
 ICVM* ICVM::instance;
 
-std::string ICVM::ReturnValueOfVariable(const std::string & nameOfVariable, bool & doesExist) const
+std::string ICVM::ReturnValueOfVariable(const std::string& nameOfVariable, bool& doesExist) const
 {
 	auto it = variables.find(nameOfVariable);
 	doesExist = false;
@@ -14,7 +14,7 @@ std::string ICVM::ReturnValueOfVariable(const std::string & nameOfVariable, bool
 	else return "";
 }
 
-TypeOfVariable ICVM::ReturnTypeOfVariable(const std::string & nameOfVariable, bool & doesExist) const
+TypeOfVariable ICVM::ReturnTypeOfVariable(const std::string& nameOfVariable, bool& doesExist) const
 {
 	auto it = variablesTypes.find(nameOfVariable);
 	doesExist = false;
@@ -25,7 +25,7 @@ TypeOfVariable ICVM::ReturnTypeOfVariable(const std::string & nameOfVariable, bo
 	else return TypeOfVariable::Error;
 }
 
-TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string & nameOfVariable, bool & doesExist) const
+TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string& nameOfVariable, bool& doesExist) const
 {
 	auto it = arrayTypes.find(nameOfVariable);
 	doesExist = false;
@@ -36,16 +36,38 @@ TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string & nameOfVariabl
 	else return TypeOfVariable::Error;
 }
 
-void ICVM::AddStackItem(const StackItem item)
+void ICVM::AddStackItem(StackItem item)
 {
+	item.SetPrecedence(currentPrecedence);
 	stack.push_back(item);
 }
+
+void ICVM::AddStackItem(StackItem item, uint32_t prec)
+{
+	item.SetPrecedence(prec);
+	stack.push_back(item);
+}
+
+
+size_t ICVM::IndexOfItemWithHighestPrecedence() {
+	size_t currentIndex = 0;
+	int highestPrecedence = -1;
+
+	for (size_t i = stack.size() - 1; i > 0; i--) {
+		if ((int)stack[i].GetPrecedence() > highestPrecedence) {
+			highestPrecedence = stack[i].GetPrecedence();
+			currentIndex = i;
+		}
+	}
+
+	return currentIndex;
+}
+
 
 StackItem ICVM::PopItem(ItemType type)
 {
 	if (stack.size() == 0) throw EmptyStackException();
-	StackItem item = stack.back();
-	stack.pop_back();
+	StackItem item = PopItem();
 	if (item.GetType() != type) throw TypeMismatchException();
 	else return item;
 }
@@ -53,8 +75,18 @@ StackItem ICVM::PopItem(ItemType type)
 StackItem ICVM::PopItem()
 {
 	if (stack.size() == 0) throw EmptyStackException();
-	StackItem item = stack.back();
-	stack.pop_back();
+	size_t index = IndexOfItemWithHighestPrecedence();
+	StackItem item = stack[index];
+	stack.erase(stack.begin() + index);
+	return item;
+}
+
+StackItem ICVM::PopItem(size_t & index)
+{
+	if (stack.size() == 0) throw EmptyStackException();
+	index = IndexOfItemWithHighestPrecedence();
+	StackItem item = stack[index];
+	stack.erase(stack.begin() + index);
 	return item;
 }
 
@@ -88,7 +120,7 @@ void ICVM::AddArray(const std::string & nameOfArray, TypeOfVariable type, const 
 {
 	auto it = arrayTypes.find(nameOfArray);
 	if (it == arrayTypes.end()) {
-		arrayTypes.emplace(nameOfArray,type);
+		arrayTypes.emplace(nameOfArray, type);
 		arrayDimensions.emplace(nameOfArray, dimensions);
 	}
 	else {
@@ -120,7 +152,7 @@ void ICVM::AddInstruction(std::unique_ptr<Instruction> instr)
 bool ICVM::ExecuteInstruction()
 {
 	if ((instructions.size() > 0) && (instructionPointer < instructions.size())) {
-		Instruction * instr = instructions[instructionPointer].get();
+		Instruction* instr = instructions[instructionPointer].get();
 		instr->Execute();
 		instructionPointer++;
 		return true;

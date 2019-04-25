@@ -58,6 +58,13 @@ public:
 	std::string GetContent() const {
 		return content;
 	}
+	void SetPrecedence(uint32_t value) {
+		precedence = value;
+	}
+
+	uint32_t GetPrecedence()const {
+		return precedence;
+	}
 };
 
 
@@ -96,9 +103,12 @@ public:
 	std::string ReturnValueOfVariable(const std::string & nameOfVariable, bool & doesExist) const;
 	TypeOfVariable ReturnTypeOfVariable(const std::string & nameOfVariable, bool & doesExist) const;
 	TypeOfVariable ReturnTypeOfArrayVariable(const std::string & nameOfVariable, bool & doesExist) const;
-	void AddStackItem(const StackItem item);
+	void AddStackItem(StackItem item);
+	void AddStackItem(StackItem item, uint32_t prec);
+	size_t IndexOfItemWithHighestPrecedence();
 	StackItem PopItem(ItemType type);
 	StackItem PopItem();
+	StackItem PopItem(size_t& index);
 	TypeOfVariable ReturnTypeOfVarOnTopofStack() const;
 	void UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType);
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
