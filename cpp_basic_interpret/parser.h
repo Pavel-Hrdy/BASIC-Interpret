@@ -114,6 +114,21 @@ Whitespace     = {WS}+
 #include "lexer.h"
 #include "icvm.h"
 
+enum class ExprTokenType{Variable,ArrayVariable,StringVariable,Int,Real,String,RelOp,MulDivOp,AddSubOp,UnaryMinusOp,ExpOp,
+						LeftPar,RightPar,Error, AndOp, OrOp, NotOp};
+
+class ExprToken {
+private:
+	ExprTokenType _type = ExprTokenType::Error;
+	std::string _content = "";
+public:
+	ExprToken(ExprTokenType type, const std::string & content)
+	{
+		_type = type;
+		_content = content;
+	}
+};
+
 class Parser {
 private:
 	Lexer lexer;
@@ -143,8 +158,6 @@ private:
 	bool Parse_ExpressionList();
 	bool Parse_Constant();
 	bool Parse_Value();
-
-	ItemType DecideType(const ItemType first, const ItemType second);
 
 	TType CurrentTokenType();
 public:

@@ -1,4 +1,4 @@
-#include <stack>
+﻿#include <stack>
 #include "parser.h"
 #include "exceptions.h"
 
@@ -403,6 +403,7 @@ bool Parser::Parse_IntegerList()
 <Expression>  ::= <And Exp> OR <Expression>
 				| <And Exp>
 */
+/*
 bool Parser::Parse_Expression()
 {
 	ICVM* icvm = ICVM::GetInstance();
@@ -412,7 +413,7 @@ bool Parser::Parse_Expression()
 	if (CurrentTokenType() == TType::OrOp) {
 		Eat(TType::OrOp);
 		if (!Parse_Expression()) return false;
-		/*Semantic actions*/
+		/*Semantic actions
 
 		Or instr;
 		std::unique_ptr<Instruction> instrPtr = std::make_unique<Or>(instr);
@@ -420,12 +421,146 @@ bool Parser::Parse_Expression()
 
 		return true;
 	}
-	/*Semantic actions*/
+	/*Semantic actions
 
 
 
 	return true;
+}*/
+//povolené tokeny: RelOp, PlusMinusOp, MulOp, UnaryMinus, Exp
+/*
+pravidla -
+- pokud narazíme na číslo, další token musí být operátor
+- závorky musí pasovat - uděláme counter
+- pokud narazíme na Variable, musíme se podívat, zda další znak není závorka - pokud ano, je to pole
+
+
+*/
+bool Parser::Parse_Expression() {
+	std::vector<ExprToken> tokens;
+	bool foundVariable = false;;
+	bool foundOp = false;;
+	int parCounter = 0;
+	while (true) {
+		if ((foundVariable) && (CurrentTokenType() != TType::AndOp) && (CurrentTokenType() != TType::ExpOp) // There has to be an op after number
+			&& (CurrentTokenType() != TType::MulDivOp) && (CurrentTokenType() != TType::NotOp) && (CurrentTokenType() != TType::OrOp)
+			&& (CurrentTokenType() != TType::PlusMinusOp) && (CurrentTokenType() != TType::RelOp)) return false;
+		else foundVariable = false;
+
+		if ((foundOp) && (CurrentTokenType() != TType::Int) && (CurrentTokenType() != TType::Real) && (CurrentTokenType() != TType::Variable) // There has to be a number or left parenthesis after op 
+			&& (CurrentTokenType() != TType::StringVariable) && (CurrentTokenType() != TType::LeftPar)) return false;
+		else foundOp = false;
+
+		if (CurrentTokenType() == TType::Int) {
+			foundVariable = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::Int, CurrentToken.GetContent()));
+			Eat(TType::Int);
+		}
+		else if (CurrentTokenType() == TType::Real) {
+			foundVariable = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::Real, CurrentToken.GetContent()));
+			Eat(TType::Real);
+		}
+		else if (CurrentTokenType() == TType::String) {
+			foundVariable = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::String, CurrentToken.GetContent()));
+			Eat(TType::String);
+		}
+		else if (CurrentTokenType() == TType::Variable) {
+			foundVariable = true;
+			std::string varName = CurrentToken.GetContent();
+			Eat(TType::Variable);
+			bool foundNum = false;
+
+			if (CurrentTokenType() == TType::LeftPar) { // It's array variable
+				varName += '('; Eat(TType::LeftPar);
+
+				while (true) {
+					if (CurrentTokenType() == TType::Int) {
+						foundNum = true;
+						varName += CurrentToken.GetContent();
+						Eat(TType::Int);
+					}
+					if (CurrentTokenType() == TType::Comma) {
+						Eat(TType::Comma);
+						varName += ',';
+					}
+					else if (CurrentTokenType() == TType::RightPar) {
+						Eat(TType::RightPar);
+						varName += ')';
+						break;
+					}
+					else return false;
+				}
+				if (!foundNum) return false;
+
+				tokens.emplace_back(ExprToken(ExprTokenType::ArrayVariable, varName));
+			}
+			else
+				tokens.emplace_back(ExprToken(ExprTokenType::Variable, varName));
+
+		}
+		else if (CurrentTokenType() == TType::StringVariable) {
+			foundVariable = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::StringVariable, CurrentToken.GetContent()));
+			Eat(TType::StringVariable);
+		}
+		else if (CurrentTokenType() == TType::LeftPar) {
+			tokens.emplace_back(ExprToken(ExprTokenType::LeftPar, CurrentToken.GetContent()));
+			Eat(TType::LeftPar);
+			parCounter++;
+		}
+		else if (CurrentTokenType() == TType::RightPar) {
+			tokens.emplace_back(ExprToken(ExprTokenType::RightPar, CurrentToken.GetContent()));
+			Eat(TType::RightPar);
+			parCounter--;
+		}
+		else if (CurrentTokenType() == TType::AndOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::AndOp, CurrentToken.GetContent()));
+			Eat(TType::AndOp);
+		}
+		else if (CurrentTokenType() == TType::ExpOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::ExpOp, CurrentToken.GetContent()));
+			Eat(TType::ExpOp);
+		}
+		else if (CurrentTokenType() == TType::MulDivOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::MulDivOp, CurrentToken.GetContent()));
+			Eat(TType::MulDivOp);
+		}
+		else if (CurrentTokenType() == TType::NotOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::NotOp, CurrentToken.GetContent()));
+			Eat(TType::NotOp);
+		}
+		else if (CurrentTokenType() == TType::OrOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::OrOp, CurrentToken.GetContent()));
+			Eat(TType::OrOp);
+		}
+		else if (CurrentTokenType() == TType::PlusMinusOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::AddSubOp, CurrentToken.GetContent()));
+			Eat(TType::PlusMinusOp);
+		}
+		else if (CurrentTokenType() == TType::RelOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::RelOp, CurrentToken.GetContent()));
+			Eat(TType::RelOp);
+		}
+		else if (CurrentTokenType() == TType::UnaryMinusOp) {
+			foundOp = true;
+			tokens.emplace_back(ExprToken(ExprTokenType::UnaryMinusOp, CurrentToken.GetContent()));
+			Eat(TType::UnaryMinusOp);
+		}
+	}
+
+	if (parCounter != 0) return false;
 }
+
+
 /*
 <Constant List>   ::= <Constant> ',' <Constant List>
 					| <Constant>
@@ -491,7 +626,7 @@ bool Parser::Parse_PrintList()
 		return true;
 	}
 }
-//<Remark> = REM{ Cokoliv a� na NewLine a Colon }
+//<Remark> = REM{ Cokoliv až na NewLine a Colon }
 bool Parser::Parse_Remark()
 {
 	if (CurrentTokenType() != TType::Rem) return false;
@@ -845,15 +980,6 @@ bool Parser::Parse_Value()
 	return true;
 }
 
-//If arguments are equal, returns their type. 
-//If one of the arguments is Real, returns Real
-//Otherwise returns End as error type
-ItemType Parser::DecideType(const ItemType first, const ItemType second)
-{
-	if (first == second) { return first; }
-	else if ((first == ItemType::Real) || (second == ItemType::Real)) return ItemType::Real;
-	else return ItemType::End;
-}
 
 TType Parser::CurrentTokenType()
 {
