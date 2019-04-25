@@ -466,3 +466,7 @@ uint32_t Token::GetLineNumber()
 	return lineNumber;
 }
 
+TType UnaryMinusOp_T::Type()
+{
+	return TType::UnaryMinusOp;
+}
