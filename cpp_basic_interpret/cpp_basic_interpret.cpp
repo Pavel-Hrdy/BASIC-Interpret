@@ -11,11 +11,12 @@
 
 int main()
 {
-	std::string code = "10 PRINT (2*3)+8";
+	std::string code = "10 PRINT 5+9+3*8";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);
 	p.Parse();
 	ICVM* icvm = ICVM::GetInstance();
 	icvm->ExecuteAll();
+
 }

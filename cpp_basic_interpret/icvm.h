@@ -66,7 +66,7 @@ class ICVM {
 private:
 	static ICVM *instance;
 	ICVM() {}
-	std::stack<StackItem> stack;
+	std::deque<StackItem> stack;
 	std::map<std::string, std::string> variables;
 	std::map<std::string, TypeOfVariable> variablesTypes;
 	std::map<std::string, TypeOfVariable> arrayTypes;
@@ -75,6 +75,8 @@ private:
 	std::vector<std::unique_ptr<Instruction>> instructions;
 	std::stack<StackItem> dataStack;
 	uint32_t instructionPointer = 0;
+	uint32_t currentPrecedence = 0;
+
 public:
 	ICVM(ICVM const&) = delete;
 	void operator=(ICVM const&) = delete;
@@ -108,6 +110,8 @@ public:
 	void PushToDataStack(const StackItem item);
 	void ExecuteAll();
 	uint32_t ICVMLineToNormalLine();
+	void RaisePrecedence(){ currentPrecedence++; }
+	void LowerPrecedence(){ currentPrecedence--; }
 };
 
 

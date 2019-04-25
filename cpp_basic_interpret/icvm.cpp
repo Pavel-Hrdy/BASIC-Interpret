@@ -38,14 +38,14 @@ TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string & nameOfVariabl
 
 void ICVM::AddStackItem(const StackItem item)
 {
-	stack.push(item);
+	stack.push_back(item);
 }
 
 StackItem ICVM::PopItem(ItemType type)
 {
 	if (stack.size() == 0) throw EmptyStackException();
-	StackItem item = stack.top();
-	stack.pop();
+	StackItem item = stack.back();
+	stack.pop_back();
 	if (item.GetType() != type) throw TypeMismatchException();
 	else return item;
 }
@@ -53,15 +53,15 @@ StackItem ICVM::PopItem(ItemType type)
 StackItem ICVM::PopItem()
 {
 	if (stack.size() == 0) throw EmptyStackException();
-	StackItem item = stack.top();
-	stack.pop();
+	StackItem item = stack.back();
+	stack.pop_back();
 	return item;
 }
 
 TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack() const
 {
 	if (stack.size() == 0) throw EmptyStackException();
-	return (TypeOfVariable)stack.top().GetType();
+	return (TypeOfVariable)stack.back().GetType();
 }
 
 //Updates value of a variable in map
@@ -131,7 +131,7 @@ bool ICVM::ExecuteInstruction()
 void ICVM::CopyToStack(std::stack<StackItem> s)
 {
 	while (!s.empty()) {
-		stack.push(s.top());
+		stack.push_back(s.top());
 		s.pop();
 	}
 }
