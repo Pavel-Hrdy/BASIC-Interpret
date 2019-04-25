@@ -399,7 +399,7 @@ struct Token {
 private:
 	std::shared_ptr<TokenType> token;
 	std::string content;
-	uint32_t lineNumber;
+	uint32_t lineNumber = 0;
 public:
 	Token() {}
 	Token(std::unique_ptr<TokenType> _token, const std::string& _content, uint32_t _lineNumber);

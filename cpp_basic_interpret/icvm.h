@@ -43,9 +43,8 @@ enum class TypeOfVariable { Int, Real, String, Address,Error };
 
 class StackItem {
 private:
-	ItemType type;
-	std::string content;
-	uint32_t precedence;
+	ItemType type = ItemType::End;
+	std::string content = "";
 public:
 	StackItem(ItemType _type, const std::string & _content) {
 		type = _type;
