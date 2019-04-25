@@ -31,6 +31,7 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 #ifndef ICVM_H
 #define ICVM_H
 
+#include <deque>
 #include <stack>
 #include <vector>
 #include <map>
@@ -44,6 +45,7 @@ class StackItem {
 private:
 	ItemType type;
 	std::string content;
+	uint32_t precedence;
 public:
 	StackItem(ItemType _type, const std::string & _content) {
 		type = _type;
@@ -104,6 +106,7 @@ public:
 	bool ExecuteInstruction();
 	void CopyToStack(const std::stack<StackItem> s);
 	void PushToDataStack(const StackItem item);
+	void ExecuteAll();
 	uint32_t ICVMLineToNormalLine();
 };
 

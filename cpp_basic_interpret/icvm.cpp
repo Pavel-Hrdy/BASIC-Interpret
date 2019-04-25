@@ -141,6 +141,11 @@ void ICVM::PushToDataStack(const StackItem item)
 	dataStack.push(item);
 }
 
+void ICVM::ExecuteAll()
+{
+	while (ExecuteInstruction());
+}
+
 uint32_t ICVM::ICVMLineToNormalLine()
 {
 	throw 1;

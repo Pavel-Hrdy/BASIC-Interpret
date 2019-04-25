@@ -826,7 +826,7 @@ bool Parser::Parse_Value()
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
 		if (!Parse_Expression()) return false;
-		if (CurrentTokenType() != TType::RightPar) return false;
+		if (CurrentTokenType() != TType::RightPar) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
 		Eat(TType::RightPar);
 		/*Semantic actions*/
 
