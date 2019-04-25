@@ -442,6 +442,7 @@ bool Parser::Parse_Expression() {
 	bool foundOp = false;;
 	int parCounter = 0;
 	while (true) {
+		/*
 		if ((foundVariable) && (CurrentTokenType() != TType::AndOp) && (CurrentTokenType() != TType::ExpOp) // There has to be an op after number
 			&& (CurrentTokenType() != TType::MulDivOp) && (CurrentTokenType() != TType::NotOp) && (CurrentTokenType() != TType::OrOp)
 			&& (CurrentTokenType() != TType::PlusMinusOp) && (CurrentTokenType() != TType::RelOp)) return false;
@@ -450,7 +451,7 @@ bool Parser::Parse_Expression() {
 		if ((foundOp) && (CurrentTokenType() != TType::Int) && (CurrentTokenType() != TType::Real) && (CurrentTokenType() != TType::Variable) // There has to be a number or left parenthesis after op 
 			&& (CurrentTokenType() != TType::StringVariable) && (CurrentTokenType() != TType::LeftPar)) return false;
 		else foundOp = false;
-
+		*/
 		if (CurrentTokenType() == TType::Int) {
 			foundVariable = true;
 			tokens.emplace_back(ExprToken(ExprTokenType::Int, CurrentToken.GetContent()));
@@ -555,6 +556,8 @@ bool Parser::Parse_Expression() {
 			tokens.emplace_back(ExprToken(ExprTokenType::UnaryMinusOp, CurrentToken.GetContent()));
 			Eat(TType::UnaryMinusOp);
 		}
+		else if ((CurrentTokenType() == TType::Colon) || (CurrentTokenType() == TType::EndOfCode) || (CurrentTokenType() == TType::NewLine)) break;
+		else return false;
 	}
 
 	if (parCounter != 0) return false;
