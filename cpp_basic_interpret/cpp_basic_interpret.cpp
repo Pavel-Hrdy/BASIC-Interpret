@@ -10,7 +10,6 @@
 #include "parser.h"
 
 //Todo 
-//- znak tilda pro unární minus 
 //- Parse_Expression přijme všechny znaky, které se mohou nacházet ve výrazu
 //- udělá z nich postfixovou notaci. 
 //- To se pak může vysypat do stacku a instrukcí ICVM a bude to šlapat
