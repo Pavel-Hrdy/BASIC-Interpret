@@ -434,10 +434,126 @@ pravidla -
 - závorky musí pasovat - uděláme counter
 - pokud narazíme na Variable, musíme se podívat, zda další znak není závorka - pokud ano, je to pole
 
-
+Parses infix expression, converts it to postfix and then puts on stack values from postfix expression + adds instruction to ICVM
 */
+
+uint32_t ReturnPrecedenceOfOp(ExprTokenType input) {
+	switch (input) {
+	case ExprTokenType::ExpOp: {
+		return 8;
+	}
+	case ExprTokenType::UnaryMinusOp: {
+		return 7;
+	}
+	case ExprTokenType::MulDivOp: {
+		return 6;
+	}
+	case ExprTokenType::AddSubOp: {
+		return 5;
+	}
+	case ExprTokenType::RelOp: {
+		return 4;
+	}
+	case ExprTokenType::NotOp: {
+		return 3;
+	}
+	case ExprTokenType::AndOp: {
+		return 2;
+	}
+	case ExprTokenType::OrOp: {
+		return 1;
+	}
+	default: {
+		return 0;
+	}
+	}
+}
+
+std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infixTokens, size_t startIndex, size_t & endIndex) {
+	std::stack<ExprToken> operators;
+	std::vector<ExprToken> output;
+
+	for (size_t i = startIndex; i < infixTokens.size(); i++) {
+		endIndex = i;
+		if ((infixTokens[i].GetType() == ExprTokenType::Int) || (infixTokens[i].GetType() == ExprTokenType::Real) ||
+			(infixTokens[i].GetType() == ExprTokenType::Variable) || (infixTokens[i].GetType() == ExprTokenType::StringVariable)
+			|| (infixTokens[i].GetType() == ExprTokenType::String)) {
+			output.push_back(infixTokens[i]);
+		}
+		else if (infixTokens[i].GetType() == ExprTokenType::End) {
+			output.emplace_back(ExprToken(ExprTokenType::End, ""));
+			break;
+		}
+		else if (infixTokens[i].GetType() == ExprTokenType::ArrayComma) {
+			continue;
+		}
+		else if (infixTokens[i].GetType() == ExprTokenType::LeftPar) {
+			operators.push(infixTokens[i]);
+		}
+		else if (infixTokens[i].GetType() == ExprTokenType::RightPar) {
+			while ((operators.size() > 0) && (operators.top().GetType() != ExprTokenType::LeftPar)) {
+				output.push_back(operators.top());
+				operators.pop();
+			}
+			operators.pop();
+		}
+		else if (infixTokens[i].GetType() == ExprTokenType::ArrayVariable) {
+			size_t endIndex = 0;
+			std::vector<ExprToken> indexPostfix;
+			output.push_back(infixTokens[i]);
+			indexPostfix = ConvertInfixToPostfix(infixTokens, i + 1, endIndex);
+			i = endIndex;
+			/*
+			i++;
+			while (infixTokens[i].GetType() != ExprTokenType::End) {
+				index.clear();
+				while (infixTokens[i].GetType() != ExprTokenType::ArrayComma)
+				{
+					if (infixTokens[i].GetType() == ExprTokenType::End) goto copy;
+					index.push_back(infixTokens[i]);
+					i++;
+				}
+				i++;
+				*/
+
+			for (size_t j = 0; j < indexPostfix.size(); j++) {
+				output.push_back(indexPostfix[j]);
+			}
+		}
+		else //It's operator
+		{
+			while ((operators.size() > 0) && (ReturnPrecedenceOfOp(operators.top().GetType()) > ReturnPrecedenceOfOp(infixTokens[i].GetType()))) {
+				output.push_back(operators.top());
+				operators.pop();
+			}
+			operators.push(infixTokens[i]);
+		}
+	}
+
+	while (!operators.empty()) {
+		output.push_back(operators.top());
+		operators.pop();
+	}
+
+	return output;
+}
+
+
 bool Parser::Parse_Expression() {
+
+	std::vector<ExprToken> infixTokens;
+	std::vector<ExprToken> postfix;
+	size_t temp;
+	if (!Parse_InfixExpression(infixTokens, false)) return false;
+	postfix = ConvertInfixToPostfix(infixTokens, 0,temp);
+
+	return false;
+}
+//Parses infix expression and returns boolean if parsing was successful.
+//Also returns vector of ExprTokens which represents infix notation.
+bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isArrayIndex) {
 	std::vector<ExprToken> tokens;
+	ICVM * icvm = ICVM::GetInstance();
 	bool foundVariable = false;;
 	bool foundOp = false;;
 	int parCounter = 0;
@@ -448,7 +564,7 @@ bool Parser::Parse_Expression() {
 			&& (CurrentTokenType() != TType::PlusMinusOp) && (CurrentTokenType() != TType::RelOp)) return false;
 		else foundVariable = false;
 
-		if ((foundOp) && (CurrentTokenType() != TType::Int) && (CurrentTokenType() != TType::Real) && (CurrentTokenType() != TType::Variable) // There has to be a number or left parenthesis after op 
+		if ((foundOp) && (CurrentTokenType() != TType::Int) && (CurrentTokenType() != TType::Real) && (CurrentTokenType() != TType::Variable) // There has to be a number or left parenthesis after op
 			&& (CurrentTokenType() != TType::StringVariable) && (CurrentTokenType() != TType::LeftPar)) return false;
 		else foundOp = false;
 		*/
@@ -474,28 +590,31 @@ bool Parser::Parse_Expression() {
 			bool foundNum = false;
 
 			if (CurrentTokenType() == TType::LeftPar) { // It's array variable
-				varName += '('; Eat(TType::LeftPar);
-
+				Eat(TType::LeftPar);
+				std::vector<ExprToken> indices;
 				while (true) {
-					if (CurrentTokenType() == TType::Int) {
-						foundNum = true;
-						varName += CurrentToken.GetContent();
-						Eat(TType::Int);
+					if (!Parse_InfixExpression(indices, true)) {
+						return false;
 					}
 					if (CurrentTokenType() == TType::Comma) {
+						indices.emplace_back(ExprToken(ExprTokenType::ArrayComma, ""));
 						Eat(TType::Comma);
-						varName += ',';
 					}
 					else if (CurrentTokenType() == TType::RightPar) {
 						Eat(TType::RightPar);
-						varName += ')';
 						break;
 					}
 					else return false;
 				}
-				if (!foundNum) return false;
-
 				tokens.emplace_back(ExprToken(ExprTokenType::ArrayVariable, varName));
+
+				//Copy indices to tokens vector
+				for (size_t i = 0; i < indices.size(); i++) {
+					tokens.push_back(indices[i]);
+				}
+				//Signalise end of indices
+				tokens.emplace_back(ExprToken(ExprTokenType::End, ""));
+
 			}
 			else
 				tokens.emplace_back(ExprToken(ExprTokenType::Variable, varName));
@@ -512,9 +631,14 @@ bool Parser::Parse_Expression() {
 			parCounter++;
 		}
 		else if (CurrentTokenType() == TType::RightPar) {
-			tokens.emplace_back(ExprToken(ExprTokenType::RightPar, CurrentToken.GetContent()));
-			Eat(TType::RightPar);
-			parCounter--;
+			if (isArrayIndex && (parCounter == 0)) {
+				break;
+			}
+			else {
+				tokens.emplace_back(ExprToken(ExprTokenType::RightPar, CurrentToken.GetContent()));
+				Eat(TType::RightPar);
+				parCounter--;
+			}
 		}
 		else if (CurrentTokenType() == TType::AndOp) {
 			foundOp = true;
@@ -556,11 +680,17 @@ bool Parser::Parse_Expression() {
 			tokens.emplace_back(ExprToken(ExprTokenType::UnaryMinusOp, CurrentToken.GetContent()));
 			Eat(TType::UnaryMinusOp);
 		}
-		else if ((CurrentTokenType() == TType::Colon) || (CurrentTokenType() == TType::EndOfCode) || (CurrentTokenType() == TType::NewLine)) break;
+		else if ((CurrentTokenType() == TType::Colon) || (CurrentTokenType() == TType::EndOfCode) ||
+			(CurrentTokenType() == TType::NewLine) || (CurrentTokenType() == TType::Comma)) break;
 		else return false;
 	}
 
 	if (parCounter != 0) return false;
+
+	for (size_t i = 0; i < tokens.size(); i++) {
+		exprTokens.push_back(tokens[i]);
+	}
+	return true;
 }
 
 

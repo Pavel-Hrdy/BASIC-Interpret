@@ -115,7 +115,7 @@ Whitespace     = {WS}+
 #include "icvm.h"
 
 enum class ExprTokenType{Variable,ArrayVariable,StringVariable,Int,Real,String,RelOp,MulDivOp,AddSubOp,UnaryMinusOp,ExpOp,
-						LeftPar,RightPar,Error, AndOp, OrOp, NotOp};
+						LeftPar,RightPar,Error, AndOp, OrOp, NotOp, End, ArrayComma};
 
 class ExprToken {
 private:
@@ -127,6 +127,8 @@ public:
 		_type = type;
 		_content = content;
 	}
+
+	ExprTokenType GetType() const { return _type; }
 };
 
 class Parser {
@@ -143,6 +145,7 @@ private:
 	bool Parse_ID(std::string & varName);
 	bool Parse_IntegerList();
 	bool Parse_Expression();
+	bool Parse_InfixExpression(std::vector<ExprToken>& exprTokens, bool isArrayIndex);
 	bool Parse_ConstantList();
 	bool Parse_IDList();
 	bool Parse_PrintList();
