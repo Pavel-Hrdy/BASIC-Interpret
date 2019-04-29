@@ -227,13 +227,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Clog; }
 };
 
-class Clr_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Clr; }
-};
-
 class Cos_F_T : public Function_T {
 public:
 	virtual void SemanticAction() override;
@@ -246,13 +239,6 @@ public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 	virtual FunctionType FuncType() { return FunctionType::Data; }
-};
-
-class Deg_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Deg; }
 };
 
 class Dim_F_T : public Function_T {
@@ -325,12 +311,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Print; }
 };
 
-class Rad_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Rad; }
-};
 
 class Read_F_T : public Function_T {
 public:
@@ -381,12 +361,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Str; }
 };
 
-class Trap_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Trap; }
-};
 
 class Val_F_T : public Function_T {
 public:

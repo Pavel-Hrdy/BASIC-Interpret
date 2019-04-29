@@ -354,7 +354,103 @@ public:
 	virtual void Execute()override;
 };
 
+class CreateFor : public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+class DeleteFor : public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+class GetForInfo : public Instruction {
+public:
+	GetForInfo(const std::string & input) :Instruction(input) {}
+	virtual void Execute() override;
+};
+
+class GetLineNumberAfterNEXT :public Instruction {
+public:
+	GetLineNumberAfterNEXT(const std::string & input) :Instruction(input) {}
+	virtual void Execute() override;
+};
+
 class For : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Abs_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Asc_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Atn_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Chr_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Clog_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Cos_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Int_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Len_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Log_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Rnd_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Sgn_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Sin_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Sqr_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+class Str_Function :public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Val_Function :public Instruction {
 public:
 	virtual void Execute()override;
 };

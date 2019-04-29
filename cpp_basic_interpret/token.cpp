@@ -36,7 +36,10 @@ TType RelOp_T::Type()
 }
 
 void Abs_F_T::SemanticAction() {
-
+	ICVM * icvm = ICVM::GetInstance();
+	Abs_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Abs_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Abs_F_T::Type()
@@ -46,6 +49,10 @@ TType Abs_F_T::Type()
 
 void Asc_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Asc_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Asc_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Asc_F_T::Type()
@@ -55,6 +62,10 @@ TType Asc_F_T::Type()
 
 void Atn_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Atn_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Atn_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Atn_F_T::Type()
@@ -64,6 +75,10 @@ TType Atn_F_T::Type()
 
 void Chr_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Chr_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Chr_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Chr_F_T::Type()
@@ -73,6 +88,10 @@ TType Chr_F_T::Type()
 
 void Clog_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Clog_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Clog_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Clog_F_T::Type()
@@ -80,17 +99,13 @@ TType Clog_F_T::Type()
 	return Function_T::Type();
 }
 
-void Clr_F_T::SemanticAction()
-{
-}
-
-TType Clr_F_T::Type()
-{
-	return Function_T::Type();
-}
 
 void Cos_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Cos_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Cos_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Cos_F_T::Type()
@@ -106,15 +121,6 @@ void Data_F_T::SemanticAction()
 }
 
 TType Data_F_T::Type()
-{
-	return Function_T::Type();
-}
-
-void Deg_F_T::SemanticAction()
-{
-}
-
-TType Deg_F_T::Type()
 {
 	return Function_T::Type();
 }
@@ -179,6 +185,10 @@ TType Input_F_T::Type()
 
 void Int_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Int_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Int_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Int_F_T::Type()
@@ -188,6 +198,10 @@ TType Int_F_T::Type()
 
 void Len_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Len_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Len_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Len_F_T::Type()
@@ -206,6 +220,10 @@ TType Let_F_T::Type()
 
 void Log_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Log_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Log_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Log_F_T::Type()
@@ -239,14 +257,6 @@ TType Print_F_T::Type()
 	return Function_T::Type();
 }
 
-void Rad_F_T::SemanticAction()
-{
-}
-
-TType Rad_F_T::Type()
-{
-	return Function_T::Type();
-}
 
 void Read_F_T::SemanticAction()
 {
@@ -277,6 +287,10 @@ TType Restore_F_T::Type()
 
 void Rnd_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Rnd_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Rnd_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Rnd_F_T::Type()
@@ -286,6 +300,10 @@ TType Rnd_F_T::Type()
 
 void Sgn_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Sgn_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Sgn_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Sgn_F_T::Type()
@@ -295,6 +313,10 @@ TType Sgn_F_T::Type()
 
 void Sin_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Sin_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Sin_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Sin_F_T::Type()
@@ -304,6 +326,10 @@ TType Sin_F_T::Type()
 
 void Sqr_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Sqr_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Sqr_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Sqr_F_T::Type()
@@ -313,6 +339,10 @@ TType Sqr_F_T::Type()
 
 void Str_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Str_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Str_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Str_F_T::Type()
@@ -320,17 +350,12 @@ TType Str_F_T::Type()
 	return Function_T::Type();
 }
 
-void Trap_F_T::SemanticAction()
-{
-}
-
-TType Trap_F_T::Type()
-{
-	return Function_T::Type();
-}
-
 void Val_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Val_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Val_Function>(x);
+	icvm->AddInstruction(std::move(instr));
 }
 
 TType Val_F_T::Type()

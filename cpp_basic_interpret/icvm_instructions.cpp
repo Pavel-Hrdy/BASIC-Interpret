@@ -80,51 +80,6 @@ void LoadConstant::Execute()
 	StackItem item(itemType, content);
 	ICVM::GetInstance()->AddStackItem(item);
 }
-/*
-//Takes int which is on the top of the stack and converts it to real.
-void IntToReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem intItem = icvm->PopItem(ItemType::Int);
-	StackItem realItem(ItemType::Real, intItem.GetContent());
-
-	icvm->AddStackItem(realItem);
-}
-
-//Takes real which is on the top of the stack and converts it to int.
-void RealToInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem realItem = icvm->PopItem(ItemType::Real);
-	double realContent = std::stod(realItem.GetContent());
-	std::string convertedToInt = std::to_string(static_cast<int>(realContent));
-	StackItem intItem(ItemType::Int, convertedToInt);
-
-	icvm->AddStackItem(intItem);
-}
-
-//Takes real number from the top of the stack, multiplies its value by -1 and returns it to the stack.
-void UnaryMinusReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem realItem = icvm->PopItem(ItemType::Real);
-	double outputContent = std::stod(realItem.GetContent())*-1;
-	StackItem newItem(ItemType::Real, std::to_string(outputContent));
-
-	icvm->AddStackItem(newItem);
-}
-
-//Takes int number from the top of the stack, multiplies its value by -1 and returns it to the stack.
-void UnaryMinusInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem intItem = icvm->PopItem(ItemType::Int);
-	int outputContent = std::stoi(intItem.GetContent())*-1;
-	StackItem newItem(ItemType::Int, std::to_string(outputContent));
-
-	icvm->AddStackItem(newItem);
-}
-*/
 //Takes boolean int number from the top of the stack, negates it and puts it back to the stack.
 void Not::Execute()
 {
@@ -178,344 +133,9 @@ void Or::Execute()
 	StackItem newItem(ItemType::Int, std::to_string(firstOpValue || secondOpValue));
 	icvm->AddStackItem(newItem);
 }
-/*
-//Adds two integers and returns the result to the stack
-void AddInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
 
-	StackItem newItem(ItemType::Int, std::to_string(firstOpValue + secondOpValue));
-	icvm->AddStackItem(newItem);
-}
 
-//Subtracts two integers
-void SubInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue - firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Divides two integers
-void DivInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	if (firstOpValue == 0) throw DivideByZeroException();
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue / firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Multiplies two integers
-void MulInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(firstOpValue * secondOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Arithmetic operations for real numbers
-void AddReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(firstOpValue + secondOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void SubReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue - firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void DivReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	if (firstOpValue == 0) throw DivideByZeroException();
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue / firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void MulReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(firstOpValue * secondOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Relational operators for integers
-void LessInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue < firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue > firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void LessEqInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue <= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterEqInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue >= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void EqInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue == firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void NotEqInt::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Int);
-	StackItem secondOperand = icvm->PopItem(ItemType::Int);
-	int firstOpValue = std::stoi(firstOperand.GetContent());
-	int secondOpValue = std::stoi(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Int, std::to_string(secondOpValue != firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Relational operators for real numbers
-void LessReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue < firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue > firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void LessEqReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue <= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterEqReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue >= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void EqReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue == firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void NotEqReal::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::Real);
-	StackItem secondOperand = icvm->PopItem(ItemType::Real);
-	double firstOpValue = std::stod(firstOperand.GetContent());
-	double secondOpValue = std::stod(secondOperand.GetContent());
-
-	StackItem newItem(ItemType::Real, std::to_string(secondOpValue != firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-//Relational operators for strings
-void LessString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue < firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue > firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void LessEqString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue <= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void GreaterEqString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue >= firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void EqString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue == firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void NotEqString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue != firstOpValue));
-	icvm->AddStackItem(newItem);
-}
-
-void ConcatString::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem firstOperand = icvm->PopItem(ItemType::String);
-	StackItem secondOperand = icvm->PopItem(ItemType::String);
-	std::string firstOpValue = firstOperand.GetContent();
-	std::string secondOpValue = secondOperand.GetContent();
-
-	StackItem newItem(ItemType::String, std::to_string(secondOpValue + firstOpValue));
-	icvm->AddStackItem(newItem);
-}*/
-
-//Takes name of variable and value from stack (in that order) and then saves value to the variable.
+//Takes value and name from stack (in that order) and then saves value to the variable.
 void SaveToVariable::Execute()
 {
 	ICVM* icvm = ICVM::GetInstance();
@@ -1350,4 +970,273 @@ void CodeLineNumberToICVMLineNumber::Execute()
 
 	StackItem icvmLN(ItemType::Int, std::to_string(icvmLine));
 	icvm->AddStackItem(icvmLN);
+}
+//max start var
+void CreateFor::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem maxStackItem = icvm->PopItem(ItemType::Int);
+	StackItem startStackItem = icvm->PopItem(ItemType::Int);
+	StackItem varStackItem = icvm->PopItem(ItemType::String);
+	ForInfo x(varStackItem.GetContent(), std::stoi(startStackItem.GetContent()) - 1, std::stoi(maxStackItem.GetContent()));
+	icvm->forInfoStack.push(x);
+}
+
+void DeleteFor::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	if (icvm->forInfoStack.empty()) throw EmptyStackException();
+	icvm->forInfoStack.pop();
+	icvm->PopAddress();
+}
+
+void GetForInfo::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	if (icvm->forInfoStack.empty()) throw EmptyStackException();
+	if (argument == "N") {
+		StackItem name(ItemType::String, icvm->forInfoStack.top().VarName);
+		icvm->AddStackItem(name);
+	}
+	else if (argument == "S") {
+		StackItem start(ItemType::Int, std::to_string(icvm->forInfoStack.top().Start));
+		icvm->AddStackItem(start);
+	}
+	else if (argument == "M") {
+		StackItem max(ItemType::Int, std::to_string(icvm->forInfoStack.top().Max));
+		icvm->AddStackItem(max);
+	}
+	else throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+}
+
+void GetLineNumberAfterNEXT::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	int32_t forLN = std::stoi(argument);
+
+	auto it = icvm->forNextPairs.find(forLN);
+
+	if (it == icvm->forNextPairs.end()) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+	else {
+		StackItem addr(ItemType::Int, std::to_string((icvm->forNextPairs[forLN])+10));
+		icvm->AddStackItem(addr);
+	}
+
+}
+
+void Abs_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double absNum = abs(std::stod(num.GetContent()));
+	
+	StackItem returnItem(type, std::to_string(absNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Asc_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem item = icvm->PopItem();
+	ItemType type = item.GetType();
+	if (item.GetType() != ItemType::String) throw TypeMismatchException();
+
+	char c = item.GetContent()[0];
+
+	StackItem returnItem(ItemType::Int, std::to_string((int)c));
+	icvm->AddStackItem(returnItem);
+}
+
+void Atn_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double absNum = atan(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(absNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Chr_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if (num.GetType() != ItemType::Int) throw TypeMismatchException();
+
+	char c = (char)(std::stoi(num.GetContent()));
+	std::string x = "";
+	x += c;
+
+	StackItem returnItem(ItemType::String, x);
+	icvm->AddStackItem(returnItem);
+}
+
+void Clog_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum = log10(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Cos_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum = cos(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Int_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	int returnNum = int(std::stoi(num.GetContent()));
+
+	StackItem returnItem(ItemType::Int, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Len_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem item = icvm->PopItem();
+	ItemType type = item.GetType();
+	if (item.GetType() != ItemType::String) throw TypeMismatchException();
+
+	int returnNum = item.GetContent().length();
+
+	StackItem returnItem(ItemType::Int, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Log_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum = log(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Rnd_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+
+	double returnNum = rand() % 1000000;
+	returnNum /= 1000000;
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Sgn_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum1 = std::stod(num.GetContent());
+	int returnNum;
+
+	if (returnNum1 > 0) {
+		returnNum = 1;
+	}
+	else if (returnNum1 < 0) {
+		returnNum = -1;
+	}else returnNum = 0;
+
+	StackItem returnItem(ItemType::Int, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Sin_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum = sin(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Sqr_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+	double returnNum = sqrt(std::stod(num.GetContent()));
+
+	StackItem returnItem(ItemType::Real, std::to_string(returnNum));
+	icvm->AddStackItem(returnItem);
+}
+
+void Str_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem num = icvm->PopItem();
+	ItemType type = num.GetType();
+	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException();
+
+
+	StackItem returnItem(ItemType::String, num.GetContent()	);
+	icvm->AddStackItem(returnItem);
+}
+
+void Val_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem item = icvm->PopItem();
+	ItemType type = item.GetType();
+	if (item.GetType() != ItemType::String) throw TypeMismatchException();
+
+	StackItem returnItem(ItemType::Real, item.GetContent());
+	icvm->AddStackItem(returnItem);
 }

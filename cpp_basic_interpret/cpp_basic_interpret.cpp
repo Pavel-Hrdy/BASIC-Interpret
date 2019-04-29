@@ -25,7 +25,7 @@ int main()
 	std::map<int, int> bla;
 	int x = bla[0];
 
-	std::string code = "10 X=2:IF X=3 THEN X=3\n20 PRINT X";
+	std::string code = "10 FOR X = 0 TO 10\n20 FOR Y = 0 TO 5\n30 PRINT X+Y\n40 NEXT\n50 NEXT";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);

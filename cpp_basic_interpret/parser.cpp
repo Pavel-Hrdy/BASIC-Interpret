@@ -86,6 +86,9 @@ bool Parser::Parse_Statement()
 {
 	ICVM* icvm = ICVM::GetInstance();
 	std::string varName;
+	//Musíme uložit do ID hodnotu expressionu, pak zkontrolovat, zda je expression vyšší než maxValue
+	//Pokud ano, skočíme na nextLineNum+10, jinak pokračujeme dál.
+	//Next musí skočit na adresu, kde dojde k připočtení jedničky 
 	//| FOR ID '=' <Expression> TO <Expression>
 	if (CurrentTokenType() == TType::For) {
 		int currentLine = lexer.ReturnLineNumber();
@@ -95,17 +98,102 @@ bool Parser::Parse_Statement()
 		if (CurrentTokenType() != TType::RelOp) { return false; }
 		RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
 		if (x->type != RelType::Eq) return false;
-
 		Eat(TType::RelOp);
-
 		if (!Parse_Expression(false)) return false;
 		if (CurrentTokenType() != TType::To) { return false; }
-
 		Eat(TType::To);
-
 		if (!Parse_Expression(false)) return false;
 
+		CreateFor c;
+		std::unique_ptr<Instruction> instrCreate = std::make_unique<CreateFor>(c);
+		icvm->AddInstruction(std::move(instrCreate));
 
+		//Save start value to ID
+		GetForInfo name("N");
+		std::unique_ptr<Instruction> getNameInstr = std::make_unique<GetForInfo>(name);
+		icvm->AddInstruction(std::move(getNameInstr));
+
+		GetForInfo startValue("S");
+		std::unique_ptr<Instruction> getStartValInstr = std::make_unique<GetForInfo>(startValue);
+		icvm->AddInstruction(std::move(getStartValInstr));
+
+		SaveToNewVariable saveToVar;
+		std::unique_ptr<Instruction> saveNameInstr = std::make_unique<SaveToNewVariable>(saveToVar);
+		icvm->AddInstruction(std::move(saveNameInstr));
+
+		//Add 1 to FOR Var and save back to var
+		std::unique_ptr<Instruction> getNameInstr1 = std::make_unique<GetForInfo>(name);
+		icvm->AddInstruction(std::move(getNameInstr1));
+
+		size_t jumpBackAddress = icvm->InstructionCount()-1;
+
+		LoadConstant address("\"I\""+std::to_string(jumpBackAddress));
+		std::unique_ptr<Instruction> ldAddrInstr = std::make_unique<LoadConstant>(address);
+		icvm->AddInstruction(std::move(ldAddrInstr));
+
+		LoadToAddressStack ldAddress;
+		std::unique_ptr<Instruction> ldAddressInstr = std::make_unique<LoadToAddressStack>(ldAddress);
+		icvm->AddInstruction(std::move(ldAddressInstr));
+
+		LoadConstant one("\"I\"1");
+		std::unique_ptr<Instruction> ldOneInstr = std::make_unique<LoadConstant>(one);
+		icvm->AddInstruction(std::move(ldOneInstr));
+
+		std::unique_ptr<Instruction> getNameInstr2 = std::make_unique<GetForInfo>(name);
+		icvm->AddInstruction(std::move(getNameInstr2));
+
+		LoadVariable ldVar;
+		std::unique_ptr<Instruction> ldVarInstr = std::make_unique<LoadVariable>(ldVar);
+		icvm->AddInstruction(std::move(ldVarInstr));
+
+		Add add;
+		std::unique_ptr<Instruction> addInstr = std::make_unique<Add>(add);
+		icvm->AddInstruction(std::move(addInstr));
+
+		std::unique_ptr<Instruction> saveNameInstr1 = std::make_unique<SaveToNewVariable>(saveToVar);
+		icvm->AddInstruction(std::move(saveNameInstr1));
+		//Compare with max value
+		GetForInfo maxValue("M");
+		std::unique_ptr<Instruction> getMaxValInstr = std::make_unique<GetForInfo>(maxValue);
+		icvm->AddInstruction(std::move(getMaxValInstr));
+
+		std::unique_ptr<Instruction> getNameInstr3 = std::make_unique<GetForInfo>(name);
+		icvm->AddInstruction(std::move(getNameInstr3));
+
+		std::unique_ptr<Instruction> ldVarInstr1 = std::make_unique<LoadVariable>(ldVar);
+		icvm->AddInstruction(std::move(ldVarInstr1));
+
+		GreaterEq greaterEq;
+		std::unique_ptr<Instruction> greaterEqInstr = std::make_unique<GreaterEq>(greaterEq);
+		icvm->AddInstruction(std::move(greaterEqInstr));
+		//If max >= currValue, jump to next line
+		LoadConstant loadNextLine("\"I\"" + std::to_string(currentLine + 10));
+		std::unique_ptr<Instruction> loadNextLineInstr = std::make_unique<LoadConstant>(loadNextLine);
+		icvm->AddInstruction(std::move(loadNextLineInstr));
+
+		CodeLineNumberToICVMLineNumber convert;
+		std::unique_ptr<Instruction> convertInst = std::make_unique<CodeLineNumberToICVMLineNumber>(convert);
+		icvm->AddInstruction(std::move(convertInst));
+
+		Jumpif jmpIf;
+		std::unique_ptr<Instruction> jumpIfInstr = std::make_unique<Jumpif>(jmpIf);
+		icvm->AddInstruction(std::move(jumpIfInstr));
+
+		//If currValue > max, jump to next line after NEXT line, but delete FOR info from stack before that
+		GetLineNumberAfterNEXT getLineNumAfterNext(std::to_string(currentLine));
+		std::unique_ptr<Instruction> getLineNumAfterNextInstr = std::make_unique<GetLineNumberAfterNEXT>(getLineNumAfterNext);
+		icvm->AddInstruction(std::move(getLineNumAfterNextInstr));
+
+		std::unique_ptr<Instruction> convertInst1 = std::make_unique<CodeLineNumberToICVMLineNumber>(convert);
+		icvm->AddInstruction(std::move(convertInst1));
+
+		DeleteFor delFor;
+		std::unique_ptr<Instruction> delForInstr = std::make_unique<DeleteFor>(delFor);
+		icvm->AddInstruction(std::move(delForInstr));
+
+		Jump jmp;
+		std::unique_ptr<Instruction> jumpInstr = std::make_unique<Jump>(jmp);
+		icvm->AddInstruction(std::move(jumpInstr));
 
 		return true;
 	}
@@ -128,7 +216,7 @@ bool Parser::Parse_Statement()
 	}
 	//| GOSUB <Expression>
 	else if (CurrentTokenType() == TType::Gosub) {
-		int nextLine = CurrentToken.GetLineNumber()+10;
+		int nextLine = CurrentToken.GetLineNumber() + 10;
 		Eat(TType::Gosub);
 
 		if (!Parse_Expression(false)) return false;
@@ -163,7 +251,7 @@ bool Parser::Parse_Statement()
 		std::unique_ptr<Instruction> notInstr = std::make_unique<Not>(n);
 		icvm->AddInstruction(std::move(notInstr));
 
-		int nextLine = CurrentToken.GetLineNumber()+10;
+		int nextLine = CurrentToken.GetLineNumber() + 10;
 
 		LoadConstant ldConst("\"I\"" + std::to_string(nextLine));
 		std::unique_ptr<Instruction> ldConstInstr = std::make_unique<LoadConstant>(ldConst);

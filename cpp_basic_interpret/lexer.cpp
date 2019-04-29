@@ -178,10 +178,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 		Clog_F_T x;
 		returnPointer = std::make_unique<Clog_F_T>(x);
 	}
-	else if (lowerString == "clr") {
-		Clr_F_T x;
-		returnPointer = std::make_unique<Clr_F_T>(x);
-	}
 	else if (lowerString == "cos") {
 		Cos_F_T x;
 		returnPointer = std::make_unique<Cos_F_T>(x);
@@ -189,10 +185,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	else if (lowerString == "data") {
 		Data_F_T x;
 		returnPointer = std::make_unique<Data_F_T>(x);
-	}
-	else if (lowerString == "deg") {
-		Deg_F_T x;
-		returnPointer = std::make_unique<Deg_F_T>(x);
 	}
 	else if (lowerString == "dim") {
 		Dim_F_T x;
@@ -234,10 +226,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 		Print_F_T x;
 		returnPointer = std::make_unique<Print_F_T>(x);
 	}
-	else if (lowerString == "rad") {
-		Rad_F_T x;
-		returnPointer = std::make_unique<Rad_F_T>(x);
-	}
 	else if (lowerString == "read") {
 		Read_F_T x;
 		returnPointer = std::make_unique<Read_F_T>(x);
@@ -269,10 +257,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	else if (lowerString == "str$") {
 		Str_F_T x;
 		returnPointer = std::make_unique<Str_F_T>(x);
-	}
-	else if (lowerString == "trap") {
-		Trap_F_T x;
-		returnPointer = std::make_unique<Trap_F_T>(x);
 	}
 	else if (lowerString == "val") {
 		Val_F_T x;

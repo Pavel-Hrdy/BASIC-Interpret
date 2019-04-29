@@ -42,6 +42,19 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 enum class ItemType { Int, Real, String, Address, EndList, EndArray };
 enum class TypeOfVariable { Int, Real, String, Address,Error };
 
+class ForInfo {
+public:
+	std::string VarName;
+	int Start;
+	int Max;
+	ForInfo(const std::string & varName, int start, int max)
+	{
+		VarName = varName;
+		Start = start;
+		Max = max;
+	}
+};
+
 class StackItem {
 private:
 	ItemType type = ItemType::EndList;
@@ -81,8 +94,9 @@ private:
 	}
 public:
 	std::stack<uint32_t> forStack;
+	std::stack<ForInfo> forInfoStack;
 	std::map<int32_t, int32_t> codeToInstructionMapping;
-	std::map<uint32_t, uint32_t> forNextPairs;
+	std::map<int32_t, int32_t> forNextPairs;
 	ICVM(ICVM const&) = delete;
 	void operator=(ICVM const&) = delete;
 
