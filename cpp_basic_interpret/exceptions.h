@@ -40,6 +40,11 @@ public:
 	virtual const char* what() const noexcept;
 };
 
+class WrongInputException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
 class TypeMismatchException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;

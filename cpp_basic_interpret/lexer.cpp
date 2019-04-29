@@ -511,3 +511,8 @@ Token Lexer::GetNextToken() {
 	return Token(std::move(x), "", lineNumber);
 	//-----------------------------------------
 }
+
+uint32_t Lexer::ReturnLineNumber()
+{
+	return lineNumber;
+}

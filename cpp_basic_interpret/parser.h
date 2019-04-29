@@ -115,7 +115,7 @@ Whitespace     = {WS}+
 #include "icvm.h"
 
 enum class ExprTokenType{Variable,ArrayVariable,StringVariable,Int,Real,String,RelOp,MulDivOp,AddSubOp,UnaryMinusOp,ExpOp,
-						LeftPar,RightPar,Error, AndOp, OrOp, NotOp, End, ArrayComma};
+						LeftPar,RightPar,Error, AndOp, OrOp, NotOp, EndList,EndArray, ArrayComma};
 
 class ExprToken {
 private:
@@ -129,6 +129,7 @@ public:
 	}
 
 	ExprTokenType GetType() const { return _type; }
+	std::string GetContent()const { return _content; }
 };
 
 class Parser {
@@ -142,12 +143,15 @@ private:
 	bool Parse_Statement();
 
 
-	bool Parse_ID(std::string & varName);
+	bool Parse_ID();
+	bool Parse_ID_NameOnStack();
 	bool Parse_IntegerList();
-	bool Parse_Expression();
+	bool Parse_Expression(bool isArray);
+	void AddPostfixToICVM(std::vector<ExprToken>& postfix, size_t startIndex, size_t & endIndex);
 	bool Parse_InfixExpression(std::vector<ExprToken>& exprTokens, bool isArrayIndex);
 	bool Parse_ConstantList();
 	bool Parse_IDList();
+	bool Parse_IDList_NamesOnStack();
 	bool Parse_PrintList();
 	bool Parse_Remark();
 	bool Parse_AndExp();
@@ -158,7 +162,7 @@ private:
 	bool Parse_NegateExp();
 	bool Parse_PowerExp();
 	bool Parse_PowerExp2();
-	bool Parse_ExpressionList();
+	bool Parse_ExpressionList(bool isArray);
 	bool Parse_Constant();
 	bool Parse_Value();
 

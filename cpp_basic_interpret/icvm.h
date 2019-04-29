@@ -35,15 +35,16 @@ Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
 #include <stack>
 #include <vector>
 #include <map>
+#include <queue>
 #include <memory>
 #include "icvm_instructions.h"
 
-enum class ItemType { Int, Real, String, Address, End };
+enum class ItemType { Int, Real, String, Address, EndList, EndArray };
 enum class TypeOfVariable { Int, Real, String, Address,Error };
 
 class StackItem {
 private:
-	ItemType type = ItemType::End;
+	ItemType type = ItemType::EndList;
 	std::string content = "";
 public:
 	StackItem(ItemType _type, const std::string & _content) {
@@ -64,19 +65,27 @@ public:
 class ICVM {
 private:
 	static ICVM *instance;
-	ICVM() {}
 	std::stack<StackItem> stack;
+	std::stack<size_t> addressStack;
 	std::map<std::string, std::string> variables;
 	std::map<std::string, TypeOfVariable> variablesTypes;
 	std::map<std::string, TypeOfVariable> arrayTypes;
 	std::map<std::string, std::vector<uint32_t>> arrayDimensions;
-	std::map<uint32_t, uint32_t> codeToInstructionMapping;
 	std::vector<std::unique_ptr<Instruction>> instructions;
-	std::stack<StackItem> dataStack;
-	uint32_t instructionPointer = 0;
+	std::queue<StackItem> dataStack;
+	std::queue<StackItem> currentDataStack;
+	int32_t instructionPointer = 0;
+
+	ICVM() {
+		codeToInstructionMapping.emplace(10, 0);
+	}
 public:
+	std::stack<uint32_t> forStack;
+	std::map<int32_t, int32_t> codeToInstructionMapping;
+	std::map<uint32_t, uint32_t> forNextPairs;
 	ICVM(ICVM const&) = delete;
 	void operator=(ICVM const&) = delete;
+
 
 	static ICVM * GetInstance() {
 		if (!instance) {
@@ -96,17 +105,31 @@ public:
 	void AddStackItem(const StackItem item);
 	StackItem PopItem(ItemType type);
 	StackItem PopItem();
+	StackItem PopDataItem();
 	TypeOfVariable ReturnTypeOfVarOnTopofStack() const;
 	void UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType);
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
 	void AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions);
-	void ChangeIP(uint32_t newIP);
+	void ChangeIP(int32_t newIP);
+	int32_t GetIP();
 	void AddInstruction(std::unique_ptr<Instruction> instr);
+	void AddInstructionAtIndex(std::unique_ptr<Instruction> instr, uint32_t index);
 	bool ExecuteInstruction();
 	void CopyToStack(const std::stack<StackItem> s);
 	void PushToDataStack(const StackItem item);
+	void RestoreDataStack();
+	void RemoveInstruction(size_t index);
+	void PushAddress(size_t value);
+	size_t PopAddress();
+	void AddNewLineNumber(int32_t codeLineNumber);
 	void ExecuteAll();
-	uint32_t ICVMLineToNormalLine();
+	void End();
+	size_t InstructionCount(){ return instructions.size(); }
+	int32_t ICVMLineToNormalLine(int32_t icvmLine);
+	int32_t ICVMLineToNormalLine();
+	int32_t NormalLineToICVM(int32_t normalLine);
+
+	void RecalculateLineNumMapping(size_t start, size_t offset);
 };
 
 

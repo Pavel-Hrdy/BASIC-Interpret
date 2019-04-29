@@ -28,6 +28,10 @@ bool Parser::Parse_Lines()
 
 	if (CurrentTokenType() == TType::NewLine) {
 		Eat(TType::NewLine);
+
+		ICVM * icvm = ICVM::GetInstance();
+		icvm->AddNewLineNumber(lexer.ReturnLineNumber());
+
 		if (!Parse_Lines()) { return false; }
 	}
 	else if (CurrentTokenType() == TType::EndOfCode) return true;
@@ -83,29 +87,23 @@ bool Parser::Parse_Statement()
 	ICVM* icvm = ICVM::GetInstance();
 	std::string varName;
 	//| FOR ID '=' <Expression> TO <Expression>
-	//| FOR ID '=' <Expression> TO <Expression> STEP Integer
 	if (CurrentTokenType() == TType::For) {
-		if (!Parse_ID(varName)) { return false; }
+		int currentLine = lexer.ReturnLineNumber();
+		icvm->forStack.push(currentLine);
+		Eat(TType::For);
+		if (!Parse_ID_NameOnStack()) { return false; }
 		if (CurrentTokenType() != TType::RelOp) { return false; }
 		RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
 		if (x->type != RelType::Eq) return false;
 
 		Eat(TType::RelOp);
 
-		if (!Parse_Expression()) return false;
+		if (!Parse_Expression(false)) return false;
 		if (CurrentTokenType() != TType::To) { return false; }
 
 		Eat(TType::To);
 
-		if (!Parse_Expression()) return false;
-
-		if (CurrentTokenType() == TType::Step) {
-			Eat(TType::Step);
-			if (CurrentTokenType() != TType::Int) { return false; }
-			Eat(TType::Int);
-		}
-		/*Semantic actions*/
-
+		if (!Parse_Expression(false)) return false;
 
 		return true;
 	}
@@ -113,7 +111,7 @@ bool Parser::Parse_Statement()
 	else if (CurrentTokenType() == TType::Goto) {
 		Eat(TType::Goto);
 
-		if (!Parse_Expression()) return false;
+		if (!Parse_Expression(false)) return false;
 		/*Semantic actions*/
 
 		return true;
@@ -122,46 +120,56 @@ bool Parser::Parse_Statement()
 	else if (CurrentTokenType() == TType::Gosub) {
 		Eat(TType::Gosub);
 
-		if (!Parse_Expression()) return false;
+		if (!Parse_Expression(false)) return false;
 		/*Semantic actions*/
 
 		return true;
 	}
-	//| IF <Expression> THEN <Statements>
+	//| IF <Expression> THEN <Statement>
 	else if (CurrentTokenType() == TType::If) {
 		Eat(TType::If);
-		if (!Parse_Expression()) { return false; }
+		if (!Parse_Expression(false)) { return false; }
 
 		if (CurrentTokenType() != TType::Then) { return false; }
 		Eat(TType::Then);
 
-		if (!Parse_Statements()) { return false; }
+		if (!Parse_Statement()) { return false; }
 		/*Semantic actions*/
 
 
 		return true;
 	}
 	//| ID '=' <Expression>
-	else if (Parse_ID(varName)) {
+	else if (Parse_ID_NameOnStack()) {
 		if (CurrentTokenType() != TType::RelOp) { return false; }
 		RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
 		if (x->type != RelType::Eq) return false;
 		Eat(TType::RelOp);
 
-		if (!Parse_Expression()) { return false; }
+		if (!Parse_Expression(false)) { return false; }
 
 		/*Semantic actions*/
-
+		SaveToNewVariable instr;
+		std::unique_ptr<Instruction> instrPtr = std::make_unique<SaveToNewVariable>(instr);
+		icvm->AddInstruction(std::move(instrPtr));
 
 		return true;
 	}
-	//| NEXT ID
+	//| NEXT 
 	else if (CurrentTokenType() == TType::Next) {
+		icvm->forNextPairs.emplace(icvm->forStack.top(), lexer.ReturnLineNumber());
+		icvm->forStack.pop();
+
 		Eat(TType::Next);
 
-		if (!Parse_ID(varName)) { return false; }
-
 		/*Semantic actions*/
+		PopAddressStack instr;
+		std::unique_ptr<Instruction> instrPtr = std::make_unique<PopAddressStack>(instr);
+		icvm->AddInstruction(std::move(instrPtr));
+
+		Jump instrJump;
+		std::unique_ptr<Instruction> instrJumpPtr = std::make_unique<Jump>(instrJump);
+		icvm->AddInstruction(std::move(instrJumpPtr));
 
 		return true;
 	}
@@ -181,26 +189,34 @@ bool Parser::Parse_Statement()
 
 		//| DATA <Constant List>
 		if (x->FuncType() == FunctionType::Data) {
-			x->SemanticAction();
 			Eat(TType::Function);
-			StackItem end(ItemType::End, "");
-			icvm->AddStackItem(end);
+
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
 			if (!Parse_ConstantList()) return false;
 
+			x->SemanticAction();
 			return true;
 		}	//| DIM Variable '(' <Integer List> ')' Variable 
 		else if (x->FuncType() == FunctionType::Dim) {
 			Eat(TType::Function);
 
 			if (CurrentTokenType() != TType::Variable) { return false; }
-			StackItem name(ItemType::String, CurrentToken.GetContent());
+
+			LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
 			Eat(TType::Variable);
-			icvm->AddStackItem(name);
 
 			if (CurrentTokenType() != TType::LeftPar) { return false; }
 			Eat(TType::LeftPar);
-			StackItem end(ItemType::End, "");
-			icvm->AddStackItem(end);
+
+			LoadConstant loadConst1("\"L\"");
+			std::unique_ptr<Instruction> instr1 = std::make_unique<LoadConstant>(loadConst1);
+			icvm->AddInstruction(std::move(instr1));
 
 			if (!Parse_IntegerList()) { return false; }
 
@@ -209,10 +225,15 @@ bool Parser::Parse_Statement()
 			Eat(TType::RightPar);
 
 			if (CurrentTokenType() == TType::Variable) {
-				if ((CurrentToken.GetContent() == "integer") || (CurrentToken.GetContent() == "real")) {
-					StackItem type(ItemType::String, CurrentToken.GetContent());
+				std::string lowerString = CurrentToken.GetContent();
+				std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
+				if ((lowerString == "integer") || (lowerString == "real")) {
+
+					LoadConstant loadConst("\"S\"" + lowerString);
+					std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+					icvm->AddInstruction(std::move(instr));
+
 					Eat(TType::Variable);
-					icvm->AddStackItem(type);
 				}
 				else return false;
 			}
@@ -224,8 +245,11 @@ bool Parser::Parse_Statement()
 		//| PRINT <Print list>
 		else if (x->FuncType() == FunctionType::Print) {
 			Eat(TType::Function);
-			StackItem end(ItemType::End, "");
-			icvm->AddStackItem(end);
+
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
 			if (!Parse_PrintList()) { return false; }
 
 			/*Semantic actions*/
@@ -236,31 +260,39 @@ bool Parser::Parse_Statement()
 		else if (x->FuncType() == FunctionType::End) {
 			Eat(TType::Function);
 			/*Semantic actions*/
-
+			x->SemanticAction();
 			return true;
 		}
 		//| READ <ID List>
 		else if (x->FuncType() == FunctionType::Read) {
 			Eat(TType::Function);
 
-			if (!Parse_IDList()) { return false; }
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
+			if (!Parse_IDList_NamesOnStack()) { return false; }
+
+			x->SemanticAction();
 
 			return true;
 		}
 		//| LET ID '=' <Expression>
 		else if (x->FuncType() == FunctionType::Let) {
 			Eat(TType::Function);
-			if (!Parse_ID(varName)) { return false; }
+			if (!Parse_ID_NameOnStack()) { return false; }
 
 			if (CurrentTokenType() != TType::RelOp) { return false; }
 			RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
 			if (x->type != RelType::Eq) return false;
 			Eat(TType::RelOp);
 
-			if (!Parse_Expression()) { return false; }
+			if (!Parse_Expression(false)) { return false; }
 
 			/*Semantic actions*/
-
+			SaveToNewVariable instr;
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<SaveToNewVariable>(instr);
+			icvm->AddInstruction(std::move(instrPtr));
 
 			return true;
 		}
@@ -268,41 +300,38 @@ bool Parser::Parse_Statement()
 		else if (x->FuncType() == FunctionType::Input) {
 			Eat(TType::Function);
 
-			if (!Parse_IDList()) { return false; }
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
+			if (!Parse_IDList_NamesOnStack()) { return false; }
 
 			/*Semantic actions*/
-
+			x->SemanticAction();
 			return true;
 		}
 		//| POP
 		else if (x->FuncType() == FunctionType::Pop) {
 			Eat(TType::Function);
 			/*Semantic actions*/
-
+			x->SemanticAction();
 			return true;
 		}
-		//| RESTORE <Expression>
 		//| RESTORE
 		else if (x->FuncType() == FunctionType::Restore) {
 			Eat(TType::Function);
-			if (Parse_Expression()) {
-				/*Semantic actions with expression*/
-			}
-			else {
-				/*Semantic actions without expression*/
 
-			}
-
+			x->SemanticAction();
 			return true;
 		}
 
 		if (CurrentTokenType() != TType::LeftPar) { return false; }
 		Eat(TType::LeftPar);
-		if (!Parse_Expression()) { return false; }
+		if (!Parse_Expression(false)) { return false; }
 		if (CurrentTokenType() != TType::RightPar) { return false; }
 		Eat(TType::RightPar);
 		/*Semantic actions*/
-
+		x->SemanticAction();
 		return true;
 	}
 	//Remark
@@ -320,18 +349,18 @@ bool Parser::Parse_Statement()
 		  | Variable '(' <Expression List> ')'
 Puts value of that variable on top of the stack.
 */
-bool Parser::Parse_ID(std::string & varName)
+bool Parser::Parse_ID()
 {
 	ICVM* icvm = ICVM::GetInstance();
 
 	if (CurrentTokenType() == TType::StringVariable) {
-		StackItem name(ItemType::String, CurrentToken.GetContent());
-		varName = CurrentToken.GetContent();
-		icvm->AddStackItem(name);
+		LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instrPtr));
 
 		LoadVariable instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
+		std::unique_ptr<Instruction> instrPtr1 = std::make_unique<LoadVariable>(instr);
+		icvm->AddInstruction(std::move(instrPtr1));
 
 		Eat(TType::StringVariable);
 
@@ -341,31 +370,32 @@ bool Parser::Parse_ID(std::string & varName)
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Variable) {
-		StackItem name(ItemType::String, CurrentToken.GetContent());
-		varName = CurrentToken.GetContent();
-		icvm->AddStackItem(name);
+		LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
 
 		Eat(TType::Variable);
 
 		if (CurrentTokenType() == TType::LeftPar) {
 			Eat(TType::LeftPar);
 
-			StackItem end(ItemType::End, "");
-			icvm->AddStackItem(end);
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
 
-			if (!Parse_ExpressionList()) return false;
+			if (!Parse_ExpressionList(true)) return false;
 			if (CurrentTokenType() != TType::RightPar) return false;
 			Eat(TType::RightPar);
 
-			LoadArrayVariable instr;
-			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadArrayVariable>(instr);
+			LoadArrayVariable instrLoadArrayVar;
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadArrayVariable>(instrLoadArrayVar);
 			icvm->AddInstruction(std::move(instrPtr));
 
 			return true;
 		}
 
-		LoadVariable instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr);
+		LoadVariable instr1;
+		std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadVariable>(instr1);
 		icvm->AddInstruction(std::move(instrPtr));
 
 
@@ -374,6 +404,54 @@ bool Parser::Parse_ID(std::string & varName)
 
 	return false;
 }
+
+bool Parser::Parse_ID_NameOnStack()
+{
+	ICVM* icvm = ICVM::GetInstance();
+
+	if (CurrentTokenType() == TType::StringVariable) {
+		LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
+
+		Eat(TType::StringVariable);
+
+		/*Semantic action*/
+
+
+		return true;
+	}
+	else if (CurrentTokenType() == TType::Variable) {
+		LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
+
+		Eat(TType::Variable);
+
+		if (CurrentTokenType() == TType::LeftPar) {
+			Eat(TType::LeftPar);
+
+			LoadConstant loadConst("\"L\"");
+			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instr));
+
+			if (!Parse_ExpressionList(true)) return false;
+			if (CurrentTokenType() != TType::RightPar) return false;
+			Eat(TType::RightPar);
+
+			LoadArrayVariableName instr1;
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadArrayVariableName>(instr1);
+			icvm->AddInstruction(std::move(instrPtr));
+
+			return true;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 /*
 <Integer List>    ::= Integer ',' <Integer List>
 					| Integer
@@ -383,8 +461,11 @@ bool Parser::Parse_IntegerList()
 {
 	ICVM* icvm = ICVM::GetInstance();
 	if (CurrentTokenType() == TType::Int) {
-		StackItem x(ItemType::Int, CurrentToken.GetContent());
-		icvm->AddStackItem(x);
+
+		LoadConstant loadConst("\"I\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
+
 		Eat(TType::Int);
 		if (CurrentTokenType() == TType::Comma) {
 			Eat(TType::Comma);
@@ -480,8 +561,8 @@ std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infi
 			|| (infixTokens[i].GetType() == ExprTokenType::String)) {
 			output.push_back(infixTokens[i]);
 		}
-		else if (infixTokens[i].GetType() == ExprTokenType::End) {
-			output.emplace_back(ExprToken(ExprTokenType::End, ""));
+		else if (infixTokens[i].GetType() == ExprTokenType::EndArray) {
+			output.emplace_back(ExprToken(ExprTokenType::EndArray, ""));
 			break;
 		}
 		else if (infixTokens[i].GetType() == ExprTokenType::ArrayComma) {
@@ -503,18 +584,6 @@ std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infi
 			output.push_back(infixTokens[i]);
 			indexPostfix = ConvertInfixToPostfix(infixTokens, i + 1, endIndex);
 			i = endIndex;
-			/*
-			i++;
-			while (infixTokens[i].GetType() != ExprTokenType::End) {
-				index.clear();
-				while (infixTokens[i].GetType() != ExprTokenType::ArrayComma)
-				{
-					if (infixTokens[i].GetType() == ExprTokenType::End) goto copy;
-					index.push_back(infixTokens[i]);
-					i++;
-				}
-				i++;
-				*/
 
 			for (size_t j = 0; j < indexPostfix.size(); j++) {
 				output.push_back(indexPostfix[j]);
@@ -539,16 +608,175 @@ std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infi
 }
 
 
-bool Parser::Parse_Expression() {
+bool Parser::Parse_Expression(bool isArray) {
 
 	std::vector<ExprToken> infixTokens;
 	std::vector<ExprToken> postfix;
 	size_t temp;
-	if (!Parse_InfixExpression(infixTokens, false)) return false;
-	postfix = ConvertInfixToPostfix(infixTokens, 0,temp);
-
-	return false;
+	if (!Parse_InfixExpression(infixTokens, isArray)) return false;
+	postfix = ConvertInfixToPostfix(infixTokens, 0, temp);
+	AddPostfixToICVM(postfix, 0, temp);
+	return true;
 }
+
+void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startIndex, size_t & endIndex) {
+	ICVM * icvm = ICVM::GetInstance();
+
+	for (size_t i = startIndex; i < postfix.size(); i++) {
+		endIndex = i;
+		switch (postfix[i].GetType()) {
+		case ExprTokenType::Int: {
+			LoadConstant instr("\"I\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadConstant>(instr);
+			icvm->AddInstruction(std::move(instrPtr));
+			break;
+		}
+		case ExprTokenType::Real: {
+			LoadConstant instr("\"R\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadConstant>(instr);
+			icvm->AddInstruction(std::move(instrPtr));
+			break;
+		}
+		case ExprTokenType::String: {
+			LoadConstant instr("\"S\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadConstant>(instr);
+			icvm->AddInstruction(std::move(instrPtr));
+			break;
+		}
+		case ExprTokenType::Variable: {
+			LoadConstant loadConst("\"S\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrLoadConstPtr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instrLoadConstPtr));
+
+			LoadVariable loadVar;
+			std::unique_ptr<Instruction> instrLoadVarPtr = std::make_unique<LoadVariable>(loadVar);
+			icvm->AddInstruction(std::move(instrLoadVarPtr));
+			break;
+		}
+		case ExprTokenType::StringVariable: {
+			LoadConstant loadConst("\"S\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrLoadConstPtr = std::make_unique<LoadConstant>(loadConst);
+			icvm->AddInstruction(std::move(instrLoadConstPtr));
+
+			LoadVariable loadVar;
+			std::unique_ptr<Instruction> instrLoadVarPtr = std::make_unique<LoadVariable>(loadVar);
+			icvm->AddInstruction(std::move(instrLoadVarPtr));
+			break;
+		}
+		case ExprTokenType::EndArray: {
+			return;
+		}
+		case ExprTokenType::ArrayVariable: {
+			size_t endIndex;
+
+			LoadConstant loadName("\"S\"" + postfix[i].GetContent());
+			std::unique_ptr<Instruction> instrLoadNamePtr = std::make_unique<LoadConstant>(loadName);
+			icvm->AddInstruction(std::move(instrLoadNamePtr));
+
+			LoadConstant loadEnd("\"A\" ");
+			std::unique_ptr<Instruction> instrEndPtr = std::make_unique<LoadConstant>(loadEnd);
+			icvm->AddInstruction(std::move(instrEndPtr));
+
+			AddPostfixToICVM(postfix, i + 1, endIndex);
+			i = endIndex;
+
+			LoadArrayVariable loadArrayVar;
+			std::unique_ptr<Instruction> loadArrayVarPtr = std::make_unique<LoadArrayVariable>(loadArrayVar);
+			icvm->AddInstruction(std::move(loadArrayVarPtr));
+			break;
+		}
+		case ExprTokenType::AddSubOp: {
+			std::string op = postfix[i].GetContent();
+			std::unique_ptr<Instruction> opPtr;
+			if (op == "+") {
+				Add op;
+				opPtr = std::make_unique<Add>(op);
+			}
+			else if (op == "-") {
+				Sub op;
+				opPtr = std::make_unique<Sub>(op);
+			}
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::AndOp: {
+			And op;
+			std::unique_ptr<Instruction> opPtr = std::make_unique<And>(op);
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::ExpOp: {
+			Exp op;
+			std::unique_ptr<Instruction> opPtr = std::make_unique<Exp>(op);
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::MulDivOp: {
+			std::string op = postfix[i].GetContent();
+			std::unique_ptr<Instruction> opPtr;
+			if (op == "*") {
+				Mul op;
+				opPtr = std::make_unique<Mul>(op);
+			}
+			else if (op == "/") {
+				Div op;
+				opPtr = std::make_unique<Div>(op);
+			}
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::NotOp: {
+			Not op;
+			std::unique_ptr<Instruction> opPtr = std::make_unique<Not>(op);
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::OrOp: {
+			Or op;
+			std::unique_ptr<Instruction> opPtr = std::make_unique<Or>(op);
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::RelOp: {
+			std::string op = postfix[i].GetContent();
+			std::unique_ptr<Instruction> opPtr;
+			if (op == "=") {
+				Eq op;
+				opPtr = std::make_unique<Eq>(op);
+			}
+			else if (op == "<>") {
+				NotEq op;
+				opPtr = std::make_unique<NotEq>(op);
+			}
+			else if (op == ">=") {
+				GreaterEq op;
+				opPtr = std::make_unique<GreaterEq>(op);
+			}
+			else if (op == "<=") {
+				LessEq op;
+				opPtr = std::make_unique<LessEq>(op);
+			}
+			else if (op == ">") {
+				Greater op;
+				opPtr = std::make_unique<Greater>(op);
+			}
+			else if (op == "<") {
+				Less op;
+				opPtr = std::make_unique<Less>(op);
+			}
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		case ExprTokenType::UnaryMinusOp: {
+			UnaryMinus op;
+			std::unique_ptr<Instruction> opPtr = std::make_unique<UnaryMinus>(op);
+			icvm->AddInstruction(std::move(opPtr));
+			break;
+		}
+		}
+	}
+}
+
 //Parses infix expression and returns boolean if parsing was successful.
 //Also returns vector of ExprTokens which represents infix notation.
 bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isArrayIndex) {
@@ -613,7 +841,7 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isA
 					tokens.push_back(indices[i]);
 				}
 				//Signalise end of indices
-				tokens.emplace_back(ExprToken(ExprTokenType::End, ""));
+				tokens.emplace_back(ExprToken(ExprTokenType::EndArray, ""));
 
 			}
 			else
@@ -680,9 +908,7 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isA
 			tokens.emplace_back(ExprToken(ExprTokenType::UnaryMinusOp, CurrentToken.GetContent()));
 			Eat(TType::UnaryMinusOp);
 		}
-		else if ((CurrentTokenType() == TType::Colon) || (CurrentTokenType() == TType::EndOfCode) ||
-			(CurrentTokenType() == TType::NewLine) || (CurrentTokenType() == TType::Comma)) break;
-		else return false;
+		else break;
 	}
 
 	if (parCounter != 0) return false;
@@ -719,7 +945,7 @@ bool Parser::Parse_ConstantList()
 bool Parser::Parse_IDList()
 {
 	std::string varName;
-	if (!Parse_ID(varName)) return false;
+	if (!Parse_ID()) return false;
 	if (CurrentTokenType() == TType::Comma) {
 		Eat(TType::Comma);
 		if (!Parse_IDList()) return false;
@@ -732,6 +958,24 @@ bool Parser::Parse_IDList()
 
 	return true;
 }
+
+bool Parser::Parse_IDList_NamesOnStack()
+{
+	if (!Parse_ID_NameOnStack()) return false;
+	if (CurrentTokenType() == TType::Comma) {
+		Eat(TType::Comma);
+		if (!Parse_IDList_NamesOnStack()) return false;
+		/*Semantic actions*/
+
+		return true;
+	}
+
+	/*Semantic actions*/
+
+	return true;
+}
+
+
 /*
 <Print List>      ::= <Expression> ',' <Print List>
 					| <Expression>
@@ -739,7 +983,7 @@ bool Parser::Parse_IDList()
 */
 bool Parser::Parse_PrintList()
 {
-	if (Parse_Expression()) {
+	if (Parse_Expression(false)) {
 
 		if (CurrentTokenType() == TType::Comma) {
 			Eat(TType::Comma);
@@ -1035,11 +1279,11 @@ bool Parser::Parse_PowerExp2() {
 <Expression List> ::= <Expression> ',' <Expression List>
 					| <Expression>
 */
-bool Parser::Parse_ExpressionList()
+bool Parser::Parse_ExpressionList(bool isArray)
 {
-	if (!Parse_Expression()) return false;
+	if (!Parse_Expression(isArray)) return false;
 	if (CurrentTokenType() == TType::Comma) {
-		if (!Parse_ExpressionList()) return false;
+		if (!Parse_ExpressionList(isArray)) return false;
 		/*Semantics actions*/
 
 		return true;
@@ -1060,22 +1304,27 @@ bool Parser::Parse_Constant()
 	if (CurrentTokenType() == TType::Int) {
 
 		/*Semantic actions*/
-		StackItem x(ItemType::Int, CurrentToken.GetContent());
-		icvm->AddStackItem(x);
+
+		LoadConstant loadConst("\"I\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
+
 		Eat(TType::Int);
 		return true;
 	}
 	else if (CurrentTokenType() == TType::Real) {
 		/*Semantic actions*/
-		StackItem x(ItemType::Real, CurrentToken.GetContent());
-		icvm->AddStackItem(x);
+		LoadConstant loadConst("\"R\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
 		Eat(TType::Real);
 		return true;
 	}
 	else if (CurrentTokenType() == TType::String) {
 		/*Semantic actions*/
-		StackItem x(ItemType::String, CurrentToken.GetContent());
-		icvm->AddStackItem(x);
+		LoadConstant loadConst("\"S\"" + CurrentToken.GetContent());
+		std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
+		icvm->AddInstruction(std::move(instr));
 		Eat(TType::String);
 		return true;
 	}
@@ -1093,14 +1342,14 @@ bool Parser::Parse_Value()
 	bool doesExist = true;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
-		if (!Parse_Expression()) return false;
+		if (!Parse_Expression(true)) return false;
 		if (CurrentTokenType() != TType::RightPar) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
 		Eat(TType::RightPar);
 		/*Semantic actions*/
 
 		return true;
 	}
-	else if (Parse_ID(varName)) {
+	else if (Parse_ID()) {
 		/*Semantic actions*/
 
 		return true;

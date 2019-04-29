@@ -78,3 +78,9 @@ const char * InvalidSyntaxException::what() const noexcept
 	std::string x = "[Parser Error] Line " + std::to_string(lineNumber) + ": Invalid syntax";
 	return x.c_str();
 }
+
+const char * WrongInputException::what() const noexcept
+{
+	std::string x = "[Input Error] Input can be only int, real or string";
+	return x.c_str();
+}

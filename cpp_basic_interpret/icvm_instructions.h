@@ -17,6 +17,21 @@ public:
 	virtual void Execute() override;
 };
 
+class LoadToAddressStack :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+class PopAddressStack :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
+class LoadArrayVariableName :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
 class SaveToArrayVariable :public Instruction {
 public:
 	virtual void Execute() override;
@@ -31,7 +46,14 @@ public:
 class LoadConstant : public Instruction {
 public:
 	virtual void Execute() override;
+	LoadConstant(const std::string & input) :Instruction(input){}
 };
+
+class SaveToNewVariable :public Instruction {
+public:
+	virtual void Execute() override;
+};
+
 
 class SaveToVariable :public Instruction {
 public:
@@ -302,4 +324,33 @@ public:
 	virtual void Execute()override;
 };
 
+class End_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Read_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Input_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Pop_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class Restore_Function : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
+class For : public Instruction {
+public:
+	virtual void Execute()override;
+};
 #endif

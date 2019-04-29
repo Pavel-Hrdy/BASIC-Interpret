@@ -13,7 +13,7 @@ Pavel Hrdý
 enum class RelType { Less, LessEq, Greater, GreaterEq, Eq, NotEq };
 enum class SignAddType { Add, Sub };
 enum class MulType { Mul, Div };
-enum class TType { UnaryMinusOp, Function, Comma, Semicolon, On, For, Gosub, Goto, If, Next, Real, ExpOp, NotOp, AndOp, OrOp, Int, MulDivOp, PlusMinusOp, RelOp, To, Then, Step, Return, Rem, Variable, StringVariable, EndOfCode, LeftPar, RightPar, Colon, String, NewLine };
+enum class TType { Int, Real, String,UnaryMinusOp, Function, Comma, Semicolon, On, For, Gosub, Goto, If, Next, ExpOp, NotOp, AndOp, OrOp, MulDivOp, PlusMinusOp, RelOp, To, Then, Step, Return, Rem, Variable, StringVariable, EndOfCode, LeftPar, RightPar, Colon, NewLine };
 enum class FunctionType {
 	Sin, Str, Trap, Val, Return, Rnd, Sgn, Sqr, Pop, Print, Rad, Read, Restore, Len, Let, Log, Dim, End, Abs, Exp, Input, Int, Clr, Cos, Data, Deg, Asc, Atn, Chr, Clog
 };

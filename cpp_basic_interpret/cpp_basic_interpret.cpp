@@ -4,6 +4,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <vector>
+#include <map>
 #include "lexer.h"
 #include "exceptions.h"
 #include "icvm.h"
@@ -13,7 +14,7 @@
 //- Parse_Expression přijme všechny znaky, které se mohou nacházet ve výrazu - DONE
 //- výraz, který určuje index v ArrayVariable je Expression - DONE
 //- udělá z nich postfixovou notaci. - DONE
-//- To se pak může vysypat do stacku a instrukcí ICVM a bude to šlapat
+//- To se pak může vysypat do stacku a instrukcí ICVM a bude to šlapat - možná DONE
 //- Sémantické akce zbytku funkcí + matematické funkce (ty by měly bejt ez)
 //- Mapování řádků mezi ICVM a kódem
 //- Samotné natažení kódu ze souboru - to by mělo bejt ez
@@ -21,7 +22,10 @@
 
 int main()
 {
-	std::string code = "10 PRINT A(B(1),2)";
+	std::map<int, int> bla;
+	int x = bla[0];
+
+	std::string code = "10 PRINT 10+8/5.0\n20 PRINT 10,20,30\n30 PRINT 40";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);

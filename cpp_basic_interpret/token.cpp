@@ -142,6 +142,10 @@ TType End_F_T::Type()
 
 void Exp_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	End_Function x;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<End_Function>(x);
+	icvm->AddInstruction(std::move(instrPtr));
 }
 
 TType Exp_F_T::Type()
@@ -151,7 +155,12 @@ TType Exp_F_T::Type()
 
 void Input_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+	Input_Function x;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<Input_Function>(x);
+	icvm->AddInstruction(std::move(instrPtr));
 }
+
 
 TType Input_F_T::Type()
 {
@@ -196,6 +205,10 @@ TType Log_F_T::Type()
 
 void Pop_F_T::SemanticAction()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	Pop_Function instr;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<Pop_Function>(instr);
+	icvm->AddInstruction(std::move(instrPtr));
 }
 
 TType Pop_F_T::Type()
@@ -227,6 +240,10 @@ TType Rad_F_T::Type()
 
 void Read_F_T::SemanticAction()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	Read_Function instr;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<Read_Function>(instr);
+	icvm->AddInstruction(std::move(instrPtr));
 }
 
 TType Read_F_T::Type()
@@ -236,6 +253,10 @@ TType Read_F_T::Type()
 
 void Restore_F_T::SemanticAction()
 {
+	ICVM* icvm = ICVM::GetInstance();
+	Restore_Function instr;
+	std::unique_ptr<Instruction> instrPtr = std::make_unique<Restore_Function>(instr);
+	icvm->AddInstruction(std::move(instrPtr));
 }
 
 TType Restore_F_T::Type()

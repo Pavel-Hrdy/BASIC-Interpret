@@ -2,7 +2,7 @@
 #include "icvm_instructions.h"
 #include "icvm.h"
 #include "exceptions.h"
-
+#include "lexer.h"
 
 //Loads value of variable which name is on the top of the stack to the top of stack.
 void LoadVariable::Execute()
@@ -12,10 +12,12 @@ void LoadVariable::Execute()
 
 	StackItem name = icvm->PopItem();
 
+	if (name.GetType() != ItemType::String) throw TypeMismatchException();
+
 	std::string value = icvm->ReturnValueOfVariable(name.GetContent(), doesExist);
 
 	if (doesExist) {
-		TypeOfVariable variableType = icvm->ReturnTypeOfVariable(argument, doesExist);
+		TypeOfVariable variableType = icvm->ReturnTypeOfVariable(name.GetContent(), doesExist);
 
 		if (variableType != TypeOfVariable::Error) {
 			ItemType itemType;
@@ -33,17 +35,17 @@ void LoadVariable::Execute()
 			icvm->AddStackItem(stackItem);
 		}
 		else {
-			throw VariableNotFoundException(argument);
+			throw VariableNotFoundException(name.GetContent());
 		}
 	}
 	else {
-		throw VariableNotFoundException(argument);
+		throw VariableNotFoundException(name.GetContent());
 	}
 }
 
 //Loads constant to the top of the stack. 
 //'arg' is in format "type"content
-// type is either I - int, R - real, S - string, A - address
+// type is either I - int, R - real, S - string, E - end
 void LoadConstant::Execute()
 {
 	char type = argument[1];
@@ -64,7 +66,11 @@ void LoadConstant::Execute()
 		break;
 	}
 	case 'A': {
-		itemType = ItemType::Address;
+		itemType = ItemType::EndArray;
+		break;
+	}
+	case 'L': {
+		itemType = ItemType::EndList;
 		break;
 	}
 	default: {
@@ -515,23 +521,23 @@ void SaveToVariable::Execute()
 	ICVM* icvm = ICVM::GetInstance();
 	bool doesExist;
 
+	StackItem value = icvm->PopItem();
+
 	StackItem name = icvm->PopItem();
 
 	TypeOfVariable type = icvm->ReturnTypeOfVariable(name.GetContent(), doesExist);
-	StackItem item;
 	if (doesExist) {
 		if (type == TypeOfVariable::String) { //We want to save to string variable - top of the stack has to be string
-			item = icvm->PopItem(ItemType::String);
+			if (value.GetType() != ItemType::String) throw TypeMismatchException();
 		}
 		else { //Otherwise, type of variable depends on the top of the stack - but it can't be string
-			item = icvm->PopItem();
-			if (item.GetType() == ItemType::String) throw TypeMismatchException();
+			if (value.GetType() == ItemType::String) throw TypeMismatchException();
 		}
 
-		icvm->UpdateVariable(argument, item.GetContent(), (TypeOfVariable)item.GetType());
+		icvm->UpdateVariable(name.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
 	}
 	else {
-		throw VariableNotFoundException(argument);
+		throw VariableNotFoundException(name.GetContent());
 	}
 }
 
@@ -565,13 +571,20 @@ void Print::Execute()
 {
 	ICVM* icvm = ICVM::GetInstance();
 	StackItem current;
+	std::vector<std::string> outputVector;
 	try {
 		while (true) {
 			current = icvm->PopItem();
-			if (current.GetType() != ItemType::End)
-				std::cout << current.GetContent() << ' ';
-			else break;
+			if (current.GetType() == ItemType::EndList)
+				break;
+			outputVector.insert(outputVector.begin(), current.GetContent());
 		}
+
+		for (size_t i = 0; i < outputVector.size(); i++) {
+			std::cout << outputVector[i] << ' ';
+		}
+
+		std::cout << std::endl;
 	}
 	catch (EmptyStackException) {
 		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of PRINT command.";
@@ -596,9 +609,10 @@ void Data_Function::Execute()
 		while (true) {
 			currentItem = icvm->PopItem();
 			currType = currentItem.GetType();
-			if (currType == ItemType::End) break;
+			if (currType == ItemType::EndList) break;
 			else icvm->PushToDataStack(currentItem);
 		}
+		icvm->RestoreDataStack();
 	}
 	catch (EmptyStackException) {
 		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of DATA command.";
@@ -625,7 +639,7 @@ void Dim_Function::Execute() {
 		while (true) {
 			current = icvm->PopItem();
 
-			if (current.GetType() == ItemType::End) break;
+			if (current.GetType() == ItemType::EndList) break;
 			else if (current.GetType() == ItemType::Int) {
 				dimensions.insert(dimensions.begin(), std::stoi(current.GetContent()));
 			}
@@ -657,7 +671,7 @@ void LoadArrayVariable::Execute()
 
 	while (true) {
 		current = icvm->PopItem();
-		if (current.GetType() == ItemType::End) break;
+		if (current.GetType() == ItemType::EndArray) break;
 
 		if (current.GetType() == ItemType::Int) {
 			indices.insert(indices.begin(), std::stoi(current.GetContent()));
@@ -667,7 +681,7 @@ void LoadArrayVariable::Execute()
 
 	StackItem name = icvm->PopItem();
 
-	if (current.GetType() != ItemType::String) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+	if (name.GetType() != ItemType::String) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
 
 	std::string varName = name.GetContent();
 	varName += '(';
@@ -686,11 +700,14 @@ void SaveToArrayVariable::Execute()
 {
 	std::vector<uint32_t> indices;
 	ICVM* icvm = ICVM::GetInstance();
+
+	StackItem value = icvm->PopItem();
+
 	StackItem current;
 
 	while (true) {
 		current = icvm->PopItem();
-		if (current.GetType() == ItemType::End) break;
+		if (current.GetType() == ItemType::EndArray) break;
 
 		if (current.GetType() == ItemType::Int) {
 			indices.insert(indices.begin(), std::stoi(current.GetContent()));
@@ -711,6 +728,7 @@ void SaveToArrayVariable::Execute()
 	varName += ')';
 	StackItem x(ItemType::String, varName);
 	icvm->AddStackItem(x);
+	icvm->AddStackItem(value);
 	SaveToVariable ld;
 	ld.Execute();
 }
@@ -779,15 +797,15 @@ void Sub::Execute()
 	StackItem secondOp = icvm->PopItem();
 	ItemType returnType;
 	std::string returnContent;
-	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) - std::stoi(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) - std::stod(firstOp.GetContent()));
 	}
@@ -807,7 +825,7 @@ void Div::Execute()
 
 	if ((firstOp.GetType() != ItemType::String) && (std::stod(firstOp.GetContent()) == 0))throw DivideByZeroException();
 
-	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) / std::stoi(firstOp.GetContent()));
 	}
@@ -857,19 +875,19 @@ void Less::Execute()
 	StackItem secondOp = icvm->PopItem();
 	ItemType returnType;
 	std::string returnContent;
-	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(secondOp.GetContent() < firstOp.GetContent());
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) < std::stoi(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) < std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) < std::stod(firstOp.GetContent()));
 	}
@@ -886,11 +904,11 @@ void Greater::Execute()
 	StackItem secondOp = icvm->PopItem();
 	ItemType returnType;
 	std::string returnContent;
-	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(secondOp.GetContent() > firstOp.GetContent());
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) > std::stoi(firstOp.GetContent()));
 	}
@@ -898,7 +916,7 @@ void Greater::Execute()
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) > std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) > std::stod(firstOp.GetContent()));
 	}
@@ -915,19 +933,19 @@ void LessEq::Execute()
 	StackItem secondOp = icvm->PopItem();
 	ItemType returnType;
 	std::string returnContent;
-	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) { 
+	if ((firstOp.GetType() == ItemType::String) && (firstOp.GetType() == secondOp.GetType())) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(secondOp.GetContent() <= firstOp.GetContent());
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stoi(secondOp.GetContent()) <= std::stoi(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
 		returnType = firstOp.GetType();
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) <= std::stod(firstOp.GetContent()));
 	}
-	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) { 
+	else if ((firstOp.GetType() == ItemType::Real) || (secondOp.GetType() == ItemType::Real)) {
 		returnType = ItemType::Real;
 		returnContent = std::to_string(std::stod(secondOp.GetContent()) <= std::stod(firstOp.GetContent()));
 	}
@@ -1033,7 +1051,7 @@ void Exp::Execute()
 	std::string returnContent;
 	if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Int)) {
 		returnType = firstOp.GetType();
-		returnContent = std::to_string(pow(std::stoi(secondOp.GetContent()),std::stoi(firstOp.GetContent())));
+		returnContent = std::to_string(pow(std::stoi(secondOp.GetContent()), std::stoi(firstOp.GetContent())));
 	}
 	else if ((firstOp.GetType() == secondOp.GetType()) && (firstOp.GetType() == ItemType::Real)) {
 		returnType = firstOp.GetType();
@@ -1047,4 +1065,277 @@ void Exp::Execute()
 
 	StackItem returnItem(returnType, returnContent);
 	icvm->AddStackItem(returnItem);
+}
+
+void End_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	icvm->End();
+}
+
+void Read_Function::Execute()
+{
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem currentItem;
+	ItemType currType;
+	try {
+		while (true) {
+			currentItem = icvm->PopItem();
+			currType = currentItem.GetType();
+			if (currType == ItemType::EndList) break;
+
+			StackItem value = icvm->PopDataItem();
+
+			icvm->UpdateVariable(currentItem.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
+
+		}
+	}
+	catch (EmptyStackException) {
+		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of READ command.";
+		std::cout << x;
+	}
+}
+
+void LoadArrayVariableName::Execute()
+{
+	std::vector<uint32_t> indices;
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem current;
+
+	while (true) {
+		current = icvm->PopItem();
+		if (current.GetType() == ItemType::EndList) break;
+
+		if (current.GetType() == ItemType::Int) {
+			indices.insert(indices.begin(), std::stoi(current.GetContent()));
+		}
+		else throw TypeMismatchException();
+	}
+
+	StackItem name = icvm->PopItem();
+
+	if (name.GetType() != ItemType::String) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
+
+	std::string varName = name.GetContent();
+	varName += '(';
+	for (size_t i = 0; i < indices.size(); i++) {
+		varName += (char)indices[i];
+		if (i != indices.size() - 1)varName += ',';
+	}
+	varName += ')';
+	StackItem x(ItemType::String, varName);
+	icvm->AddStackItem(x);
+}
+
+void SaveToNewVariable::Execute()
+{
+	ICVM* icvm = ICVM::GetInstance();
+	bool doesExist;
+
+	StackItem value = icvm->PopItem();
+
+	StackItem name = icvm->PopItem();
+
+	TypeOfVariable type = icvm->ReturnTypeOfVariable(name.GetContent(), doesExist);
+	if (doesExist) {
+		if (type == TypeOfVariable::String) { //We want to save to string variable - top of the stack has to be string
+			if (value.GetType() != ItemType::String) throw TypeMismatchException();
+		}
+		else { //Otherwise, type of variable depends on the top of the stack - but it can't be string
+			if (value.GetType() == ItemType::String) throw TypeMismatchException();
+		}
+
+		icvm->UpdateVariable(name.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
+	}
+	else {
+		icvm->UpdateVariable(name.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
+	}
+}
+//na stacku máme názvy promìnných - všechny popneme do vectoru, pak postupnì pro každej zavoláme std::cin
+//pak hodíme promìnnou zpátky na stack, za tím se pošle hodnota ze vstupu, pak už jen SaveToNewVariable
+void Input_Function::Execute()
+{
+	ICVM* icvm = ICVM::GetInstance();
+	std::vector<StackItem> vars;
+	StackItem currentItem;
+	ItemType currType;
+	try {
+		while (true) {
+			currentItem = icvm->PopItem();
+			currType = currentItem.GetType();
+			if (currType == ItemType::EndList) break;
+			vars.insert(vars.begin(), currentItem);
+		}
+		std::string input;
+
+		for (size_t i = 0; i < vars.size(); i++) {
+			std::cin >> input;
+			Lexer l(input);
+			Token x = l.GetNextToken();
+
+			if ((x.GetTokenType()->Type() != TType::Int) && (x.GetTokenType()->Type() != TType::Real) && (x.GetTokenType()->Type() != TType::String)) {
+				throw WrongInputException();
+			}
+			else {
+				StackItem value((ItemType)x.GetTokenType()->Type(), x.GetContent());
+
+				icvm->AddStackItem(vars[i]);
+				icvm->AddStackItem(value);
+
+				SaveToNewVariable x; x.Execute();
+			}
+		}
+	}
+	catch (EmptyStackException) {
+		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of INPUT command.";
+		std::cout << x;
+	}
+}
+
+void Pop_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	icvm->PopAddress();
+}
+
+void Restore_Function::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	icvm->RestoreDataStack();
+}
+//na zásobníku jsou hodnoty v tomto poøadí - max, start, varName
+//push varname
+//push start
+//saveto varname
+//jump to there
+//push 1
+//load varName
+//ADD
+//saveto varname
+//there
+//load varname
+//push max
+//eq
+//push jumplinenumber = zjistit èíslo øádku v kodu+10, pak se podívat do codetoinstruct mapy a to je ono
+//jumpif 
+void For::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem maxValueTemp = icvm->PopItem();
+	StackItem maxValue(maxValueTemp.GetType(), std::to_string(std::stoi(maxValueTemp.GetContent()) + 1));
+	StackItem startValue = icvm->PopItem();
+	StackItem varName = icvm->PopItem();
+
+	size_t currIP = icvm->GetIP();
+	//icvm->RemoveInstruction(currIP-1);
+	size_t startIndex = icvm->ICVMLineToNormalLine() + 10;
+	size_t offset = 20;
+	//currIP--;
+	icvm->RecalculateLineNumMapping(startIndex, offset);
+
+	//Jump here when popped from address stack
+	LoadConstant loadJumpConst("\"I\"" + std::to_string(currIP + 7));
+	std::unique_ptr<Instruction> instrLoadJumpConst = std::make_unique<LoadConstant>(loadJumpConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadJumpConst), currIP);
+
+	Jump jumpToStart;
+	std::unique_ptr<Instruction> instrJumpToStart = std::make_unique<Jump>(jumpToStart);
+	icvm->AddInstructionAtIndex(std::move(instrJumpToStart), currIP + 1);
+	//Start - init var
+	LoadConstant loadNameConst("\"S\"" + varName.GetContent());
+	std::unique_ptr<Instruction> instrLoadNameConst = std::make_unique<LoadConstant>(loadNameConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst), currIP + 2);
+
+	LoadConstant loadStart("\"I\"" + startValue.GetContent());
+	std::unique_ptr<Instruction> instrLoadStart = std::make_unique<LoadConstant>(loadStart);
+	icvm->AddInstructionAtIndex(std::move(instrLoadStart), currIP + 3);
+
+	SaveToNewVariable save;
+	std::unique_ptr<Instruction> instrSave = std::make_unique<SaveToNewVariable>(save);
+	icvm->AddInstructionAtIndex(std::move(instrSave), currIP + 4);
+
+	LoadConstant loadJumpAddr("\"I\"" + std::to_string(currIP + 13));
+	std::unique_ptr<Instruction> instrJumpAddr = std::make_unique<LoadConstant>(loadJumpAddr);
+	icvm->AddInstructionAtIndex(std::move(instrJumpAddr), currIP + 5);
+
+	Jump jumpTo;
+	std::unique_ptr<Instruction> instrJumpTo = std::make_unique<Jump>(jumpTo);
+	icvm->AddInstructionAtIndex(std::move(instrJumpTo), currIP + 6);
+
+	std::unique_ptr<Instruction> instrLoadNameConst1 = std::make_unique<LoadConstant>(loadNameConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst1), currIP + 7);
+
+	LoadConstant loadOne("\"I\"1");
+	std::unique_ptr<Instruction> instrLoadOne = std::make_unique<LoadConstant>(loadOne);
+	icvm->AddInstructionAtIndex(std::move(instrLoadOne), currIP + 8);
+
+	std::unique_ptr<Instruction> instrLoadNameConst3 = std::make_unique<LoadConstant>(loadNameConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst3), currIP + 9);
+
+	LoadVariable loadVar;
+	std::unique_ptr<Instruction> instrVar = std::make_unique<LoadVariable>(loadVar);
+	icvm->AddInstructionAtIndex(std::move(instrVar), currIP + 10);
+
+	Add add;
+	std::unique_ptr<Instruction> instrAdd = std::make_unique<Add>(add);
+	icvm->AddInstructionAtIndex(std::move(instrAdd), currIP + 11);
+
+	std::unique_ptr<Instruction> instrSave1 = std::make_unique<SaveToNewVariable>(save);
+	icvm->AddInstructionAtIndex(std::move(instrSave1), currIP + 12);
+
+	LoadConstant loadMaxConst("\"I\"" + maxValue.GetContent());
+	std::unique_ptr<Instruction> instrLoadMax = std::make_unique<LoadConstant>(loadMaxConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadMax), currIP + 13);
+
+	std::unique_ptr<Instruction> instrLoadNameConst4 = std::make_unique<LoadConstant>(loadNameConst);
+	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst4), currIP + 14);
+	std::unique_ptr<Instruction> instrVar1 = std::make_unique<LoadVariable>(loadVar);
+	icvm->AddInstructionAtIndex(std::move(instrVar1), currIP + 15);
+
+	Eq eq;
+	std::unique_ptr<Instruction> instrEq = std::make_unique<Eq>(eq);
+	icvm->AddInstructionAtIndex(std::move(instrEq), currIP + 16);
+
+	int32_t currentLineNum = icvm->ICVMLineToNormalLine();
+	int32_t nextLineNum = icvm->forNextPairs[currentLineNum] + 10;
+
+	int32_t jumpNum = icvm->NormalLineToICVM(nextLineNum);
+
+	LoadConstant loadJumpNum("\"I\"" + std::to_string(jumpNum));
+	std::unique_ptr<Instruction> instrLoadJumpNum = std::make_unique<LoadConstant>(loadJumpNum);
+	icvm->AddInstructionAtIndex(std::move(instrLoadJumpNum), currIP + 17);
+
+	Jumpif jumpIf;
+	std::unique_ptr<Instruction> instrJumpif = std::make_unique<Jumpif>(jumpIf);
+	icvm->AddInstructionAtIndex(std::move(instrJumpif), currIP + 18);
+
+	LoadConstant loadReturnNum("\"I\"" + std::to_string(currIP + 7));
+	std::unique_ptr<Instruction> instrLoadReturnNum = std::make_unique<LoadConstant>(loadReturnNum);
+	icvm->AddInstructionAtIndex(std::move(instrLoadReturnNum), currIP + 19);
+
+	LoadToAddressStack loadToAddress;
+	std::unique_ptr<Instruction> instrLoadToAddress = std::make_unique<LoadToAddressStack>(loadToAddress);
+	icvm->AddInstructionAtIndex(std::move(instrLoadToAddress), currIP + 20);
+
+	icvm->ChangeIP(currIP + 2);
+}
+
+void LoadToAddressStack::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	StackItem address = icvm->PopItem(ItemType::Int);
+
+	icvm->PushAddress(std::stoi(address.GetContent()));
+}
+
+void PopAddressStack::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+
+	size_t address = icvm->PopAddress();
+
+	StackItem x(ItemType::Int, std::to_string(address));
+
+	icvm->AddStackItem(x);
 }
