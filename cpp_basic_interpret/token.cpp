@@ -122,7 +122,8 @@ TType Deg_F_T::Type()
 void Dim_F_T::SemanticAction()
 {
 	ICVM * icvm = ICVM::GetInstance();
-	std::unique_ptr<Instruction> instr = std::make_unique<Dim_Function>();
+	Dim_Function x;
+	std::unique_ptr<Instruction> instr = std::make_unique<Dim_Function>(x);
 	icvm->AddInstruction(std::move(instr));
 }
 
@@ -133,6 +134,15 @@ TType Dim_F_T::Type()
 
 void End_F_T::SemanticAction()
 {
+	ICVM * icvm = ICVM::GetInstance();
+
+	LoadConstant x("\"I\"-1");
+	std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(x);
+	icvm->AddInstruction(std::move(instr));
+
+	Jump jump;
+	std::unique_ptr<Instruction> instr1 = std::make_unique<Jump>(jump);
+	icvm->AddInstruction(std::move(instr1));
 }
 
 TType End_F_T::Type()

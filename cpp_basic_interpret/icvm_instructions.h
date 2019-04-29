@@ -349,6 +349,11 @@ public:
 	virtual void Execute()override;
 };
 
+class CodeLineNumberToICVMLineNumber : public Instruction {
+public:
+	virtual void Execute()override;
+};
+
 class For : public Instruction {
 public:
 	virtual void Execute()override;

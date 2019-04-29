@@ -208,7 +208,7 @@ void ICVM::End()
 
 int32_t ICVM::ICVMLineToNormalLine(int32_t icvmLine)
 {
-	for (size_t i = 10; i < codeToInstructionMapping.size() * 10; i += 10) {
+	for (size_t i = 10; i <= codeToInstructionMapping.size() * 10; i += 10) {
 		if (codeToInstructionMapping[i] > icvmLine) return i - 10;
 		else if (codeToInstructionMapping[i] == icvmLine) return i;
 	}

@@ -105,6 +105,8 @@ bool Parser::Parse_Statement()
 
 		if (!Parse_Expression(false)) return false;
 
+
+
 		return true;
 	}
 	//| GOTO <Expression>
@@ -114,14 +116,41 @@ bool Parser::Parse_Statement()
 		if (!Parse_Expression(false)) return false;
 		/*Semantic actions*/
 
+		CodeLineNumberToICVMLineNumber x;
+		std::unique_ptr<Instruction> instrCodeToICVM = std::make_unique< CodeLineNumberToICVMLineNumber>(x);
+		icvm->AddInstruction(std::move(instrCodeToICVM));
+
+		Jump jump;
+		std::unique_ptr<Instruction> jumpInstr = std::make_unique<Jump>(jump);
+		icvm->AddInstruction(std::move(jumpInstr));
+
 		return true;
 	}
 	//| GOSUB <Expression>
 	else if (CurrentTokenType() == TType::Gosub) {
+		int nextLine = CurrentToken.GetLineNumber()+10;
 		Eat(TType::Gosub);
 
 		if (!Parse_Expression(false)) return false;
 		/*Semantic actions*/
+		LoadConstant ldConst("\"I\"" + std::to_string(nextLine));
+		std::unique_ptr<Instruction> ldConstInstr = std::make_unique<LoadConstant>(ldConst);
+		icvm->AddInstruction(std::move(ldConstInstr));
+
+		CodeLineNumberToICVMLineNumber x;
+		std::unique_ptr<Instruction> instrCodeToICVM = std::make_unique< CodeLineNumberToICVMLineNumber>(x);
+		icvm->AddInstruction(std::move(instrCodeToICVM));
+
+		LoadToAddressStack ldToAddrStack;
+		std::unique_ptr<Instruction> ldConstAddrInstr = std::make_unique<LoadToAddressStack>(ldToAddrStack);
+		icvm->AddInstruction(std::move(ldConstAddrInstr));
+
+		std::unique_ptr<Instruction> instrCodeToICVM1 = std::make_unique< CodeLineNumberToICVMLineNumber>(x);
+		icvm->AddInstruction(std::move(instrCodeToICVM1));
+
+		Jump jump;
+		std::unique_ptr<Instruction> jumpInstr = std::make_unique<Jump>(jump);
+		icvm->AddInstruction(std::move(jumpInstr));
 
 		return true;
 	}
@@ -129,6 +158,24 @@ bool Parser::Parse_Statement()
 	else if (CurrentTokenType() == TType::If) {
 		Eat(TType::If);
 		if (!Parse_Expression(false)) { return false; }
+
+		Not n;
+		std::unique_ptr<Instruction> notInstr = std::make_unique<Not>(n);
+		icvm->AddInstruction(std::move(notInstr));
+
+		int nextLine = CurrentToken.GetLineNumber()+10;
+
+		LoadConstant ldConst("\"I\"" + std::to_string(nextLine));
+		std::unique_ptr<Instruction> ldConstInstr = std::make_unique<LoadConstant>(ldConst);
+		icvm->AddInstruction(std::move(ldConstInstr));
+
+		CodeLineNumberToICVMLineNumber c;
+		std::unique_ptr<Instruction> convertInstr = std::make_unique<CodeLineNumberToICVMLineNumber>(c);
+		icvm->AddInstruction(std::move(convertInstr));
+
+		Jumpif jmp;
+		std::unique_ptr<Instruction> jumpifInstr = std::make_unique<Jumpif>(jmp);
+		icvm->AddInstruction(std::move(jumpifInstr));
 
 		if (CurrentTokenType() != TType::Then) { return false; }
 		Eat(TType::Then);
@@ -178,7 +225,13 @@ bool Parser::Parse_Statement()
 		Eat(TType::Return);
 
 		/*Semantic actions*/
+		PopAddressStack popAddrStack;
+		std::unique_ptr<Instruction> ldConstAddrInstr = std::make_unique<PopAddressStack>(popAddrStack);
+		icvm->AddInstruction(std::move(ldConstAddrInstr));
 
+		Jump instrJump;
+		std::unique_ptr<Instruction> instrJumpPtr = std::make_unique<Jump>(instrJump);
+		icvm->AddInstruction(std::move(instrJumpPtr));
 
 		return true;
 	}

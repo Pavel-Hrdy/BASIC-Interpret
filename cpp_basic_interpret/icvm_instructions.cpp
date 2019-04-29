@@ -1339,3 +1339,15 @@ void PopAddressStack::Execute()
 
 	icvm->AddStackItem(x);
 }
+
+void CodeLineNumberToICVMLineNumber::Execute()
+{
+	ICVM * icvm = ICVM::GetInstance();
+	StackItem codeLN = icvm->PopItem(ItemType::Int);
+
+	int32_t intCodeLn = std::stoi(codeLN.GetContent());
+	int32_t icvmLine = icvm->NormalLineToICVM(intCodeLn);
+
+	StackItem icvmLN(ItemType::Int, std::to_string(icvmLine));
+	icvm->AddStackItem(icvmLN);
+}
