@@ -4,6 +4,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <vector>
+#include <fstream>
 #include <map>
 #include "lexer.h"
 #include "exceptions.h"
@@ -19,16 +20,28 @@
 //- Mapování řádků mezi ICVM a kódem - DONE
 //- Samotné natažení kódu ze souboru - to by mělo bejt ez
 //- Chybová hlášení
-//- Funkce v expressionu - udělá se funkce, která podle jména vrátí příslušnou instanci funkce
+//- Funkce v expressionu - udělá se funkce, která podle jména vrátí příslušnou instanci funkce - DONE
 
-int main()
+int main(int argc, char* argv[])
 {
-	std::map<int, int> bla;
+	if (argc != 2) {
+		std::cout << "Usage: PROGRAM_NAME <filename>\n";
+		return -1;
+	}
+	std::string line;
+	std::string wholeFile="";
+	std::ifstream file(argv[1]);
+	if (file.is_open())
+	{
+		while (std::getline(file, line))
+		{
+			wholeFile += line + '\n';
+		}
+		file.close();
+	}
+	else std::cout << "Unable to open file " << argv[1];
 
-
-	std::string code = "10 X = SGN(5)";
-	std::vector<TType> types;
-	Lexer l(code);
+	Lexer l(wholeFile);
 	Parser p(l);
 	p.Parse();
 	ICVM* icvm = ICVM::GetInstance();

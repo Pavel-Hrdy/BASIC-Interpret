@@ -622,43 +622,6 @@ bool Parser::Parse_IntegerList()
 
 	return false;
 }
-/*
-<Expression>  ::= <And Exp> OR <Expression>
-				| <And Exp>
-*/
-/*
-bool Parser::Parse_Expression()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (!Parse_AndExp()) return false;
-
-	if (CurrentTokenType() == TType::OrOp) {
-		Eat(TType::OrOp);
-		if (!Parse_Expression()) return false;
-		/*Semantic actions
-
-		Or instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<Or>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
-
-		return true;
-	}
-	/*Semantic actions
-
-
-
-	return true;
-}*/
-//povolené tokeny: RelOp, PlusMinusOp, MulOp, UnaryMinus, Exp
-/*
-pravidla -
-- pokud narazíme na číslo, další token musí být operátor
-- závorky musí pasovat - uděláme counter
-- pokud narazíme na Variable, musíme se podívat, zda další znak není závorka - pokud ano, je to pole
-
-Parses infix expression, converts it to postfix and then puts on stack values from postfix expression + adds instruction to ICVM
-*/
 
 uint32_t ReturnPrecedenceOfOp(ExprTokenType input) {
 	switch (input) {
@@ -700,7 +663,7 @@ std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infi
 		endIndex = i;
 		if ((infixTokens[i].GetType() == ExprTokenType::Int) || (infixTokens[i].GetType() == ExprTokenType::Real) ||
 			(infixTokens[i].GetType() == ExprTokenType::Variable) || (infixTokens[i].GetType() == ExprTokenType::StringVariable)
-			|| (infixTokens[i].GetType() == ExprTokenType::String)) {
+			|| (infixTokens[i].GetType() == ExprTokenType::String) || (infixTokens[i].GetType() == ExprTokenType::Function)) {
 			output.push_back(infixTokens[i]);
 		}
 		else if (infixTokens[i].GetType() == ExprTokenType::EndArray) {
@@ -761,6 +724,91 @@ bool Parser::Parse_Expression(bool isArray) {
 	return true;
 }
 
+void CallRightFunction(FunctionType type) {
+	switch (type) {
+	case FunctionType::Abs: {
+		Abs_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Asc: {
+		Asc_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Atn: {
+		Atn_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Chr: {
+		Chr_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Clog: {
+		Clog_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Cos: {
+		Cos_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Exp: {
+		Exp_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Int: {
+		Int_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Len: {
+		Len_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Log: {
+		Log_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Rnd: {
+		Rnd_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Sgn: {
+		Sgn_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Sin: {
+		Sin_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Sqr: {
+		Sqr_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Str: {
+		Str_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	case FunctionType::Val: {
+		Val_F_T x;
+		x.SemanticAction();
+		break;
+	}
+	}
+}
+
 void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startIndex, size_t & endIndex) {
 	ICVM* icvm = ICVM::GetInstance();
 
@@ -786,8 +834,8 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			break;
 		}
 		case ExprTokenType::Function: {
-			Function_T* func = GetRightFunction(postfix[i].GetContent()); // Returns right function class, depending on its name
-			func->SemanticAction();
+			FunctionType funcType = (FunctionType)std::stoi(postfix[i].GetContent());
+			CallRightFunction(funcType);
 			break;
 		}
 		case ExprTokenType::Variable: {
@@ -987,6 +1035,8 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isI
 		}
 		else if (CurrentTokenType() == TType::Function) {
 			Token x = CurrentToken;
+			Function_T* y = dynamic_cast<Function_T*>(x.GetTokenType());
+			FunctionType funcType = y->FuncType();
 			Eat(TType::Function);
 			std::vector<ExprToken> funcArgument;
 
@@ -997,7 +1047,7 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isI
 				tokens.push_back(funcArgument[i]);
 			}
 
-			tokens.emplace_back(ExprToken(ExprTokenType::Function, CurrentToken.GetContent()));
+			tokens.emplace_back(ExprToken(ExprTokenType::Function, std::to_string((int)funcType)));
 
 		}
 		else if (CurrentTokenType() == TType::StringVariable) {
