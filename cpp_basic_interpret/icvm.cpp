@@ -25,6 +25,17 @@ TypeOfVariable ICVM::ReturnTypeOfVariable(const std::string & nameOfVariable, bo
 	else return TypeOfVariable::Error;
 }
 
+TypeOfVariable ICVM::ReturnTypeOfArrayVariable(const std::string & nameOfVariable, bool & doesExist) const
+{
+	auto it = arrayTypes.find(nameOfVariable);
+	doesExist = false;
+	if (it != arrayTypes.end()) {
+		doesExist = true;
+		return it->second;
+	}
+	else return TypeOfVariable::Error;
+}
+
 void ICVM::AddStackItem(const StackItem item)
 {
 	stack.push(item);
@@ -47,6 +58,14 @@ StackItem ICVM::PopItem()
 	return item;
 }
 
+StackItem ICVM::PopDataItem()
+{
+	if (currentDataStack.size() == 0) throw EmptyStackException();
+	StackItem item = currentDataStack.front();
+	currentDataStack.pop();
+	return item;
+}
+
 TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack() const
 {
 	if (stack.size() == 0) throw EmptyStackException();
@@ -56,10 +75,17 @@ TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack() const
 //Updates value of a variable in map
 void ICVM::UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType)
 {
+	if ((newType == TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] != '$')) throw TypeMismatchException();
+	if ((newType != TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] == '$')) throw TypeMismatchException();
+
 	auto it = variables.find(nameOfVar);
 	if (it != variables.end()) {
 		variables[nameOfVar] = newContent;
 		variablesTypes[nameOfVar] = newType;
+	}
+	else {
+		AddVariable(nameOfVar, newType);
+		variables[nameOfVar] = newContent;
 	}
 }
 
@@ -73,16 +99,36 @@ void ICVM::AddVariable(const std::string & nameOfVar, TypeOfVariable type)
 	}
 }
 
-//Changes instruction pointer - newIP is line number from original code, so it has to be translated to instruction's line number
-void ICVM::ChangeIP(uint32_t newIP)
+void ICVM::AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions)
 {
+	auto it = arrayTypes.find(nameOfArray);
+	if (it == arrayTypes.end()) {
+		arrayTypes.emplace(nameOfArray,type);
+		arrayDimensions.emplace(nameOfArray, dimensions);
+	}
+	else {
+		arrayTypes[nameOfArray] = type;
+		arrayDimensions[nameOfArray] = dimensions;
+	}
+}
+
+//Changes instruction pointer - newIP is line number from original code, so it has to be translated to instruction's line number
+void ICVM::ChangeIP(int32_t newIP)
+{
+	/*
 	auto it = codeToInstructionMapping.find(newIP);
 	if (it != codeToInstructionMapping.end()) {
 		instructionPointer = codeToInstructionMapping[newIP];
 	}
 	else {
 		throw CodeToInstructionTranslationException();
-	}
+	}*/
+	instructionPointer = newIP;
+}
+
+int32_t ICVM::GetIP()
+{
+	return instructionPointer;
 }
 
 //Adds new instruction to ICVM
@@ -91,11 +137,100 @@ void ICVM::AddInstruction(std::unique_ptr<Instruction> instr)
 	instructions.push_back(std::move(instr));
 }
 
-void ICVM::ExecuteInstruction()
+void ICVM::AddInstructionAtIndex(std::unique_ptr<Instruction> instr, uint32_t index)
 {
-	if (instructions.size() > 0) {
-		Instruction * instr = instructions[instructions.size() - 1].get();
+	instructions.insert(instructions.begin() + index, std::move(instr));
+}
+
+//Executes instruction at instruction pointer and increments it.
+//Returns false if there are not any other instructions to execute.
+bool ICVM::ExecuteInstruction()
+{
+	if ((instructionPointer >= 0) && ((size_t)instructionPointer < instructions.size())) {
+		Instruction * instr = instructions[instructionPointer].get();
+		instructionPointer++;
 		instr->Execute();
-		instructions.pop_back();
+		return true;
+	}
+	return false;
+}
+
+void ICVM::CopyToStack(std::stack<StackItem> s)
+{
+	while (!s.empty()) {
+		stack.push(s.top());
+		s.pop();
+	}
+}
+
+void ICVM::PushToDataStack(const StackItem item)
+{
+	dataStack.push(item);
+}
+
+void ICVM::RestoreDataStack()
+{
+	currentDataStack = dataStack;
+}
+
+void ICVM::RemoveInstruction(size_t index)
+{
+	instructions.erase(instructions.begin() + index);
+}
+
+void ICVM::PushAddress(size_t value)
+{
+	addressStack.push(value);
+}
+
+size_t ICVM::PopAddress()
+{
+	if (addressStack.empty()) throw EmptyStackException();
+	size_t value = addressStack.top();
+	addressStack.pop();
+	return value;
+}
+
+void ICVM::AddNewLineNumber(int32_t codeLineNumber)
+{
+	codeToInstructionMapping.emplace(codeLineNumber, instructions.size());
+}
+
+void ICVM::ExecuteAll()
+{
+	while (ExecuteInstruction());
+}
+
+void ICVM::End()
+{
+	instructionPointer = instructions.size();
+}
+
+int32_t ICVM::ICVMLineToNormalLine(int32_t icvmLine)
+{
+	for (size_t i = 10; i <= codeToInstructionMapping.size() * 10; i += 10) {
+		if (codeToInstructionMapping[i] > icvmLine) return i - 10;
+		else if (codeToInstructionMapping[i] == icvmLine) return i;
+	}
+	throw CodeToInstructionTranslationException();
+}
+
+int32_t ICVM::ICVMLineToNormalLine()
+{
+	return ICVMLineToNormalLine(instructionPointer);
+}
+
+int32_t ICVM::NormalLineToICVM(int32_t normalLine)
+{
+	auto it = codeToInstructionMapping.find(normalLine);
+	if (it == codeToInstructionMapping.end()) return -1;
+	int32_t x = codeToInstructionMapping[normalLine];
+	return x;
+}
+
+void ICVM::RecalculateLineNumMapping(size_t start, size_t offset)
+{
+	for (size_t i = start; i <= codeToInstructionMapping.size() * 10; i += 10) {
+		codeToInstructionMapping[i] += offset;
 	}
 }

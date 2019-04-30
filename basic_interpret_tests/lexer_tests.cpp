@@ -10,6 +10,14 @@
 #include "..\cpp_basic_interpret\token.cpp"
 #include "..\cpp_basic_interpret\exceptions.cpp"
 #include "..\cpp_basic_interpret\exceptions.h"
+#include "..\cpp_basic_interpret\icvm.h"
+#include "..\cpp_basic_interpret\icvm.cpp"
+#include "..\cpp_basic_interpret\parser.h"
+#include "..\cpp_basic_interpret\parser.cpp"
+#include "..\cpp_basic_interpret\icvm_instructions.h"
+#include "..\cpp_basic_interpret\icvm_instructions.cpp"
+
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace basic_interpret_tests

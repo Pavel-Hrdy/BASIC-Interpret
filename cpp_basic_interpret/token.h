@@ -13,7 +13,7 @@ Pavel Hrdý
 enum class RelType { Less, LessEq, Greater, GreaterEq, Eq, NotEq };
 enum class SignAddType { Add, Sub };
 enum class MulType { Mul, Div };
-enum class TType { Function, Comma, Semicolon, On, For, Gosub, Goto, If, Next, Real, ExpOp, NotOp, AndOp, OrOp, Int, MulDivOp, PlusMinusOp, RelOp, To, Then, Step, Return, Rem, Variable, StringVariable, EndOfCode, LeftPar, RightPar, Colon, String, NewLine };
+enum class TType { Int, Real, String,UnaryMinusOp, Function, Comma, Semicolon, On, For, Gosub, Goto, If, Next, ExpOp, NotOp, AndOp, OrOp, MulDivOp, PlusMinusOp, RelOp, To, Then, Step, Return, Rem, Variable, StringVariable, EndOfCode, LeftPar, RightPar, Colon, NewLine };
 enum class FunctionType {
 	Sin, Str, Trap, Val, Return, Rnd, Sgn, Sqr, Pop, Print, Rad, Read, Restore, Len, Let, Log, Dim, End, Abs, Exp, Input, Int, Clr, Cos, Data, Deg, Asc, Atn, Chr, Clog
 };
@@ -88,6 +88,11 @@ class PlusMinusOp_T : public TokenType {
 public:
 	SignAddType type;
 	PlusMinusOp_T(const SignAddType _type);
+	virtual TType Type() override;
+};
+
+class UnaryMinusOp_T : public TokenType {
+public:
 	virtual TType Type() override;
 };
 
@@ -222,13 +227,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Clog; }
 };
 
-class Clr_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Clr; }
-};
-
 class Cos_F_T : public Function_T {
 public:
 	virtual void SemanticAction() override;
@@ -241,13 +239,6 @@ public:
 	virtual void SemanticAction() override;
 	virtual TType Type() override;
 	virtual FunctionType FuncType() { return FunctionType::Data; }
-};
-
-class Deg_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Deg; }
 };
 
 class Dim_F_T : public Function_T {
@@ -320,12 +311,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Print; }
 };
 
-class Rad_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Rad; }
-};
 
 class Read_F_T : public Function_T {
 public:
@@ -376,12 +361,6 @@ public:
 	virtual FunctionType FuncType() { return FunctionType::Str; }
 };
 
-class Trap_F_T : public Function_T {
-public:
-	virtual void SemanticAction() override;
-	virtual TType Type() override;
-	virtual FunctionType FuncType() { return FunctionType::Trap; }
-};
 
 class Val_F_T : public Function_T {
 public:
@@ -392,12 +371,14 @@ public:
 
 struct Token {
 private:
-	std::unique_ptr<TokenType> token;
+	std::shared_ptr<TokenType> token;
 	std::string content;
-	uint32_t lineNumber;
+	uint32_t lineNumber = 0;
 public:
 	Token() {}
 	Token(std::unique_ptr<TokenType> _token, const std::string& _content, uint32_t _lineNumber);
+
+
 	TokenType* GetTokenType();
 	std::string GetContent();
 	uint32_t GetLineNumber();

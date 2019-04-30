@@ -178,10 +178,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 		Clog_F_T x;
 		returnPointer = std::make_unique<Clog_F_T>(x);
 	}
-	else if (lowerString == "clr") {
-		Clr_F_T x;
-		returnPointer = std::make_unique<Clr_F_T>(x);
-	}
 	else if (lowerString == "cos") {
 		Cos_F_T x;
 		returnPointer = std::make_unique<Cos_F_T>(x);
@@ -189,10 +185,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	else if (lowerString == "data") {
 		Data_F_T x;
 		returnPointer = std::make_unique<Data_F_T>(x);
-	}
-	else if (lowerString == "deg") {
-		Deg_F_T x;
-		returnPointer = std::make_unique<Deg_F_T>(x);
 	}
 	else if (lowerString == "dim") {
 		Dim_F_T x;
@@ -234,10 +226,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 		Print_F_T x;
 		returnPointer = std::make_unique<Print_F_T>(x);
 	}
-	else if (lowerString == "rad") {
-		Rad_F_T x;
-		returnPointer = std::make_unique<Rad_F_T>(x);
-	}
 	else if (lowerString == "read") {
 		Read_F_T x;
 		returnPointer = std::make_unique<Read_F_T>(x);
@@ -269,10 +257,6 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	else if (lowerString == "str$") {
 		Str_F_T x;
 		returnPointer = std::make_unique<Str_F_T>(x);
-	}
-	else if (lowerString == "trap") {
-		Trap_F_T x;
-		returnPointer = std::make_unique<Trap_F_T>(x);
 	}
 	else if (lowerString == "val") {
 		Val_F_T x;
@@ -387,6 +371,13 @@ Token Lexer::GetNextToken() {
 
 			return Token(std::move(y), content, lineNumber);
 		}
+		else if (currentChar == '~') {
+			Read();
+			UnaryMinusOp_T x;
+			std::unique_ptr<TokenType> y = std::make_unique<UnaryMinusOp_T>(x);
+
+			return Token(std::move(y), content, lineNumber);
+		}
 		else if (currentChar == ',') {
 			Read();
 			Comma_T x;
@@ -406,48 +397,51 @@ Token Lexer::GetNextToken() {
 			PlusMinusOp_T x(SignAddType::Add);
 			std::unique_ptr<TokenType> y = std::make_unique<PlusMinusOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "+", lineNumber);
 		}
 		else if (currentChar == '-') {
 			Read();
 			PlusMinusOp_T x(SignAddType::Sub);
 			std::unique_ptr<TokenType> y = std::make_unique<PlusMinusOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "-", lineNumber);
 		}
 		else if (currentChar == '*') {
 			Read();
 			MulDivOp_T x(MulType::Mul);
 			std::unique_ptr<TokenType> y = std::make_unique<MulDivOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "*", lineNumber);
 		}
 		else if (currentChar == '/') {
 			Read();
 			MulDivOp_T x(MulType::Div);
 			std::unique_ptr<TokenType> y = std::make_unique<MulDivOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "/", lineNumber);
 		}
 		else if (currentChar == '^') {
 			Read();
 			ExpOp_T x;
 			std::unique_ptr<TokenType> y = std::make_unique<ExpOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "^", lineNumber);
 		}
 		else if (currentChar == '<') {
 			Read();
+			content = "<";
 			std::unique_ptr<TokenType> y;
 			if (Peek() == '=') {
 				Read();
 				RelOp_T x(RelType::LessEq);
 				y = std::make_unique<RelOp_T>(x);
+				content = "<=";
 			}
 			else if (Peek() == '>') {
 				Read();
 				RelOp_T x(RelType::NotEq);
 				y = std::make_unique<RelOp_T>(x);
+				content = "<>";
 			}
 			else {
 				RelOp_T x(RelType::Less);
@@ -458,11 +452,13 @@ Token Lexer::GetNextToken() {
 		}
 		else if (currentChar == '>') {
 			Read();
+			content = ">";
 			std::unique_ptr<TokenType> y;
 			if (Peek() == '=') {
 				Read();
 				RelOp_T x(RelType::GreaterEq);
 				y = std::make_unique<RelOp_T>(x);
+				content = ">=";
 			}
 			else {
 				RelOp_T x(RelType::Greater);
@@ -476,7 +472,7 @@ Token Lexer::GetNextToken() {
 			RelOp_T x(RelType::Eq);
 			std::unique_ptr<TokenType> y = std::make_unique<RelOp_T>(x);
 
-			return Token(std::move(y), content, lineNumber);
+			return Token(std::move(y), "=", lineNumber);
 		}
 		else if (currentChar == '\n') {
 			lineNumber += 10;
@@ -498,4 +494,9 @@ Token Lexer::GetNextToken() {
 	std::unique_ptr<TokenType> x;
 	return Token(std::move(x), "", lineNumber);
 	//-----------------------------------------
+}
+
+uint32_t Lexer::ReturnLineNumber()
+{
+	return lineNumber;
 }

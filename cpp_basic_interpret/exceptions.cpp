@@ -32,7 +32,8 @@ LexerException::LexerException(int line)
 
 const char * VariableNotFoundException::what() const noexcept
 {
-	return "[ICVM Error] Variable wasn't found in the map";
+	std::string x = "[Error] Variable  " + name + "wasn't found";
+	return x.c_str();
 }
 
 const char * UnknownTypeOfConstantException::what() const noexcept
@@ -75,5 +76,11 @@ const char * LineNumberNotFoundException::what() const noexcept
 const char * InvalidSyntaxException::what() const noexcept
 {
 	std::string x = "[Parser Error] Line " + std::to_string(lineNumber) + ": Invalid syntax";
+	return x.c_str();
+}
+
+const char * WrongInputException::what() const noexcept
+{
+	std::string x = "[Input Error] Input can be only int, real or string";
 	return x.c_str();
 }

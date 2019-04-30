@@ -6,6 +6,7 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 #include <exception>
+#include <string>
 
 class ParserException : public std::exception {
 public:
@@ -27,11 +28,19 @@ public:
 };
 
 class VariableNotFoundException : public ICVMException {
+private:
+	std::string name;
 public:
+	VariableNotFoundException(std::string _name) { name = _name; };
 	virtual const char* what() const noexcept;
 };
 
 class UnknownTypeOfConstantException : public ICVMException {
+public:
+	virtual const char* what() const noexcept;
+};
+
+class WrongInputException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
 };
