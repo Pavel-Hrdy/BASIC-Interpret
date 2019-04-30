@@ -115,7 +115,7 @@ Whitespace     = {WS}+
 #include "icvm.h"
 
 enum class ExprTokenType{Variable,ArrayVariable,StringVariable,Int,Real,String,RelOp,MulDivOp,AddSubOp,UnaryMinusOp,ExpOp,
-						LeftPar,RightPar,Error, AndOp, OrOp, NotOp, EndList,EndArray, ArrayComma};
+						LeftPar,RightPar,Error, AndOp, OrOp, NotOp, EndList,EndArray, ArrayComma, Function};
 
 class ExprToken {
 private:

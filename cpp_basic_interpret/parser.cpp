@@ -1,4 +1,5 @@
 ﻿#include <stack>
+#include <functional>
 #include "parser.h"
 #include "exceptions.h"
 
@@ -29,7 +30,7 @@ bool Parser::Parse_Lines()
 	if (CurrentTokenType() == TType::NewLine) {
 		Eat(TType::NewLine);
 
-		ICVM * icvm = ICVM::GetInstance();
+		ICVM* icvm = ICVM::GetInstance();
 		icvm->AddNewLineNumber(lexer.ReturnLineNumber());
 
 		if (!Parse_Lines()) { return false; }
@@ -125,9 +126,9 @@ bool Parser::Parse_Statement()
 		std::unique_ptr<Instruction> getNameInstr1 = std::make_unique<GetForInfo>(name);
 		icvm->AddInstruction(std::move(getNameInstr1));
 
-		size_t jumpBackAddress = icvm->InstructionCount()-1;
+		size_t jumpBackAddress = icvm->InstructionCount() - 1;
 
-		LoadConstant address("\"I\""+std::to_string(jumpBackAddress));
+		LoadConstant address("\"I\"" + std::to_string(jumpBackAddress));
 		std::unique_ptr<Instruction> ldAddrInstr = std::make_unique<LoadConstant>(address);
 		icvm->AddInstruction(std::move(ldAddrInstr));
 
@@ -761,7 +762,7 @@ bool Parser::Parse_Expression(bool isArray) {
 }
 
 void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startIndex, size_t & endIndex) {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	for (size_t i = startIndex; i < postfix.size(); i++) {
 		endIndex = i;
@@ -782,6 +783,11 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			LoadConstant instr("\"S\"" + postfix[i].GetContent());
 			std::unique_ptr<Instruction> instrPtr = std::make_unique<LoadConstant>(instr);
 			icvm->AddInstruction(std::move(instrPtr));
+			break;
+		}
+		case ExprTokenType::Function: {
+			Function_T* func = GetRightFunction(postfix[i].GetContent()); // Returns right function class, depending on its name
+			func->SemanticAction();
 			break;
 		}
 		case ExprTokenType::Variable: {
@@ -920,23 +926,13 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 
 //Parses infix expression and returns boolean if parsing was successful.
 //Also returns vector of ExprTokens which represents infix notation.
-bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isArrayIndex) {
+bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isInParenthesis) {
 	std::vector<ExprToken> tokens;
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	bool foundVariable = false;;
 	bool foundOp = false;;
 	int parCounter = 0;
 	while (true) {
-		/*
-		if ((foundVariable) && (CurrentTokenType() != TType::AndOp) && (CurrentTokenType() != TType::ExpOp) // There has to be an op after number
-			&& (CurrentTokenType() != TType::MulDivOp) && (CurrentTokenType() != TType::NotOp) && (CurrentTokenType() != TType::OrOp)
-			&& (CurrentTokenType() != TType::PlusMinusOp) && (CurrentTokenType() != TType::RelOp)) return false;
-		else foundVariable = false;
-
-		if ((foundOp) && (CurrentTokenType() != TType::Int) && (CurrentTokenType() != TType::Real) && (CurrentTokenType() != TType::Variable) // There has to be a number or left parenthesis after op
-			&& (CurrentTokenType() != TType::StringVariable) && (CurrentTokenType() != TType::LeftPar)) return false;
-		else foundOp = false;
-		*/
 		if (CurrentTokenType() == TType::Int) {
 			foundVariable = true;
 			tokens.emplace_back(ExprToken(ExprTokenType::Int, CurrentToken.GetContent()));
@@ -989,6 +985,21 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isA
 				tokens.emplace_back(ExprToken(ExprTokenType::Variable, varName));
 
 		}
+		else if (CurrentTokenType() == TType::Function) {
+			Token x = CurrentToken;
+			Eat(TType::Function);
+			std::vector<ExprToken> funcArgument;
+
+			if (!Parse_InfixExpression(funcArgument, false))
+				return false;
+
+			for (size_t i = 0; i < funcArgument.size(); i++) {
+				tokens.push_back(funcArgument[i]);
+			}
+
+			tokens.emplace_back(ExprToken(ExprTokenType::Function, CurrentToken.GetContent()));
+
+		}
 		else if (CurrentTokenType() == TType::StringVariable) {
 			foundVariable = true;
 			tokens.emplace_back(ExprToken(ExprTokenType::StringVariable, CurrentToken.GetContent()));
@@ -1000,7 +1011,7 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isA
 			parCounter++;
 		}
 		else if (CurrentTokenType() == TType::RightPar) {
-			if (isArrayIndex && (parCounter == 0)) {
+			if (isInParenthesis && (parCounter == 0)) {
 				break;
 			}
 			else {

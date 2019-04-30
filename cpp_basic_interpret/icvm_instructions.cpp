@@ -208,6 +208,7 @@ void Print::Execute()
 	}
 	catch (EmptyStackException) {
 		std::string x = "Line " + std::to_string(icvm->ICVMLineToNormalLine()) + " - wrong use of PRINT command.";
+		std::cout << x;
 	}
 }
 

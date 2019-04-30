@@ -15,17 +15,18 @@
 //- výraz, který určuje index v ArrayVariable je Expression - DONE
 //- udělá z nich postfixovou notaci. - DONE
 //- To se pak může vysypat do stacku a instrukcí ICVM a bude to šlapat - možná DONE
-//- Sémantické akce zbytku funkcí + matematické funkce (ty by měly bejt ez)
-//- Mapování řádků mezi ICVM a kódem
+//- Sémantické akce zbytku funkcí + matematické funkce (ty by měly bejt ez) - DONE
+//- Mapování řádků mezi ICVM a kódem - DONE
 //- Samotné natažení kódu ze souboru - to by mělo bejt ez
 //- Chybová hlášení
+//- Funkce v expressionu - udělá se funkce, která podle jména vrátí příslušnou instanci funkce
 
 int main()
 {
 	std::map<int, int> bla;
-	int x = bla[0];
 
-	std::string code = "10 FOR X = 0 TO 10\n20 FOR Y = 0 TO 5\n30 PRINT X+Y\n40 NEXT\n50 NEXT";
+
+	std::string code = "10 X = SGN(5)";
 	std::vector<TType> types;
 	Lexer l(code);
 	Parser p(l);

@@ -59,27 +59,7 @@ class SaveToVariable :public Instruction {
 public:
 	virtual void Execute() override;
 };
-/*
-class IntToReal : public Instruction {
-public:
-	virtual void Execute() override;
-};
 
-class RealToInt : public Instruction {
-public:
-	virtual void Execute() override;
-};
-
-class UnaryMinusReal : public Instruction {
-public:
-	virtual void Execute() override;
-};
-
-class UnaryMinusInt : public Instruction {
-public:
-	virtual void Execute() override;
-};
-*/
 
 class UnaryMinus : public Instruction {
 public:
@@ -100,47 +80,6 @@ class Or : public Instruction {
 public:
 	virtual void Execute()override;
 };
-/*
-class AddInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class SubInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class DivInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class MulInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class AddReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class SubReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class DivReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class MulReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-*/
 
 class Add : public Instruction {
 public:
@@ -162,67 +101,6 @@ public:
 	virtual void Execute()override;
 };
 
-/*
-class LessInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class GreaterInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class LessEqInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class GreaterEqInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class EqInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class NotEqInt : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class LessReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class GreaterReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class LessEqReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class GreaterEqReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class EqReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class NotEqReal : public Instruction {
-public:
-	virtual void Execute()override;
-};
-*/
 
 class Less : public Instruction {
 public:
@@ -258,37 +136,7 @@ class Exp : public Instruction {
 public:
 	virtual void Execute()override;
 };
-/*
-class LessString : public Instruction {
-public:
-	virtual void Execute()override;
-};
 
-class GreaterString : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class LessEqString : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class GreaterEqString : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class EqString : public Instruction {
-public:
-	virtual void Execute()override;
-};
-
-class NotEqString : public Instruction {
-public:
-	virtual void Execute()override;
-};
-*/
 class Jump : public Instruction {
 public:
 	virtual void Execute()override;
