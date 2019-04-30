@@ -283,6 +283,7 @@ Lexer::Lexer(const std::string& input) {
 Token Lexer::GetToken()
 {
 	Token t = GetNextToken();
+	if (t.GetTokenType()->Type() == TType::EndOfCode) return t;
 	if (newlineFlag) {
 		if ((t.GetTokenType()->Type() == TType::Int)) { //Next token has to be line number
 			newlineFlag = false;

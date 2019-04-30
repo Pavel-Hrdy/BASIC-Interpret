@@ -27,6 +27,7 @@ void Parser::Eat(TType type)
 */
 bool Parser::Parse_Lines()
 {
+	if (CurrentTokenType() == TType::EndOfCode) { return true; }
 	if (CurrentTokenType() != TType::Int) { return false; }
 	else { Eat(TType::Int); }
 

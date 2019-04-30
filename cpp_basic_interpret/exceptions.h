@@ -29,9 +29,8 @@ public:
 };
 
 class VariableNotFoundException : public ICVMException {
-private:
-	std::string name;
 public:
+	std::string name;
 	VariableNotFoundException(int line, std::string _name) { lineNumber = line; name = _name; };
 	virtual const char* what() const noexcept;
 };
