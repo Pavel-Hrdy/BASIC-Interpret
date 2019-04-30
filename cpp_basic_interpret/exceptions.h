@@ -24,6 +24,7 @@ public:
 
 class ICVMException : public std::exception {
 public:
+	int lineNumber;
 	virtual const char* what() const noexcept = 0;
 };
 
@@ -31,38 +32,62 @@ class VariableNotFoundException : public ICVMException {
 private:
 	std::string name;
 public:
-	VariableNotFoundException(std::string _name) { name = _name; };
+	VariableNotFoundException(int line, std::string _name) { lineNumber = line; name = _name; };
 	virtual const char* what() const noexcept;
 };
 
 class UnknownTypeOfConstantException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	UnknownTypeOfConstantException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class WrongInputException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	WrongInputException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class TypeMismatchException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	TypeMismatchException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class EmptyStackException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	EmptyStackException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class DivideByZeroException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	DivideByZeroException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class CodeToInstructionTranslationException : public ICVMException {
 public:
 	virtual const char* what() const noexcept;
+	CodeToInstructionTranslationException(int line)
+	{
+		lineNumber = line;
+	}
 };
 
 class LexerException : public std::exception

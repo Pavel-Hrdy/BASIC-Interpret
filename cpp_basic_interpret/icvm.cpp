@@ -43,16 +43,16 @@ void ICVM::AddStackItem(const StackItem item)
 
 StackItem ICVM::PopItem(ItemType type)
 {
-	if (stack.size() == 0) throw EmptyStackException();
+	if (stack.size() == 0) throw EmptyStackException(ICVMLineToNormalLine());
 	StackItem item = stack.top();
 	stack.pop();
-	if (item.GetType() != type) throw TypeMismatchException();
+	if (item.GetType() != type) throw TypeMismatchException(ICVMLineToNormalLine());
 	else return item;
 }
 
 StackItem ICVM::PopItem()
 {
-	if (stack.size() == 0) throw EmptyStackException();
+	if (stack.size() == 0) throw EmptyStackException(ICVMLineToNormalLine());
 	StackItem item = stack.top();
 	stack.pop();
 	return item;
@@ -60,7 +60,8 @@ StackItem ICVM::PopItem()
 
 StackItem ICVM::PopDataItem()
 {
-	if (currentDataStack.size() == 0) throw EmptyStackException();
+	ICVM* icvm = ICVM::GetInstance();
+	if (currentDataStack.size() == 0) throw EmptyStackException(icvm->ICVMLineToNormalLine());
 	StackItem item = currentDataStack.front();
 	currentDataStack.pop();
 	return item;
@@ -68,15 +69,17 @@ StackItem ICVM::PopDataItem()
 
 TypeOfVariable ICVM::ReturnTypeOfVarOnTopofStack() const
 {
-	if (stack.size() == 0) throw EmptyStackException();
+	ICVM* icvm = ICVM::GetInstance();
+	if (stack.size() == 0) throw EmptyStackException(icvm->ICVMLineToNormalLine());
 	return (TypeOfVariable)stack.top().GetType();
 }
 
 //Updates value of a variable in map
 void ICVM::UpdateVariable(const std::string & nameOfVar, const std::string & newContent, TypeOfVariable newType)
 {
-	if ((newType == TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] != '$')) throw TypeMismatchException();
-	if ((newType != TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] == '$')) throw TypeMismatchException();
+	ICVM* icvm = ICVM::GetInstance();
+	if ((newType == TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] != '$')) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
+	if ((newType != TypeOfVariable::String) && (nameOfVar[nameOfVar.size() - 1] == '$')) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
 	auto it = variables.find(nameOfVar);
 	if (it != variables.end()) {
@@ -185,7 +188,8 @@ void ICVM::PushAddress(size_t value)
 
 size_t ICVM::PopAddress()
 {
-	if (addressStack.empty()) throw EmptyStackException();
+	ICVM* icvm = ICVM::GetInstance();
+	if (addressStack.empty()) throw EmptyStackException(icvm->ICVMLineToNormalLine());
 	size_t value = addressStack.top();
 	addressStack.pop();
 	return value;
@@ -208,11 +212,12 @@ void ICVM::End()
 
 int32_t ICVM::ICVMLineToNormalLine(int32_t icvmLine)
 {
+	ICVM* icvm = ICVM::GetInstance();
 	for (size_t i = 10; i <= codeToInstructionMapping.size() * 10; i += 10) {
 		if (codeToInstructionMapping[i] > icvmLine) return i - 10;
 		else if (codeToInstructionMapping[i] == icvmLine) return i;
 	}
-	throw CodeToInstructionTranslationException();
+	throw CodeToInstructionTranslationException(icvm->ICVMLineToNormalLine());
 }
 
 int32_t ICVM::ICVMLineToNormalLine()

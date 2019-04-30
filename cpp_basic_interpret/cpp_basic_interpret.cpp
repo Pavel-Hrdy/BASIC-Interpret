@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	std::string line;
-	std::string wholeFile="";
+	std::string wholeFile = "";
 	std::ifstream file(argv[1]);
 	if (file.is_open())
 	{
@@ -40,10 +40,14 @@ int main(int argc, char* argv[])
 		file.close();
 	}
 	else std::cout << "Unable to open file " << argv[1];
-
-	Lexer l(wholeFile);
-	Parser p(l);
-	p.Parse();
-	ICVM* icvm = ICVM::GetInstance();
-	icvm->ExecuteAll();
+	try {
+		Lexer l(wholeFile);
+		Parser p(l);
+		p.Parse();
+		ICVM* icvm = ICVM::GetInstance();
+		icvm->ExecuteAll();
+	}
+	catch(InvalidSyntaxException e){
+		
+	}
 }
