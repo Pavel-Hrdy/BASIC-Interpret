@@ -3,31 +3,6 @@
 	Pavel Hrdý
 **************************************************************/
 
-/*TODO:
-Instrukce stroje:
-1) load(jméno promìnné) - hodí na zásobník obsah promìnné - DONE
-2) load konstanty - hodí na zásobník konstantu - DONE
-3) pøevod real -> int - DONE
-4) pøevod int -> real - DONE
-5) unární minus - DONE
-6) not - DONE
-7) and - DONE
-8) or - DONE
-9) souèet, dìlení, souèin, rozdíl pro inty, realy - DONE
-10) porovnání ==, =>, =< apod. na int, realy, stringy - DONE
-11) slouèení øetìzcù -
-12) znièení záznamu na vrcholu - DONE
-13) save(jméno promìnné) - uloží vrchol zásobníku do promìnné - DONE
-14) jump, jumpif - DONE
-15) funkce print, read - DONE
-16) práce s polem - ukládání do pole, load z pole - teoreticky DONE, pole se bude brát jako klasická promìnná
-17) práce se stringem - splitting
-
-Princip fungování - ICVM bude obsahovat stack a pak seznam instrukcí, které bude sekvenènì vykonávat.
-Bude potøeba i mapování z èíslování øádkù v kódu do èislování intermediate kódu.
-Samotné instrukce budou øešeny pravdìpodobnì hierarchií tøíd.
-*/
-
 #ifndef ICVM_H
 #define ICVM_H
 
@@ -143,7 +118,6 @@ public:
 	int32_t ICVMLineToNormalLine();
 	int32_t NormalLineToICVM(int32_t normalLine);
 
-	void RecalculateLineNumMapping(size_t start, size_t offset);
 };
 
 

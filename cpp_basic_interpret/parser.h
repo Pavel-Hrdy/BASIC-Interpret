@@ -1,112 +1,8 @@
 /*
-Tokens:
-GRAMMAR:
-"Case Sensitive" = False
-"Start Symbol"   = <Lines>
-
-{String Chars} = {Printable} - ["]
-{WS}           = {Whitespace} - {CR} - {LF}
-
-Whitespace     = {WS}+
-
-<Remark>         = REM {Cokoliv až na NewLine a Colon}
-
-<ID>            ::= StringVariable
-				| Variable
-
-<Lines>       ::= Int <Statements> NewLine <Lines>
-				| Int <Statements> NewLine
-				| Int <Statements>
-
-<Statements>  ::= <Statement> ':' <Statements>
-				| <Statement>
-
-<Statement>   ::=
-				| DATA <Constant List>
-				| DIM ID '(' <Integer List> ')'
-				| <Function> '(' <Expression> ')'
-				| END
-				| FOR ID '=' <Expression> TO <Expression>
-				| FOR ID '=' <Expression> TO <Expression> STEP Integer
-				| GOTO <Expression>
-				| GOSUB <Expression>
-				| POP
-				| RESTORE <Expression>
-				| RESTORE
-				| IF <Expression> THEN <Statements>
-				| INPUT <ID List>
-				| LET ID '=' <Expression>
-				| ID '=' <Expression>
-				| NEXT ID
-				| PRINT <Print list>
-				| READ <ID List>
-				| RETURN
-				| RUN
-				| STOP
-				| Remark
-
-<ID List>  ::= ID ',' <ID List>
-			 | ID
-
-<Constant List>   ::= <Constant> ',' <Constant List>
-					| <Constant>
-
-<Integer List>    ::= Integer ',' <Integer List>
-					| Integer
-
-<Expression List> ::= <Expression> ',' <Expression List>
-					| <Expression>
-
-<Print List>      ::= <Expression> ',' <Print List>
-					| <Expression>
-					|
-
-<Expression>  ::= <And Exp> OR <Expression>
-				| <And Exp>
-
-<And Exp>     ::= <Not Exp> AND <And Exp>
-				| <Not Exp>
-
-<Not Exp>     ::= NOT <Compare Exp>
-				| <Compare Exp>
-
-<Compare Exp> ::= <Add Exp> '='  <Compare Exp>
-				| <Add Exp> '<>' <Compare Exp>
-				| <Add Exp> '>'  <Compare Exp>
-				| <Add Exp> '>=' <Compare Exp>
-				| <Add Exp> '<'  <Compare Exp>
-				| <Add Exp> '<=' <Compare Exp>
-				| <Add Exp>
-
-<Add Exp>     ::= <Mult Exp> '+' <Add Exp>
-				| <Mult Exp> '-' <Add Exp>
-				| <Mult Exp>
-
-<Mult Exp>    ::= <Negate Exp> '*' <Mult Exp>
-				| <Negate Exp> '/' <Mult Exp>
-				| <Negate Exp>
-
-<Negate Exp>  ::= '-' <Power Exp>
-				| <Power Exp>
-
-<Power Exp>   ::= <Power Exp> '^' <Value>
-				| <Value> <Power Exp2>
-
-<Power Exp>	  ::= <Value> <Power Exp2>
-
-<Power Exp2>  ::= '^' <Value> <Power Exp2>
-				| 
-
-<Value>       ::= '(' <Expression> ')'
-				| ID
-				| <Constant>
-
-<Constant> ::= Int
-			 | String
-			 | Real
-
-
+Parser header file
+Pavel Hrdý
 */
+
 
 #ifndef  PARSER_H
 #define PARSER_H
@@ -154,14 +50,6 @@ private:
 	bool Parse_IDList_NamesOnStack();
 	bool Parse_PrintList();
 	bool Parse_Remark();
-	bool Parse_AndExp();
-	bool Parse_NotExp();
-	bool Parse_AddExp();
-	bool Parse_MultExp();
-	bool Parse_CompareExp();
-	bool Parse_NegateExp();
-	bool Parse_PowerExp();
-	bool Parse_PowerExp2();
 	bool Parse_ExpressionList(bool isArray);
 	bool Parse_Constant();
 	bool Parse_Value();

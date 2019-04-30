@@ -1,3 +1,8 @@
+/*
+Lexer header file
+Pavel Hrdý
+*/
+
 #ifndef LEXER
 #define LEXER
 #include "token.h"

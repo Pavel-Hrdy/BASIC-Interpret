@@ -102,6 +102,7 @@ void ICVM::AddVariable(const std::string & nameOfVar, TypeOfVariable type)
 	}
 }
 
+//Adds array variable to ICVM
 void ICVM::AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions)
 {
 	auto it = arrayTypes.find(nameOfArray);
@@ -118,14 +119,6 @@ void ICVM::AddArray(const std::string & nameOfArray, TypeOfVariable type, const 
 //Changes instruction pointer - newIP is line number from original code, so it has to be translated to instruction's line number
 void ICVM::ChangeIP(int32_t newIP)
 {
-	/*
-	auto it = codeToInstructionMapping.find(newIP);
-	if (it != codeToInstructionMapping.end()) {
-		instructionPointer = codeToInstructionMapping[newIP];
-	}
-	else {
-		throw CodeToInstructionTranslationException();
-	}*/
 	instructionPointer = newIP;
 }
 
@@ -233,9 +226,3 @@ int32_t ICVM::NormalLineToICVM(int32_t normalLine)
 	return x;
 }
 
-void ICVM::RecalculateLineNumMapping(size_t start, size_t offset)
-{
-	for (size_t i = start; i <= codeToInstructionMapping.size() * 10; i += 10) {
-		codeToInstructionMapping[i] += offset;
-	}
-}

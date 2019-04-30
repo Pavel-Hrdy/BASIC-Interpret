@@ -1,4 +1,9 @@
-﻿#include <stack>
+﻿/*
+Parser source file
+Pavel Hrdý
+*/
+
+#include <stack>
 #include <functional>
 #include "parser.h"
 #include "exceptions.h"
@@ -65,11 +70,9 @@ bool Parser::Parse_Statements()
 | <Function> '(' <Expression> ')'
 | END
 | FOR ID '=' <Expression> TO <Expression>
-| FOR ID '=' <Expression> TO <Expression> STEP Integer
 | GOTO <Expression>
 | GOSUB <Expression>
 | POP
-| RESTORE <Expression>
 | RESTORE
 | IF <Expression> THEN <Statements>
 | INPUT <ID List>
@@ -80,16 +83,11 @@ bool Parser::Parse_Statements()
 | READ <ID List>
 | RETURN
 | RESTORE
-| RUN
-| STOP
 | Remark*/
 bool Parser::Parse_Statement()
 {
 	ICVM* icvm = ICVM::GetInstance();
 	std::string varName;
-	//Musíme uložit do ID hodnotu expressionu, pak zkontrolovat, zda je expression vyšší než maxValue
-	//Pokud ano, skočíme na nextLineNum+10, jinak pokračujeme dál.
-	//Next musí skočit na adresu, kde dojde k připočtení jedničky 
 	//| FOR ID '=' <Expression> TO <Expression>
 	if (CurrentTokenType() == TType::For) {
 		int currentLine = lexer.ReturnLineNumber();
@@ -597,7 +595,6 @@ bool Parser::Parse_ID_NameOnStack()
 /*
 <Integer List>    ::= Integer ',' <Integer List>
 					| Integer
-DONE
 */
 bool Parser::Parse_IntegerList()
 {
@@ -655,6 +652,7 @@ uint32_t ReturnPrecedenceOfOp(ExprTokenType input) {
 	}
 }
 
+//Takes vector of tokens in infix and converts them to postfix notation
 std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infixTokens, size_t startIndex, size_t & endIndex) {
 	std::stack<ExprToken> operators;
 	std::vector<ExprToken> output;
@@ -809,6 +807,7 @@ void CallRightFunction(FunctionType type) {
 	}
 }
 
+//Adds instructions to ICVM, depending on input vector of postfix notation
 void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startIndex, size_t & endIndex) {
 	ICVM* icvm = ICVM::GetInstance();
 
@@ -1218,264 +1217,6 @@ bool Parser::Parse_Remark()
 
 	return true;
 }
-/*
-<And Exp>     ::= <Not Exp> AND <And Exp>
-				| <Not Exp>
-*/
-bool Parser::Parse_AndExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (!Parse_NotExp()) return false;
-	if (CurrentTokenType() == TType::AndOp) {
-		Eat(TType::AndOp);
-
-		if (!Parse_AndExp()) return false;
-
-		/*Semantic actions*/
-		And instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<And>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
-
-		return true;
-	}
-	/*Semantic actions*/
-
-	return true;
-}
-
-/*
-<Not Exp>     ::= NOT <Compare Exp>
-				| <Compare Exp>
-*/
-bool Parser::Parse_NotExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-	if (CurrentTokenType() == TType::NotOp) {
-		Eat(TType::NotOp);
-
-		if (!Parse_CompareExp()) return false;
-
-		Not instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<Not>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
-
-		return true;
-	}
-	if (!Parse_CompareExp()) return false;
-
-	/*Semantic actions*/
-
-	return true;
-}
-
-/*
-<Add Exp>     ::= <Mult Exp> '+' <Add Exp>
-				| <Mult Exp> '-' <Add Exp>
-				| <Mult Exp>
-*/
-bool Parser::Parse_AddExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (!Parse_MultExp()) return false;
-
-	if (CurrentTokenType() == TType::PlusMinusOp) {
-		Token y = CurrentToken;
-		PlusMinusOp_T* x = dynamic_cast<PlusMinusOp_T*>(y.GetTokenType());
-		Eat(TType::PlusMinusOp);
-		if (!Parse_AddExp()) return false;
-		std::unique_ptr<Instruction> instrPtr;
-		/*Semantic actions*/
-
-		switch (x->type) {
-		case SignAddType::Add: {
-			Add instr;
-			instrPtr = std::make_unique<Add>(instr);
-			break;
-		}
-		case SignAddType::Sub: {
-			Sub instr;
-			instrPtr = std::make_unique<Sub>(instr);
-			break;
-		}
-		}
-
-		icvm->AddInstruction(std::move(instrPtr));
-
-		return true;
-	}
-	/*Semantic actions*/
-
-
-	return true;
-}
-/*
-<Mult Exp>    ::= <Negate Exp> '*' <Mult Exp>
-				| <Negate Exp> '/' <Mult Exp>
-				| <Negate Exp>
-				*/
-bool Parser::Parse_MultExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (!Parse_NegateExp()) return false;
-
-	if (CurrentTokenType() == TType::MulDivOp) {
-		Token y = CurrentToken;
-		MulDivOp_T* x = dynamic_cast<MulDivOp_T*>(y.GetTokenType());
-		Eat(TType::MulDivOp);
-		if (!Parse_MultExp()) return false;
-
-		/*Semantic actions*/
-		std::unique_ptr<Instruction> instrPtr;
-
-		switch (x->type) {
-		case MulType::Div: {
-			Div instr;
-			instrPtr = std::make_unique<Div>(instr);
-			break;
-		}
-		case MulType::Mul: {
-			Mul instr;
-			instrPtr = std::make_unique<Mul>(instr);
-			break;
-		}
-		}
-
-		icvm->AddInstruction(std::move(instrPtr));
-		return true;
-	}
-	/*Semantic actions*/
-
-
-	return true;
-}
-
-/*
-<Compare Exp> ::= <Add Exp> '='  <Compare Exp>
-				| <Add Exp> '<>' <Compare Exp>
-				| <Add Exp> '>'  <Compare Exp>
-				| <Add Exp> '>=' <Compare Exp>
-				| <Add Exp> '<'  <Compare Exp>
-				| <Add Exp> '<=' <Compare Exp>
-				| <Add Exp>
-*/
-bool Parser::Parse_CompareExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (!Parse_AddExp()) return false;
-
-	if (CurrentTokenType() == TType::RelOp) {
-		Token y = CurrentToken;
-		RelOp_T* x = dynamic_cast<RelOp_T*>(y.GetTokenType());
-
-		Eat(TType::RelOp);
-		if (!Parse_CompareExp()) return false;
-		std::unique_ptr<Instruction> instrPtr;
-		/*Semantic actions*/
-
-		switch (x->type) {
-		case RelType::Eq: {
-			Eq instr;
-			instrPtr = std::make_unique<Eq>(instr);
-			break;
-		}
-		case RelType::NotEq: {
-			NotEq instr;
-			instrPtr = std::make_unique<NotEq>(instr);
-			break;
-		}
-		case RelType::Less: {
-			Less instr;
-			instrPtr = std::make_unique<Less>(instr);
-			break;
-		}
-		case RelType::LessEq: {
-			LessEq instr;
-			instrPtr = std::make_unique<LessEq>(instr);
-			break;
-		}
-		case RelType::Greater: {
-			Greater instr;
-			instrPtr = std::make_unique<Greater>(instr);
-			break;
-		}
-		case RelType::GreaterEq: {
-			GreaterEq instr;
-			instrPtr = std::make_unique<GreaterEq>(instr);
-			break;
-		}
-
-		}
-		icvm->AddInstruction(std::move(instrPtr));
-
-		return true;
-	}
-	/*Semantic actions*/
-
-
-	return true;
-}
-/*
-<Negate Exp>  ::= '-' <Power Exp>
-				| <Power Exp>
-*/
-bool Parser::Parse_NegateExp()
-{
-	ICVM* icvm = ICVM::GetInstance();
-
-	if (CurrentTokenType() == TType::PlusMinusOp) {
-		PlusMinusOp_T* x = dynamic_cast<PlusMinusOp_T*>(CurrentToken.GetTokenType());
-		if (x->type != SignAddType::Sub) return false;
-
-		Eat(TType::PlusMinusOp);
-
-		UnaryMinus instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<UnaryMinus>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
-	}
-	if (!Parse_PowerExp())return false;
-	/*Semantic actions*/
-
-	return true;
-}
-/*
-<Power Exp>	  ::= <Value> <Power Exp2>
-
-*/
-bool Parser::Parse_PowerExp()
-{
-	if (!Parse_Value()) return false;
-	if (!Parse_PowerExp2()) return false;
-
-	/*Semantic Actions*/
-
-	return true;
-}
-
-/*
-<Power Exp2>  ::= '^' <Value> <Power Exp2>
-				|
-*/
-bool Parser::Parse_PowerExp2() {
-	ICVM* icvm = ICVM::GetInstance();
-	if (CurrentTokenType() == TType::ExpOp) {
-		if (!Parse_Value()) return false;
-		if (!Parse_PowerExp2()) return false;
-
-		/*Semantic actions*/
-		Exp instr;
-		std::unique_ptr<Instruction> instrPtr = std::make_unique<Exp>(instr);
-		icvm->AddInstruction(std::move(instrPtr));
-		return true;
-	}
-
-	/*Semantic actions*/
-
-	return true;
-}
 
 /*
 <Expression List> ::= <Expression> ',' <Expression List>
@@ -1499,7 +1240,7 @@ bool Parser::Parse_ExpressionList(bool isArray)
 <Constant> ::= Int
 			 | String
 			 | Real
-DONE*/
+*/
 bool Parser::Parse_Constant()
 {
 	ICVM* icvm = ICVM::GetInstance();

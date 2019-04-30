@@ -318,6 +318,7 @@ void LoadArrayVariable::Execute()
 	ld.Execute();
 }
 
+//Takes value, indices and name of variable and saves value to that array variable
 void SaveToArrayVariable::Execute()
 {
 	std::vector<uint32_t> indices;
@@ -773,8 +774,7 @@ void SaveToNewVariable::Execute()
 		icvm->UpdateVariable(name.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
 	}
 }
-//na stacku máme názvy promìnných - všechny popneme do vectoru, pak postupnì pro každej zavoláme std::cin
-//pak hodíme promìnnou zpátky na stack, za tím se pošle hodnota ze vstupu, pak už jen SaveToNewVariable
+
 void Input_Function::Execute()
 {
 	ICVM* icvm = ICVM::GetInstance();
@@ -825,122 +825,7 @@ void Restore_Function::Execute()
 	ICVM * icvm = ICVM::GetInstance();
 	icvm->RestoreDataStack();
 }
-//na zásobníku jsou hodnoty v tomto poøadí - max, start, varName
-//push varname
-//push start
-//saveto varname
-//jump to there
-//push 1
-//load varName
-//ADD
-//saveto varname
-//there
-//load varname
-//push max
-//eq
-//push jumplinenumber = zjistit èíslo øádku v kodu+10, pak se podívat do codetoinstruct mapy a to je ono
-//jumpif 
-void For::Execute()
-{
-	ICVM * icvm = ICVM::GetInstance();
-	StackItem maxValueTemp = icvm->PopItem();
-	StackItem maxValue(maxValueTemp.GetType(), std::to_string(std::stoi(maxValueTemp.GetContent()) + 1));
-	StackItem startValue = icvm->PopItem();
-	StackItem varName = icvm->PopItem();
 
-	size_t currIP = icvm->GetIP();
-	//icvm->RemoveInstruction(currIP-1);
-	size_t startIndex = icvm->ICVMLineToNormalLine() + 10;
-	size_t offset = 20;
-	//currIP--;
-	icvm->RecalculateLineNumMapping(startIndex, offset);
-
-	//Jump here when popped from address stack
-	LoadConstant loadJumpConst("\"I\"" + std::to_string(currIP + 7));
-	std::unique_ptr<Instruction> instrLoadJumpConst = std::make_unique<LoadConstant>(loadJumpConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadJumpConst), currIP);
-
-	Jump jumpToStart;
-	std::unique_ptr<Instruction> instrJumpToStart = std::make_unique<Jump>(jumpToStart);
-	icvm->AddInstructionAtIndex(std::move(instrJumpToStart), currIP + 1);
-	//Start - init var
-	LoadConstant loadNameConst("\"S\"" + varName.GetContent());
-	std::unique_ptr<Instruction> instrLoadNameConst = std::make_unique<LoadConstant>(loadNameConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst), currIP + 2);
-
-	LoadConstant loadStart("\"I\"" + startValue.GetContent());
-	std::unique_ptr<Instruction> instrLoadStart = std::make_unique<LoadConstant>(loadStart);
-	icvm->AddInstructionAtIndex(std::move(instrLoadStart), currIP + 3);
-
-	SaveToNewVariable save;
-	std::unique_ptr<Instruction> instrSave = std::make_unique<SaveToNewVariable>(save);
-	icvm->AddInstructionAtIndex(std::move(instrSave), currIP + 4);
-
-	LoadConstant loadJumpAddr("\"I\"" + std::to_string(currIP + 13));
-	std::unique_ptr<Instruction> instrJumpAddr = std::make_unique<LoadConstant>(loadJumpAddr);
-	icvm->AddInstructionAtIndex(std::move(instrJumpAddr), currIP + 5);
-
-	Jump jumpTo;
-	std::unique_ptr<Instruction> instrJumpTo = std::make_unique<Jump>(jumpTo);
-	icvm->AddInstructionAtIndex(std::move(instrJumpTo), currIP + 6);
-
-	std::unique_ptr<Instruction> instrLoadNameConst1 = std::make_unique<LoadConstant>(loadNameConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst1), currIP + 7);
-
-	LoadConstant loadOne("\"I\"1");
-	std::unique_ptr<Instruction> instrLoadOne = std::make_unique<LoadConstant>(loadOne);
-	icvm->AddInstructionAtIndex(std::move(instrLoadOne), currIP + 8);
-
-	std::unique_ptr<Instruction> instrLoadNameConst3 = std::make_unique<LoadConstant>(loadNameConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst3), currIP + 9);
-
-	LoadVariable loadVar;
-	std::unique_ptr<Instruction> instrVar = std::make_unique<LoadVariable>(loadVar);
-	icvm->AddInstructionAtIndex(std::move(instrVar), currIP + 10);
-
-	Add add;
-	std::unique_ptr<Instruction> instrAdd = std::make_unique<Add>(add);
-	icvm->AddInstructionAtIndex(std::move(instrAdd), currIP + 11);
-
-	std::unique_ptr<Instruction> instrSave1 = std::make_unique<SaveToNewVariable>(save);
-	icvm->AddInstructionAtIndex(std::move(instrSave1), currIP + 12);
-
-	LoadConstant loadMaxConst("\"I\"" + maxValue.GetContent());
-	std::unique_ptr<Instruction> instrLoadMax = std::make_unique<LoadConstant>(loadMaxConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadMax), currIP + 13);
-
-	std::unique_ptr<Instruction> instrLoadNameConst4 = std::make_unique<LoadConstant>(loadNameConst);
-	icvm->AddInstructionAtIndex(std::move(instrLoadNameConst4), currIP + 14);
-	std::unique_ptr<Instruction> instrVar1 = std::make_unique<LoadVariable>(loadVar);
-	icvm->AddInstructionAtIndex(std::move(instrVar1), currIP + 15);
-
-	Eq eq;
-	std::unique_ptr<Instruction> instrEq = std::make_unique<Eq>(eq);
-	icvm->AddInstructionAtIndex(std::move(instrEq), currIP + 16);
-
-	int32_t currentLineNum = icvm->ICVMLineToNormalLine();
-	int32_t nextLineNum = icvm->forNextPairs[currentLineNum] + 10;
-
-	int32_t jumpNum = icvm->NormalLineToICVM(nextLineNum);
-
-	LoadConstant loadJumpNum("\"I\"" + std::to_string(jumpNum));
-	std::unique_ptr<Instruction> instrLoadJumpNum = std::make_unique<LoadConstant>(loadJumpNum);
-	icvm->AddInstructionAtIndex(std::move(instrLoadJumpNum), currIP + 17);
-
-	Jumpif jumpIf;
-	std::unique_ptr<Instruction> instrJumpif = std::make_unique<Jumpif>(jumpIf);
-	icvm->AddInstructionAtIndex(std::move(instrJumpif), currIP + 18);
-
-	LoadConstant loadReturnNum("\"I\"" + std::to_string(currIP + 7));
-	std::unique_ptr<Instruction> instrLoadReturnNum = std::make_unique<LoadConstant>(loadReturnNum);
-	icvm->AddInstructionAtIndex(std::move(instrLoadReturnNum), currIP + 19);
-
-	LoadToAddressStack loadToAddress;
-	std::unique_ptr<Instruction> instrLoadToAddress = std::make_unique<LoadToAddressStack>(loadToAddress);
-	icvm->AddInstructionAtIndex(std::move(instrLoadToAddress), currIP + 20);
-
-	icvm->ChangeIP(currIP + 2);
-}
 
 void LoadToAddressStack::Execute()
 {
@@ -973,7 +858,7 @@ void CodeLineNumberToICVMLineNumber::Execute()
 	StackItem icvmLN(ItemType::Int, std::to_string(icvmLine));
 	icvm->AddStackItem(icvmLN);
 }
-//max start var
+
 void CreateFor::Execute()
 {
 	ICVM * icvm = ICVM::GetInstance();

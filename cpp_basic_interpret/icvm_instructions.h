@@ -224,10 +224,6 @@ public:
 	virtual void Execute() override;
 };
 
-class For : public Instruction {
-public:
-	virtual void Execute()override;
-};
 
 class Abs_Function :public Instruction {
 public:
