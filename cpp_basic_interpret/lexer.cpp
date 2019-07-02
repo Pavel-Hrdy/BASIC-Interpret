@@ -12,7 +12,7 @@ Pavel Hrdý
 
 //Peeks in text and returns char at current position.
 //If position is higher than text's length, returns NUL char
-char Lexer::Peek() {
+char Lexer::Peek() const {
 	if (position < text.length())
 		return text[position];
 
@@ -96,7 +96,7 @@ std::string Lexer::ReadNumber(bool& isRealNumber) {
 	return buffer;
 }
 
-std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& input) {
+std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& input) const {
 	std::unique_ptr<TokenType> returnPointer;
 	std::string lowerString = input;
 	std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
@@ -497,7 +497,7 @@ Token Lexer::GetNextToken() {
 	//-----------------------------------------
 }
 
-uint32_t Lexer::ReturnLineNumber()
+uint32_t Lexer::ReturnLineNumber() const
 {
 	return lineNumber;
 }

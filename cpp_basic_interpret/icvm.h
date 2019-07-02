@@ -100,7 +100,7 @@ public:
 	void AddVariable(const std::string & nameOfVar, TypeOfVariable type);
 	void AddArray(const std::string & nameOfArray, TypeOfVariable type, const std::vector<uint32_t> dimensions);
 	void ChangeIP(int32_t newIP);
-	int32_t GetIP();
+	int32_t GetIP() const;
 	void AddInstruction(std::unique_ptr<Instruction> instr);
 	void AddInstructionAtIndex(std::unique_ptr<Instruction> instr, uint32_t index);
 	bool ExecuteInstruction();
