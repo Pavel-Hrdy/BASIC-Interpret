@@ -287,7 +287,7 @@ Token Lexer::GetToken()
 	if (newlineFlag) {
 		if ((t.GetTokenType()->Type() == TType::Int)) { //Next token has to be line number
 			newlineFlag = false;
-			if ((std::stoi(t.GetContent()) == lineNumber)) {
+			if ((std::stoi(t.GetContent()) == (int)lineNumber)) {
 				return t;
 			}
 			else {

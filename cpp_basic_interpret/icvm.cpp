@@ -200,15 +200,15 @@ void ICVM::ExecuteAll()
 
 void ICVM::End()
 {
-	instructionPointer = instructions.size();
+	instructionPointer = (int32_t)instructions.size();
 }
 
 int32_t ICVM::ICVMLineToNormalLine(int32_t icvmLine)
 {
 	ICVM* icvm = ICVM::GetInstance();
 	for (size_t i = 10; i <= codeToInstructionMapping.size() * 10; i += 10) {
-		if (codeToInstructionMapping[i] > icvmLine) return i - 10;
-		else if (codeToInstructionMapping[i] == icvmLine) return i;
+		if (codeToInstructionMapping[(int32_t)i] > icvmLine) return (int32_t)(i - 10);
+		else if (codeToInstructionMapping[(int32_t)i] == icvmLine) return (int32_t)i;
 	}
 	throw CodeToInstructionTranslationException(icvm->ICVMLineToNormalLine());
 }
@@ -220,9 +220,9 @@ int32_t ICVM::ICVMLineToNormalLine()
 
 int32_t ICVM::NormalLineToICVM(int32_t normalLine)
 {
-	auto it = codeToInstructionMapping.find(normalLine);
+	auto it = codeToInstructionMapping.find((int32_t)normalLine);
 	if (it == codeToInstructionMapping.end()) return -1;
-	int32_t x = codeToInstructionMapping[normalLine];
+	int32_t x = codeToInstructionMapping[(int32_t)normalLine];
 	return x;
 }
 

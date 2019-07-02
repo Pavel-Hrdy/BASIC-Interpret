@@ -370,9 +370,9 @@ bool Parser::Parse_Statement()
 				std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
 				if ((lowerString == "integer") || (lowerString == "real")) {
 
-					LoadConstant loadConst("\"S\"" + lowerString);
-					std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
-					icvm->AddInstruction(std::move(instr));
+					LoadConstant loadConst2("\"S\"" + lowerString);
+					std::unique_ptr<Instruction> instr2 = std::make_unique<LoadConstant>(loadConst2);
+					icvm->AddInstruction(std::move(instr2));
 
 					Eat(TType::Variable);
 				}
@@ -424,8 +424,8 @@ bool Parser::Parse_Statement()
 			if (!Parse_ID_NameOnStack()) { return false; }
 
 			if (CurrentTokenType() != TType::RelOp) { return false; }
-			RelOp_T* x = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
-			if (x->type != RelType::Eq) return false;
+			RelOp_T* x1 = dynamic_cast<RelOp_T*>(CurrentToken.GetTokenType());
+			if (x1->type != RelType::Eq) return false;
 			Eat(TType::RelOp);
 
 			if (!Parse_Expression(false)) { return false; }
@@ -520,9 +520,9 @@ bool Parser::Parse_ID()
 		if (CurrentTokenType() == TType::LeftPar) {
 			Eat(TType::LeftPar);
 
-			LoadConstant loadConst("\"L\"");
-			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
-			icvm->AddInstruction(std::move(instr));
+			LoadConstant loadConst1("\"L\"");
+			std::unique_ptr<Instruction> instr1 = std::make_unique<LoadConstant>(loadConst1);
+			icvm->AddInstruction(std::move(instr1));
 
 			if (!Parse_ExpressionList(true)) return false;
 			if (CurrentTokenType() != TType::RightPar) return false;
@@ -572,9 +572,9 @@ bool Parser::Parse_ID_NameOnStack()
 		if (CurrentTokenType() == TType::LeftPar) {
 			Eat(TType::LeftPar);
 
-			LoadConstant loadConst("\"L\"");
-			std::unique_ptr<Instruction> instr = std::make_unique<LoadConstant>(loadConst);
-			icvm->AddInstruction(std::move(instr));
+			LoadConstant loadConst1("\"L\"");
+			std::unique_ptr<Instruction> instr2 = std::make_unique<LoadConstant>(loadConst1);
+			icvm->AddInstruction(std::move(instr2));
 
 			if (!Parse_ExpressionList(true)) return false;
 			if (CurrentTokenType() != TType::RightPar) return false;
@@ -683,11 +683,11 @@ std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infi
 			operators.pop();
 		}
 		else if (infixTokens[i].GetType() == ExprTokenType::ArrayVariable) {
-			size_t endIndex = 0;
+			size_t endI = 0;
 			std::vector<ExprToken> indexPostfix;
 			output.push_back(infixTokens[i]);
-			indexPostfix = ConvertInfixToPostfix(infixTokens, i + 1, endIndex);
-			i = endIndex;
+			indexPostfix = ConvertInfixToPostfix(infixTokens, i + 1, endI);
+			i = endI;
 
 			for (size_t j = 0; j < indexPostfix.size(); j++) {
 				output.push_back(indexPostfix[j]);
@@ -862,7 +862,7 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			return;
 		}
 		case ExprTokenType::ArrayVariable: {
-			size_t endIndex;
+			size_t endI;
 
 			LoadConstant loadName("\"S\"" + postfix[i].GetContent());
 			std::unique_ptr<Instruction> instrLoadNamePtr = std::make_unique<LoadConstant>(loadName);
@@ -872,8 +872,8 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			std::unique_ptr<Instruction> instrEndPtr = std::make_unique<LoadConstant>(loadEnd);
 			icvm->AddInstruction(std::move(instrEndPtr));
 
-			AddPostfixToICVM(postfix, i + 1, endIndex);
-			i = endIndex;
+			AddPostfixToICVM(postfix, i + 1, endI);
+			i = endI;
 
 			LoadArrayVariable loadArrayVar;
 			std::unique_ptr<Instruction> loadArrayVarPtr = std::make_unique<LoadArrayVariable>(loadArrayVar);
@@ -884,12 +884,12 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			std::string op = postfix[i].GetContent();
 			std::unique_ptr<Instruction> opPtr;
 			if (op == "+") {
-				Add op;
-				opPtr = std::make_unique<Add>(op);
+				Add op1;
+				opPtr = std::make_unique<Add>(op1);
 			}
 			else if (op == "-") {
-				Sub op;
-				opPtr = std::make_unique<Sub>(op);
+				Sub op2;
+				opPtr = std::make_unique<Sub>(op2);
 			}
 			icvm->AddInstruction(std::move(opPtr));
 			break;
@@ -910,12 +910,12 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			std::string op = postfix[i].GetContent();
 			std::unique_ptr<Instruction> opPtr;
 			if (op == "*") {
-				Mul op;
-				opPtr = std::make_unique<Mul>(op);
+				Mul op1;
+				opPtr = std::make_unique<Mul>(op1);
 			}
 			else if (op == "/") {
-				Div op;
-				opPtr = std::make_unique<Div>(op);
+				Div op2;
+				opPtr = std::make_unique<Div>(op2);
 			}
 			icvm->AddInstruction(std::move(opPtr));
 			break;
@@ -936,28 +936,28 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 			std::string op = postfix[i].GetContent();
 			std::unique_ptr<Instruction> opPtr;
 			if (op == "=") {
-				Eq op;
-				opPtr = std::make_unique<Eq>(op);
+				Eq op1;
+				opPtr = std::make_unique<Eq>(op1);
 			}
 			else if (op == "<>") {
-				NotEq op;
-				opPtr = std::make_unique<NotEq>(op);
+				NotEq op2;
+				opPtr = std::make_unique<NotEq>(op2);
 			}
 			else if (op == ">=") {
-				GreaterEq op;
-				opPtr = std::make_unique<GreaterEq>(op);
+				GreaterEq op3;
+				opPtr = std::make_unique<GreaterEq>(op3);
 			}
 			else if (op == "<=") {
-				LessEq op;
-				opPtr = std::make_unique<LessEq>(op);
+				LessEq op4;
+				opPtr = std::make_unique<LessEq>(op4);
 			}
 			else if (op == ">") {
-				Greater op;
-				opPtr = std::make_unique<Greater>(op);
+				Greater op5;
+				opPtr = std::make_unique<Greater>(op5);
 			}
 			else if (op == "<") {
-				Less op;
-				opPtr = std::make_unique<Less>(op);
+				Less op6;
+				opPtr = std::make_unique<Less>(op6);
 			}
 			icvm->AddInstruction(std::move(opPtr));
 			break;
@@ -976,7 +976,6 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 //Also returns vector of ExprTokens which represents infix notation.
 bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isInParenthesis) {
 	std::vector<ExprToken> tokens;
-	ICVM* icvm = ICVM::GetInstance();
 	bool foundVariable = false;;
 	bool foundOp = false;;
 	int parCounter = 0;
@@ -1000,7 +999,6 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isI
 			foundVariable = true;
 			std::string varName = CurrentToken.GetContent();
 			Eat(TType::Variable);
-			bool foundNum = false;
 
 			if (CurrentTokenType() == TType::LeftPar) { // It's array variable
 				Eat(TType::LeftPar);
@@ -1128,8 +1126,6 @@ bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isI
 */
 bool Parser::Parse_ConstantList()
 {
-	ICVM* icvm = ICVM::GetInstance();
-
 	if (!Parse_Constant()) return false;
 	if (CurrentTokenType() == TType::Comma) {
 		Eat(TType::Comma);
@@ -1283,7 +1279,6 @@ bool Parser::Parse_Value()
 {
 	std::string varName;
 	ICVM* icvm = ICVM::GetInstance();
-	bool doesExist = true;
 	if (CurrentTokenType() == TType::LeftPar) {
 		Eat(TType::LeftPar);
 		if (!Parse_Expression(true)) return false;

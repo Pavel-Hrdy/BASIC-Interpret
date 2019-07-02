@@ -113,7 +113,7 @@ public:
 	void AddNewLineNumber(int32_t codeLineNumber);
 	void ExecuteAll();
 	void End();
-	size_t InstructionCount(){ return instructions.size(); }
+	int32_t InstructionCount(){ return (int32_t)instructions.size(); }
 	int32_t ICVMLineToNormalLine(int32_t icvmLine);
 	int32_t ICVMLineToNormalLine();
 	int32_t NormalLineToICVM(int32_t normalLine);

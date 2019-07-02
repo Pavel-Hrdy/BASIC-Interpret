@@ -24,7 +24,7 @@ public:
 		_content = content;
 	}
 
-	ExprTokenType GetType() const { return _type; }
+	ExprTokenType GetType() const noexcept { return _type; }
 	std::string GetContent()const { return _content; }
 };
 

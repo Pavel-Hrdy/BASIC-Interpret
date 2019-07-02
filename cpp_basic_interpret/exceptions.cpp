@@ -25,9 +25,9 @@ const char * StringNotTerminatedException::what() const noexcept
 	return x.c_str();
 }
 
-LexerException::LexerException(int line)
+LexerException::LexerException(size_t line)
 {
-	lineNumber = line;
+	lineNumber = (int32_t)line;
 }
 
 const char * VariableNotFoundException::what() const noexcept

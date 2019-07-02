@@ -42,7 +42,7 @@ void Abs_F_T::SemanticAction() {
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Abs_F_T::Type()
+TType Abs_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -55,7 +55,7 @@ void Asc_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Asc_F_T::Type()
+TType Asc_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -68,7 +68,7 @@ void Atn_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Atn_F_T::Type()
+TType Atn_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -81,7 +81,7 @@ void Chr_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Chr_F_T::Type()
+TType Chr_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -94,7 +94,7 @@ void Clog_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Clog_F_T::Type()
+TType Clog_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -108,7 +108,7 @@ void Cos_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Cos_F_T::Type()
+TType Cos_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -120,7 +120,7 @@ void Data_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Data_F_T::Type()
+TType Data_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -133,7 +133,7 @@ void Dim_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Dim_F_T::Type()
+TType Dim_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -151,7 +151,7 @@ void End_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr1));
 }
 
-TType End_F_T::Type()
+TType End_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -164,7 +164,7 @@ void Exp_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instrPtr));
 }
 
-TType Exp_F_T::Type()
+TType Exp_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -178,7 +178,7 @@ void Input_F_T::SemanticAction()
 }
 
 
-TType Input_F_T::Type()
+TType Input_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -191,7 +191,7 @@ void Int_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Int_F_T::Type()
+TType Int_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -204,7 +204,7 @@ void Len_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Len_F_T::Type()
+TType Len_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -213,7 +213,7 @@ void Let_F_T::SemanticAction()
 {
 }
 
-TType Let_F_T::Type()
+TType Let_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -226,7 +226,7 @@ void Log_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Log_F_T::Type()
+TType Log_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -239,7 +239,7 @@ void Pop_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instrPtr));
 }
 
-TType Pop_F_T::Type()
+TType Pop_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -252,7 +252,7 @@ void Print_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instrPtr));
 }
 
-TType Print_F_T::Type()
+TType Print_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -266,7 +266,7 @@ void Read_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instrPtr));
 }
 
-TType Read_F_T::Type()
+TType Read_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -279,7 +279,7 @@ void Restore_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instrPtr));
 }
 
-TType Restore_F_T::Type()
+TType Restore_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -293,7 +293,7 @@ void Rnd_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Rnd_F_T::Type()
+TType Rnd_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -306,7 +306,7 @@ void Sgn_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Sgn_F_T::Type()
+TType Sgn_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -319,7 +319,7 @@ void Sin_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Sin_F_T::Type()
+TType Sin_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -332,7 +332,7 @@ void Sqr_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Sqr_F_T::Type()
+TType Sqr_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -345,7 +345,7 @@ void Str_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Str_F_T::Type()
+TType Str_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
@@ -358,7 +358,7 @@ void Val_F_T::SemanticAction()
 	icvm->AddInstruction(std::move(instr));
 }
 
-TType Val_F_T::Type()
+TType Val_F_T::Type() noexcept
 {
 	return Function_T::Type();
 }
