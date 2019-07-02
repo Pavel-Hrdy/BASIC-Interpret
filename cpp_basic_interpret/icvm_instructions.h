@@ -6,10 +6,10 @@
 class Instruction {
 public:
 	virtual void Execute() = 0;
-	std::string argument;
+	const std::string argument;
 
 	Instruction(){}
-	Instruction(const std::string & arg) { argument = arg; }
+	Instruction(const std::string & arg) : argument(arg){}
 };
 
 class LoadArrayVariable :public Instruction {

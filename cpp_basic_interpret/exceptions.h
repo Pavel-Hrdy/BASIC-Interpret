@@ -10,9 +10,9 @@
 
 class ParserException : public std::exception {
 public:
-	size_t lineNumber = 0;
+	const size_t lineNumber;
 	virtual const char* what() const noexcept = 0;
-	ParserException(size_t line) { lineNumber = line; }
+	ParserException(size_t line) : lineNumber(line){}
 };
 
 class InvalidSyntaxException : public ParserException {

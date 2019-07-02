@@ -19,26 +19,19 @@ enum class TypeOfVariable { Int, Real, String, Address,Error };
 
 class ForInfo {
 public:
-	std::string VarName;
-	int Start;
-	int Max;
-	ForInfo(const std::string & varName, int start, int max)
-	{
-		VarName = varName;
-		Start = start;
-		Max = max;
-	}
+	const std::string VarName;
+	const int Start;
+	const int Max;
+	ForInfo(const std::string& varName, int start, int max) : VarName(varName), Start(start), Max(max){}
+	
 };
 
 class StackItem {
 private:
-	ItemType type = ItemType::EndList;
-	std::string content = "";
+	 ItemType type = ItemType::EndList;
+	 std::string content;
 public:
-	StackItem(ItemType _type, const std::string & _content) {
-		type = _type;
-		content = _content;
-	}
+	StackItem(ItemType _type, const std::string & _content): type(_type),content(_content){}
 	StackItem() {}
 	ItemType GetType() const {
 		return type;
@@ -113,7 +106,7 @@ public:
 	void AddNewLineNumber(int32_t codeLineNumber);
 	void ExecuteAll();
 	void End();
-	int32_t InstructionCount(){ return (int32_t)instructions.size(); }
+	int32_t InstructionCount()const { return (int32_t)instructions.size(); }
 	int32_t ICVMLineToNormalLine(int32_t icvmLine);
 	int32_t ICVMLineToNormalLine();
 	int32_t NormalLineToICVM(int32_t normalLine);
