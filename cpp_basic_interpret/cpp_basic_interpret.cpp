@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 	}
 	else { std::cout << "Unable to open file " << argv[1]; return -1; }
 	
-
 	try {
 		Lexer l(wholeFile);
 		Parser p(l);

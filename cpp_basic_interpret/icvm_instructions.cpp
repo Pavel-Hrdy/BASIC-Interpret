@@ -35,11 +35,11 @@ void LoadVariable::Execute()
 			icvm->AddStackItem(stackItem);
 		}
 		else {
-			throw VariableNotFoundException(icvm->ICVMLineToNormalLine(),name.GetContent());
+			throw VariableNotFoundException(icvm->ICVMLineToNormalLine(), name.GetContent());
 		}
 	}
 	else {
-		throw VariableNotFoundException(icvm->ICVMLineToNormalLine(),name.GetContent());
+		throw VariableNotFoundException(icvm->ICVMLineToNormalLine(), name.GetContent());
 	}
 }
 
@@ -158,7 +158,7 @@ void SaveToVariable::Execute()
 		icvm->UpdateVariable(name.GetContent(), value.GetContent(), (TypeOfVariable)value.GetType());
 	}
 	else {
-		throw VariableNotFoundException(icvm->ICVMLineToNormalLine(),name.GetContent());
+		throw VariableNotFoundException(icvm->ICVMLineToNormalLine(), name.GetContent());
 	}
 }
 
@@ -692,7 +692,7 @@ void Exp::Execute()
 
 void End_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	icvm->End();
 }
 
@@ -794,12 +794,18 @@ void Input_Function::Execute()
 			std::cin >> input;
 			Lexer l(input);
 			Token x = l.GetNextToken();
+			bool isMinus = false;
+
+			if (x.GetTokenType()->Type() == TType::UnaryMinusOp) {
+				isMinus = true;
+				x = l.GetNextToken();
+			}
 
 			if ((x.GetTokenType()->Type() != TType::Int) && (x.GetTokenType()->Type() != TType::Real) && (x.GetTokenType()->Type() != TType::String)) {
 				throw WrongInputException(icvm->ICVMLineToNormalLine());
 			}
 			else {
-				StackItem value((ItemType)x.GetTokenType()->Type(), x.GetContent());
+				StackItem value((ItemType)x.GetTokenType()->Type(), (isMinus ? "-" : "") + x.GetContent());
 
 				icvm->AddStackItem(vars[i]);
 				icvm->AddStackItem(value);
@@ -816,20 +822,20 @@ void Input_Function::Execute()
 
 void Pop_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	icvm->PopAddress();
 }
 
 void Restore_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	icvm->RestoreDataStack();
 }
 
 
 void LoadToAddressStack::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem address = icvm->PopItem(ItemType::Int);
 
@@ -838,7 +844,7 @@ void LoadToAddressStack::Execute()
 
 void PopAddressStack::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	size_t address = icvm->PopAddress();
 
@@ -849,7 +855,7 @@ void PopAddressStack::Execute()
 
 void CodeLineNumberToICVMLineNumber::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	StackItem codeLN = icvm->PopItem(ItemType::Int);
 
 	int32_t intCodeLn = std::stoi(codeLN.GetContent());
@@ -861,7 +867,7 @@ void CodeLineNumberToICVMLineNumber::Execute()
 
 void CreateFor::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem maxStackItem = icvm->PopItem(ItemType::Int);
 	StackItem startStackItem = icvm->PopItem(ItemType::Int);
@@ -872,7 +878,7 @@ void CreateFor::Execute()
 
 void DeleteFor::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	if (icvm->forInfoStack.empty()) throw EmptyStackException(icvm->ICVMLineToNormalLine());
 	icvm->forInfoStack.pop();
 	icvm->PopAddress();
@@ -880,7 +886,7 @@ void DeleteFor::Execute()
 
 void GetForInfo::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	if (icvm->forInfoStack.empty()) throw EmptyStackException(icvm->ICVMLineToNormalLine());
 	if (argument == "N") {
 		StackItem name(ItemType::String, icvm->forInfoStack.top().VarName);
@@ -899,14 +905,14 @@ void GetForInfo::Execute()
 
 void GetLineNumberAfterNEXT::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 	int32_t forLN = std::stoi(argument);
 
 	auto it = icvm->forNextPairs.find(forLN);
 
 	if (it == icvm->forNextPairs.end()) throw InvalidSyntaxException(icvm->ICVMLineToNormalLine());
 	else {
-		StackItem addr(ItemType::Int, std::to_string((icvm->forNextPairs[forLN])+10));
+		StackItem addr(ItemType::Int, std::to_string((icvm->forNextPairs[forLN]) + 10));
 		icvm->AddStackItem(addr);
 	}
 
@@ -914,21 +920,21 @@ void GetLineNumberAfterNEXT::Execute()
 
 void Abs_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	ItemType type = num.GetType();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
 	double absNum = abs(std::stod(num.GetContent()));
-	
+
 	StackItem returnItem(type, std::to_string(absNum));
 	icvm->AddStackItem(returnItem);
 }
 
 void Asc_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -941,7 +947,7 @@ void Asc_Function::Execute()
 
 void Atn_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -954,7 +960,7 @@ void Atn_Function::Execute()
 
 void Chr_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if (num.GetType() != ItemType::Int) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -969,7 +975,7 @@ void Chr_Function::Execute()
 
 void Clog_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -982,7 +988,7 @@ void Clog_Function::Execute()
 
 void Cos_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -995,7 +1001,7 @@ void Cos_Function::Execute()
 
 void Int_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1008,7 +1014,7 @@ void Int_Function::Execute()
 
 void Len_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1021,7 +1027,7 @@ void Len_Function::Execute()
 
 void Log_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1034,7 +1040,7 @@ void Log_Function::Execute()
 
 void Rnd_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 
@@ -1047,7 +1053,7 @@ void Rnd_Function::Execute()
 
 void Sgn_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1060,7 +1066,8 @@ void Sgn_Function::Execute()
 	}
 	else if (returnNum1 < 0) {
 		returnNum = -1;
-	}else returnNum = 0;
+	}
+	else returnNum = 0;
 
 	StackItem returnItem(ItemType::Int, std::to_string(returnNum));
 	icvm->AddStackItem(returnItem);
@@ -1068,7 +1075,7 @@ void Sgn_Function::Execute()
 
 void Sin_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1081,7 +1088,7 @@ void Sin_Function::Execute()
 
 void Sqr_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
@@ -1094,19 +1101,19 @@ void Sqr_Function::Execute()
 
 void Str_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem num = icvm->PopItem();
 	if ((num.GetType() != ItemType::Int) && (num.GetType() != ItemType::Real)) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
 
-	StackItem returnItem(ItemType::String, num.GetContent()	);
+	StackItem returnItem(ItemType::String, num.GetContent());
 	icvm->AddStackItem(returnItem);
 }
 
 void Val_Function::Execute()
 {
-	ICVM * icvm = ICVM::GetInstance();
+	ICVM* icvm = ICVM::GetInstance();
 
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());

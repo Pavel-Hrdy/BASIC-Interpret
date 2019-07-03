@@ -125,7 +125,7 @@ bool Parser::Parse_Statement()
 		std::unique_ptr<Instruction> getNameInstr1 = std::make_unique<GetForInfo>(name);
 		icvm->AddInstruction(std::move(getNameInstr1));
 
-		size_t jumpBackAddress = icvm->InstructionCount() - 1;
+		size_t jumpBackAddress = icvm->InstructionCount() - (size_t)1;
 
 		LoadConstant address("\"I\"" + std::to_string(jumpBackAddress));
 		std::unique_ptr<Instruction> ldAddrInstr = std::make_unique<LoadConstant>(address);
@@ -654,7 +654,7 @@ uint32_t ReturnPrecedenceOfOp(ExprTokenType input) {
 }
 
 //Takes vector of tokens in infix and converts them to postfix notation
-std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken> & infixTokens, size_t startIndex, size_t & endIndex) {
+std::vector<ExprToken> ConvertInfixToPostfix(const std::vector<ExprToken>& infixTokens, size_t startIndex, size_t& endIndex) {
 	std::stack<ExprToken> operators;
 	std::vector<ExprToken> output;
 
@@ -809,7 +809,7 @@ void CallRightFunction(FunctionType type) {
 }
 
 //Adds instructions to ICVM, depending on input vector of postfix notation
-void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startIndex, size_t & endIndex) {
+void Parser::AddPostfixToICVM(std::vector<ExprToken>& postfix, size_t startIndex, size_t& endIndex) {
 	ICVM* icvm = ICVM::GetInstance();
 
 	for (size_t i = startIndex; i < postfix.size(); i++) {
@@ -974,7 +974,7 @@ void Parser::AddPostfixToICVM(std::vector<ExprToken> & postfix, size_t startInde
 
 //Parses infix expression and returns boolean if parsing was successful.
 //Also returns vector of ExprTokens which represents infix notation.
-bool Parser::Parse_InfixExpression(std::vector<ExprToken> & exprTokens, bool isInParenthesis) {
+bool Parser::Parse_InfixExpression(std::vector<ExprToken>& exprTokens, bool isInParenthesis) {
 	std::vector<ExprToken> tokens;
 	bool foundVariable = false;;
 	bool foundOp = false;;
@@ -1310,6 +1310,6 @@ TType Parser::CurrentTokenType()
 void Parser::Parse()
 {
 	if (!Parse_Lines()) {
-		throw InvalidSyntaxException(CurrentToken.GetLineNumber()-10 > 0 ? CurrentToken.GetLineNumber() - 10 : 10);
+		throw InvalidSyntaxException(CurrentToken.GetLineNumber() - 10 > 0 ? CurrentToken.GetLineNumber() - 10 : 10);
 	}
 }
