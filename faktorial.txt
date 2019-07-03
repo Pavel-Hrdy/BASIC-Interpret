@@ -1,0 +1,8 @@
+10 REM Program pro vypocet faktorialu
+20 print "Zadejte cislo:"
+30 input x
+40 vysl = 1
+50 for y = 1 to x
+60 vysl = vysl*y
+70 next
+80 print vysl
