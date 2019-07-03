@@ -1,0 +1,7 @@
+10 print "Zadejte cislo A"
+20 input A
+30 print "Zadejte cislo B"
+40 input B
+50 if A > B then print "A > B"
+60 if A < B then print "A < B"
+70 if A = B then print "A = B"
