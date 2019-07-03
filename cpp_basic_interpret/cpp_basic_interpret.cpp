@@ -12,6 +12,7 @@ Pavel Hrdý
 
 int main(int argc, char* argv[])
 {
+	
 	if (argc != 2) {
 		std::cout << "Usage: PROGRAM_NAME <filename>\n";
 		return -1;
@@ -19,6 +20,7 @@ int main(int argc, char* argv[])
 	std::string line;
 	std::string wholeFile = "";
 	std::ifstream file;
+	
 	file.open(argv[1]);
 	if (file.is_open())
 	{
@@ -29,7 +31,7 @@ int main(int argc, char* argv[])
 		file.close();
 	}
 	else { std::cout << "Unable to open file " << argv[1]; return -1; }
-
+	
 
 	try {
 		Lexer l(wholeFile);

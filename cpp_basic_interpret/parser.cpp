@@ -1310,6 +1310,6 @@ TType Parser::CurrentTokenType()
 void Parser::Parse()
 {
 	if (!Parse_Lines()) {
-		throw InvalidSyntaxException(CurrentToken.GetLineNumber());
+		throw InvalidSyntaxException(CurrentToken.GetLineNumber()-10 > 0 ? CurrentToken.GetLineNumber() - 10 : 10);
 	}
 }
