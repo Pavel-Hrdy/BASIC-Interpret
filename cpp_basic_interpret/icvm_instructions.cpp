@@ -184,7 +184,8 @@ void Jumpif::Execute()
 //Pops item from stack
 void Pop::Execute()
 {
-	ICVM::GetInstance()->PopItem();
+	ICVM* icvm = ICVM::GetInstance();
+	StackItem notUsed = icvm->PopItem();
 }
 
 //Prints all items until it reaches the END StackItem
