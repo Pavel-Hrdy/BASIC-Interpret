@@ -366,8 +366,13 @@ bool Parser::Parse_Statement()
 			Eat(TType::RightPar);
 
 			if (CurrentTokenType() == TType::Variable) {
-				std::string lowerString = CurrentToken.GetContent();
-				std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
+				std::string currString = CurrentToken.GetContent();
+				std::string lowerString = "";
+
+				for (size_t i = 0; i < currString.length(); i++) {
+					lowerString += (char)std::tolower(currString[i]);
+				}
+
 				if ((lowerString == "integer") || (lowerString == "real")) {
 
 					LoadConstant loadConst2("\"S\"" + lowerString);

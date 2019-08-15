@@ -222,7 +222,7 @@ int32_t ICVM::NormalLineToICVM(int32_t normalLine)
 {
 	auto it = codeToInstructionMapping.find((int32_t)normalLine);
 	if (it == codeToInstructionMapping.end()) return -1;
-	int32_t x = codeToInstructionMapping[(int32_t)normalLine];
+	int32_t x = (int32_t)codeToInstructionMapping[(int32_t)normalLine];
 	return x;
 }
 

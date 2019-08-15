@@ -16,14 +16,14 @@ char Lexer::Peek() const {
 	if (position < text.length())
 		return text[position];
 
-	else return 0;
+	else return (char)0;
 }
 
 //Returns char at current position, increments position.
 //If position is higher than text's length, returns NUL char
 char Lexer::Read() {
 	if (position < text.length()) {
-		char returnC = text[position];
+		char returnC = (char)text[position];
 		position++;
 		return returnC;
 	}
@@ -98,8 +98,11 @@ std::string Lexer::ReadNumber(bool& isRealNumber) {
 
 std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& input) const {
 	std::unique_ptr<TokenType> returnPointer;
-	std::string lowerString = input;
-	std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
+	std::string lowerString = "";
+
+	for (size_t i = 0; i < input.length(); i++) {
+		lowerString += (char)std::tolower(input[i]);
+	}
 
 	if (lowerString == "not") {
 		NotOp_T x;

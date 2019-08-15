@@ -49,7 +49,7 @@ void LoadVariable::Execute()
 void LoadConstant::Execute()
 {
 	ICVM* icvm = ICVM::GetInstance();
-	char type = argument[1];
+	char type = (char)argument[1];
 	std::string content = argument.substr(3);
 	ItemType itemType;
 
@@ -940,7 +940,7 @@ void Asc_Function::Execute()
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
-	char c = item.GetContent()[0];
+	char c = (char)item.GetContent()[0];
 
 	StackItem returnItem(ItemType::Int, std::to_string((int)c));
 	icvm->AddStackItem(returnItem);

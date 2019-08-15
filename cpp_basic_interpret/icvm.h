@@ -63,7 +63,7 @@ private:
 public:
 	std::stack<uint32_t> forStack;
 	std::stack<ForInfo> forInfoStack;
-	std::map<int32_t, int32_t> codeToInstructionMapping;
+	std::map<int32_t, size_t> codeToInstructionMapping;
 	std::map<int32_t, int32_t> forNextPairs;
 	ICVM(ICVM const&) = delete;
 	void operator=(ICVM const&) = delete;
