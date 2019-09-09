@@ -101,7 +101,7 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	std::string lowerString = "";
 
 	for (size_t i = 0; i < input.length(); i++) {
-		lowerString += (char)std::tolower(input[i]);
+		lowerString += (char)tolower(input[i]);
 	}
 
 	if (lowerString == "not") {

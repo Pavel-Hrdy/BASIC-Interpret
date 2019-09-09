@@ -370,7 +370,7 @@ bool Parser::Parse_Statement()
 				std::string lowerString = "";
 
 				for (size_t i = 0; i < currString.length(); i++) {
-					lowerString += (char)std::tolower(currString[i]);
+					lowerString += (char)tolower(currString[i]);
 				}
 
 				if ((lowerString == "integer") || (lowerString == "real")) {
