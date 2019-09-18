@@ -16,14 +16,14 @@ char Lexer::Peek() const {
 	if (position < text.length())
 		return text[position];
 
-	else return (char)0;
+	else return static_cast<char>(0);
 }
 
 //Returns char at current position, increments position.
 //If position is higher than text's length, returns NUL char
 char Lexer::Read() {
 	if (position < text.length()) {
-		char returnC = (char)text[position];
+		char returnC = static_cast<char>(text[position]);
 		position++;
 		return returnC;
 	}
@@ -101,7 +101,7 @@ std::unique_ptr<TokenType> Lexer::DetermineTypeOfIdentifier(const std::string& i
 	std::string lowerString = "";
 
 	for (size_t i = 0; i < input.length(); i++) {
-		lowerString += (char)tolower(input[i]);
+		lowerString += static_cast<char>(tolower(input[i]));
 	}
 
 	if (lowerString == "not") {
@@ -290,7 +290,7 @@ Token Lexer::GetToken()
 	if (newlineFlag) {
 		if ((t.GetTokenType()->Type() == TType::Int)) { //Next token has to be line number
 			newlineFlag = false;
-			if ((std::stoi(t.GetContent()) == (int)lineNumber)) {
+			if ((std::stoi(t.GetContent()) == static_cast<int>(lineNumber))) {
 				return t;
 			}
 			else {

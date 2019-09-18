@@ -743,7 +743,7 @@ void LoadArrayVariableName::Execute()
 	std::string varName = name.GetContent();
 	varName += '(';
 	for (size_t i = 0; i < indices.size(); i++) {
-		varName += (char)indices[i];
+		varName += static_cast<char>(indices[i]);
 		if (i != indices.size() - 1)varName += ',';
 	}
 	varName += ')';
@@ -940,7 +940,7 @@ void Asc_Function::Execute()
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
-	char c = (char)item.GetContent()[0];
+	char c = static_cast<char>(item.GetContent()[0]);
 
 	StackItem returnItem(ItemType::Int, std::to_string((int)c));
 	icvm->AddStackItem(returnItem);
@@ -966,7 +966,7 @@ void Chr_Function::Execute()
 	StackItem num = icvm->PopItem();
 	if (num.GetType() != ItemType::Int) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
-	char c = (char)(std::stoi(num.GetContent()));
+	char c = static_cast<char>(std::stoi(num.GetContent()));
 	std::string x = "";
 	x += c;
 
@@ -1020,7 +1020,7 @@ void Len_Function::Execute()
 	StackItem item = icvm->PopItem();
 	if (item.GetType() != ItemType::String) throw TypeMismatchException(icvm->ICVMLineToNormalLine());
 
-	int returnNum = (int)item.GetContent().length();
+	int returnNum = static_cast<int>(item.GetContent().length());
 
 	StackItem returnItem(ItemType::Int, std::to_string(returnNum));
 	icvm->AddStackItem(returnItem);
